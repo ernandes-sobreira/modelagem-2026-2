@@ -1,0 +1,794 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Semana 13: Apresentação dos experimentos</title>
+<style>
+:root{
+  --azul:#5e35b1; --azul-claro:#ede7f6;
+  --verde:#2e7d32; --verde-claro:#e6f4e7;
+  --teal:#00695c; --teal-claro:#e0f2f1;
+  --roxo:#6a1b9a; --roxo-claro:#f3e8f8;
+  --laranja:#e65100; --laranja-claro:#fff1e5;
+  --vermelho:#c62828; --vermelho-claro:#fdeaea;
+  --cinza:#5a6472; --borda:#dfe4ea; --fundo:#f6f8fa;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;
+  background:#fff;color:#22272e;line-height:1.65;font-size:16px}
+.wrap{max-width:880px;margin:0 auto;padding:20px 18px 80px}
+
+header.topo{background:linear-gradient(135deg,#4527a0,#7e57c2);border-radius:16px;
+  padding:26px 24px;color:#fff;margin-bottom:22px}
+header.topo .tag{display:inline-block;background:rgba(255,255,255,.22);padding:5px 13px;
+  border-radius:20px;font-size:13px;font-weight:600;letter-spacing:.3px;margin-bottom:12px}
+header.topo h1{font-size:25px;line-height:1.28;margin-bottom:10px;font-weight:700}
+header.topo p{font-size:14.5px;opacity:.94}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:16px}
+.chip{background:rgba(255,255,255,.16);border:1px solid rgba(255,255,255,.3);
+  padding:7px 13px;border-radius:9px;font-size:13px;font-weight:500}
+
+nav.indice{background:var(--fundo);border:1px solid var(--borda);border-radius:14px;
+  padding:16px 18px;margin-bottom:26px}
+nav.indice strong{display:block;font-size:13px;text-transform:uppercase;
+  letter-spacing:.6px;color:var(--cinza);margin-bottom:10px}
+nav.indice a{display:block;color:var(--azul);text-decoration:none;padding:7px 0;
+  font-size:15px;border-bottom:1px solid #eef1f4}
+nav.indice a:last-child{border-bottom:none}
+nav.indice a:hover{text-decoration:underline}
+
+.bloco{margin-bottom:34px}
+.bloco-cab{display:flex;align-items:center;gap:12px;margin-bottom:16px;
+  padding-bottom:12px;border-bottom:3px solid var(--azul-claro)}
+.bloco-num{background:var(--azul);color:#fff;width:38px;height:38px;flex:0 0 38px;
+  border-radius:10px;display:flex;align-items:center;justify-content:center;
+  font-weight:700;font-size:17px}
+.bloco-cab h2{font-size:20px;font-weight:700;line-height:1.3}
+h3{font-size:17px;margin:22px 0 9px;color:#1a1f26;font-weight:650}
+p{margin-bottom:13px}
+ul,ol{margin:0 0 14px 22px}
+li{margin-bottom:7px}
+
+.card{border:1px solid var(--borda);border-radius:14px;padding:20px;margin:16px 0;background:#fff}
+.destaque{border-left:5px solid var(--verde);background:var(--verde-claro);
+  border-radius:12px;padding:16px 18px;margin:16px 0}
+.destaque strong{color:var(--verde)}
+.alerta{border-left:5px solid var(--vermelho);background:var(--vermelho-claro);
+  border-radius:12px;padding:16px 18px;margin:16px 0}
+.alerta strong{color:var(--vermelho)}
+.consult{border-left:5px solid var(--laranja);background:var(--laranja-claro);
+  border-radius:12px;padding:16px 18px;margin:16px 0}
+.consult strong{color:var(--laranja)}
+.livro{border-left:5px solid var(--roxo);background:var(--roxo-claro);
+  border-radius:12px;padding:14px 18px;margin:16px 0;font-size:14.5px}
+.livro strong{color:var(--roxo)}
+
+.faixa{background:#4527a0;color:#fff;border-radius:16px;padding:28px 24px;
+  margin:30px 0;text-align:center;box-shadow:0 5px 18px rgba(69,39,160,.22)}
+.faixa .l1{font-size:28px;font-weight:800;line-height:1.2;letter-spacing:-.4px;margin-bottom:12px}
+.faixa .l3{font-size:18.5px;font-weight:700;background:rgba(255,255,255,.16);
+  display:inline-block;padding:11px 20px;border-radius:11px;line-height:1.4}
+@media(max-width:600px){.faixa .l1{font-size:21px}.faixa .l3{font-size:15px}}
+
+table{width:100%;border-collapse:collapse;margin:14px 0;font-size:14.5px}
+th{background:var(--azul-claro);padding:11px 12px;text-align:left;font-weight:650;
+  border:1px solid var(--borda)}
+td{padding:11px 12px;border:1px solid var(--borda);vertical-align:top}
+.tabela-rolar{overflow-x:auto}
+.num{text-align:right;font-variant-numeric:tabular-nums}
+.cel-erro{background:var(--vermelho-claro);color:var(--vermelho);font-weight:650}
+.cel-ok{background:var(--verde-claro);color:var(--verde);font-weight:650}
+
+.xl{border:1px solid #b9c0c9;border-radius:9px;overflow:hidden;margin:16px 0;background:#fff;
+  font-family:ui-monospace,SFMono-Regular,Menlo,monospace}
+.xl-bar{display:flex;align-items:center;gap:8px;background:#f6f8fa;
+  border-bottom:1px solid #d5dbe2;padding:8px 10px;font-size:13px}
+.xl-ref{background:#fff;border:1px solid #c6cdd5;border-radius:5px;padding:4px 10px;
+  min-width:56px;text-align:center;font-weight:700;color:#22272e}
+.xl-fx{color:#9aa4b0;font-style:italic;font-weight:700;padding:0 2px}
+.xl-form{flex:1;background:#fff;border:1px solid #c6cdd5;border-radius:5px;padding:4px 10px;
+  overflow-x:auto;white-space:nowrap;color:#107c41;font-weight:650}
+.xl-rolar{overflow-x:auto}
+table.xl-grid{border-collapse:collapse;width:100%;margin:0;font-size:13px}
+table.xl-grid th,table.xl-grid td{border:1px solid #d5dbe2;padding:7px 10px;background:#fff;
+  white-space:nowrap;font-weight:400;text-align:left;vertical-align:middle}
+table.xl-grid th.col,table.xl-grid th.lin{background:#eef1f4;color:#5a6472;text-align:center;
+  font-weight:700;font-size:11.5px}
+table.xl-grid th.lin{width:36px}
+table.xl-grid td.cab{font-weight:700;background:#f6f8fa}
+table.xl-grid td.sel{outline:2.5px solid #107c41;outline-offset:-2px;background:#f0f9f4;font-weight:700}
+table.xl-grid td.n{text-align:right}
+.xl-nota{font-size:13.5px;color:var(--cinza);text-align:center;margin:-8px 0 18px}
+
+.interativo{border:2px solid var(--azul);border-radius:16px;padding:22px;
+  margin:22px 0;background:#fdfcff}
+.interativo-cab{display:flex;align-items:center;gap:10px;margin-bottom:6px}
+.interativo-cab .selo{background:var(--azul);color:#fff;font-size:11.5px;font-weight:700;
+  padding:4px 11px;border-radius:20px;letter-spacing:.5px}
+.interativo h3{margin:8px 0 6px;font-size:17.5px}
+.interativo .instr{font-size:14.5px;color:var(--cinza);margin-bottom:16px}
+
+button{font-family:inherit;font-size:15px;font-weight:600;cursor:pointer;border:none;
+  border-radius:10px;padding:11px 20px;transition:.15s;margin:0 6px 6px 0}
+.btn{background:var(--azul);color:#fff}
+.btn:hover{background:#4527a0}
+.btn-verde{background:var(--azul);color:#fff}
+.btn-verde:hover{background:#4527a0}
+.btn-claro{background:#fff;color:var(--azul);border:2px solid var(--azul)}
+.btn-claro:hover{background:var(--azul-claro)}
+
+.opcoes{display:flex;flex-wrap:wrap;gap:9px;margin:12px 0}
+.opcao{flex:1 1 150px;min-width:130px;background:#fff;border:2px solid var(--borda);
+  border-radius:10px;padding:12px 14px;font-size:14.5px;font-weight:600;cursor:pointer;
+  text-align:center;transition:.15s}
+.opcao:hover{border-color:var(--azul);background:var(--azul-claro)}
+.opcao.certa{border-color:var(--verde);background:var(--verde-claro);color:var(--verde)}
+.opcao.errada{border-color:var(--vermelho);background:var(--vermelho-claro);color:var(--vermelho)}
+.opcao:disabled{cursor:default}
+
+.feedback{margin-top:13px;padding:14px 16px;border-radius:10px;font-size:14.5px;display:none}
+.feedback.ok{background:var(--verde-claro);border-left:4px solid var(--verde);display:block}
+.feedback.nao{background:var(--vermelho-claro);border-left:4px solid var(--vermelho);display:block}
+
+.caso{background:#fff;border:1px solid var(--borda);border-radius:10px;padding:15px 16px;
+  margin-bottom:10px;font-size:15px}
+.caso .n{font-size:12.5px;font-weight:700;color:var(--cinza);text-transform:uppercase;
+  letter-spacing:.6px;margin-bottom:6px}
+
+.controles{display:flex;flex-wrap:wrap;gap:16px;margin:14px 0;align-items:flex-end}
+.campo{flex:1 1 170px;min-width:150px}
+.campo label{display:block;font-size:13px;font-weight:650;color:var(--cinza);
+  margin-bottom:6px;text-transform:uppercase;letter-spacing:.4px}
+.campo input,.campo select{width:100%;padding:11px 12px;border:2px solid var(--borda);
+  border-radius:9px;font-size:15px;font-family:inherit;background:#fff}
+.campo input:focus{outline:none;border-color:var(--azul)}
+input[type=range]{width:100%;accent-color:var(--azul)}
+textarea{width:100%;padding:12px;border:2px solid var(--borda);border-radius:10px;
+  font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:14px;min-height:110px;
+  resize:vertical;background:#fff}
+textarea:focus{outline:none;border-color:var(--azul)}
+
+.saida{display:grid;grid-template-columns:repeat(auto-fit,minmax(128px,1fr));gap:11px;margin-top:16px}
+.metrica{background:#fff;border:1px solid var(--borda);border-radius:11px;padding:14px 12px;text-align:center}
+.metrica .rot{font-size:11.5px;text-transform:uppercase;letter-spacing:.6px;color:var(--cinza);
+  font-weight:650;margin-bottom:5px}
+.metrica .val{font-size:21px;font-weight:700;color:var(--azul)}
+.metrica.grande .val{font-size:26px}
+
+canvas{width:100%;height:auto;display:block;background:#fff;border:1px solid var(--borda);
+  border-radius:11px;margin-top:14px}
+.dois-graficos{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+@media(max-width:640px){.dois-graficos{grid-template-columns:1fr}}
+.legenda-grafico{display:flex;flex-wrap:wrap;gap:16px;justify-content:center;margin-top:10px;
+  font-size:13.5px;color:var(--cinza)}
+.legenda-grafico span{display:flex;align-items:center;gap:6px}
+.legenda-grafico i{width:14px;height:12px;border-radius:3px;display:inline-block}
+
+.arvore{background:#fff;border:1px solid var(--borda);border-radius:12px;padding:20px;margin-top:14px}
+.arvore .pergunta{font-size:16.5px;font-weight:650;margin-bottom:14px}
+.trilha{font-size:13px;color:var(--cinza);margin-bottom:12px}
+.trilha span{background:var(--azul-claro);color:var(--azul);padding:3px 9px;
+  border-radius:14px;margin-right:6px;display:inline-block;margin-bottom:5px;font-weight:650}
+.resultado{background:var(--azul-claro);border-left:5px solid var(--azul);
+  border-radius:10px;padding:16px 18px;font-size:15px}
+.resultado h4{color:var(--azul);font-size:18px;margin-bottom:8px}
+
+.placar{background:var(--azul-claro);border-radius:11px;padding:14px 16px;margin-top:14px;
+  font-size:15px;font-weight:600;color:var(--azul);text-align:center}
+
+.checklist{list-style:none;margin-left:0}
+.checklist li{display:flex;gap:11px;align-items:flex-start;padding:11px 0;border-bottom:1px solid #eef1f4}
+.checklist input[type=checkbox]{width:19px;height:19px;margin-top:3px;accent-color:var(--azul);flex:0 0 19px}
+
+footer.rodape{margin-top:44px;padding-top:20px;border-top:2px solid var(--borda);
+  font-size:13.5px;color:var(--cinza);text-align:center}
+
+@media(max-width:600px){
+  .wrap{padding:14px 13px 60px}
+  header.topo h1{font-size:21px}
+  .bloco-cab h2{font-size:18px}
+  .opcao{flex:1 1 100%}
+}
+@media print{
+  body{font-size:11.5pt}
+  header.topo,.faixa{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  nav.indice,button,.opcoes{display:none}
+  .interativo,.bloco{page-break-inside:avoid}
+}
+
+.dois-textos{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+@media(max-width:600px){.dois-textos{grid-template-columns:1fr}}
+table.conting input{width:78px;padding:8px;border:2px solid var(--borda);border-radius:7px;
+  text-align:right;font-family:inherit;font-size:14.5px}
+table.conting input:focus{outline:none;border-color:var(--azul)}
+
+.tres-textos{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px}
+table.anova td.destaq{background:#ede7f6;font-weight:700}
+.matriz td{text-align:center;font-size:13.5px}
+.matriz td.dif{background:#e6f4e7;color:#2e7d32;font-weight:700}
+.matriz td.igual{background:#f6f8fa;color:#5a6472}
+
+.grade-celulas{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px}
+.grade-celulas textarea{min-height:104px}
+.rot-celula{font-size:12.5px;font-weight:700;color:var(--cinza);text-transform:uppercase;
+  letter-spacing:.4px;margin-bottom:6px}
+
+.quatro-graf{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:14px}
+.mini-rot{font-size:13.5px;font-weight:700;color:var(--azul);text-align:center;margin-top:6px}
+
+.prazo{background:#c62828;color:#fff;border-radius:14px;padding:20px 22px;margin-bottom:22px;
+  display:flex;flex-wrap:wrap;align-items:center;gap:14px;justify-content:space-between}
+.prazo .d{font-size:26px;font-weight:800;line-height:1.15}
+.prazo .t{font-size:14.5px;opacity:.95;max-width:520px}
+.barra-prog{height:14px;background:#eef1f4;border-radius:8px;overflow:hidden;margin-top:12px}
+.barra-prog div{height:100%;background:var(--azul);transition:width .25s}
+.exemplo-fig{border:1px solid var(--borda);border-radius:12px;padding:16px;background:#fff;margin:14px 0}
+.legenda-fig{font-size:14px;color:#22272e;margin-top:12px;line-height:1.5}
+
+.cronometro{background:#fff;border:2px solid var(--azul);border-radius:14px;padding:22px;text-align:center;margin:14px 0}
+.crono-tempo{font-size:56px;font-weight:800;color:var(--azul);font-variant-numeric:tabular-nums;line-height:1.1}
+.crono-tempo.estourou{color:var(--vermelho)}
+.crono-bloco{font-size:17px;font-weight:700;margin-bottom:6px}
+.crono-prox{font-size:14px;color:var(--cinza);margin-top:8px}
+.crono-barras{display:flex;gap:5px;margin-top:16px}
+.crono-barras div{flex:1;height:12px;border-radius:6px;background:#eef1f4}
+.crono-barras div.feito{background:var(--azul)}
+.crono-barras div.atual{background:#b39ddb}
+.pergunta-sorteada{background:var(--azul-claro);border-left:5px solid var(--azul);border-radius:12px;
+  padding:18px 20px;font-size:17px;font-weight:650;line-height:1.45;margin-top:14px}
+.nota-prevista{font-size:44px;font-weight:800;color:var(--azul);text-align:center;line-height:1.1}
+</style></head>
+<body>
+<div class="wrap">
+
+<header class="topo">
+  <span class="tag">SEMANA 13 &nbsp;|&nbsp; SEGUNDA 2 A SÁBADO 7 DE NOVEMBRO DE 2026</span>
+  <h1>Apresentação dos experimentos</h1>
+  <p>Modelagem e Experimentação em Biologia, FACAB-CAC-158, 60h, Turma 01, 2026.2<br>
+  Prof. Dr. Ernandes Sobreira Oliveira Junior, UNEMAT, Campus de Cáceres</p>
+  <div class="chips">
+    <span class="chip">Semana de ensaio</span>
+    <span class="chip">Sem questionário</span>
+    <span class="chip">Presença obrigatória no sábado</span>
+  </div>
+</header>
+
+<div class="prazo">
+  <div class="d">APRESENTAÇÕES<br>7 DE NOVEMBRO</div>
+  <div class="t">Sábado, das 9h às 12h, na sala virtual. Doze minutos de apresentação e cinco de arguição por grupo. Vale 50 por cento da Avaliação 2 e a presença é obrigatória, tanto para apresentar quanto para assistir aos demais grupos.</div>
+</div>
+
+<nav class="indice">
+  <strong>Roteiro da semana</strong>
+  <a href="#p1">1. O que está sendo avaliado</a>
+  <a href="#p2">2. A estrutura dos doze minutos</a>
+  <a href="#p3">3. Slides</a>
+  <a href="#p4">4. A figura principal</a>
+  <a href="#p5">5. A arguição</a>
+  <a href="#p6">6. Como assistir aos outros grupos</a>
+  <a href="#p7">7. A rubrica de avaliação</a>
+  <a href="#p8">8. Logística do sábado</a>
+  <a href="#a1">Atividade 1: cronômetro de ensaio</a>
+  <a href="#a2">Atividade 2: banco de perguntas de arguição</a>
+  <a href="#a3">Atividade 3: esse slide funciona</a>
+  <a href="#a4">Atividade 4: autoavaliação pela rubrica</a>
+  <a href="#fecho">Fechamento</a>
+</nav>
+
+<div class="bloco" id="p1">
+  <div class="bloco-cab"><div class="bloco-num">1</div>
+  <h2>O que está sendo avaliado</h2></div>
+
+  <p>Não é oratória. Não é beleza de slide. Não é ter dado resultado significativo.</p>
+
+  <p>O que se avalia é se o grupo <strong>consegue defender as próprias decisões metodológicas</strong> diante de perguntas. Doze minutos para explicar o que foi feito, e cinco para mostrar que entende por que foi feito daquele jeito.</p>
+
+  <p>Essa é exatamente a situação profissional que a disciplina prepara. Um laudo ambiental é questionado por analista de órgão, por advogado da outra parte, por promotoria. Quem escreveu precisa sustentar cada escolha, e a pergunta mais comum é sempre a mesma: <strong>por que assim, e não de outro jeito?</strong></p>
+
+  <div class="destaque">
+    <strong>Resultado não significativo não vale nota menor.</strong> Vale repetir, porque todo semestre alguém tenta esconder. Um experimento bem desenhado que não detectou diferença é um trabalho legítimo, e a discussão sobre por que não detectou, incluindo esforço amostral e tamanho de efeito, costuma render uma apresentação melhor do que a de quem só teve sorte.
+  </div>
+
+  <div class="livro">
+    <strong>No livro.</strong> Modelagem e Experimentação em Biologia, um guia prático, Editora UNEMAT, 2025. Localize no sumário a parte sobre comunicação de resultados.
+  </div>
+</div>
+
+<div class="bloco" id="p2">
+  <div class="bloco-cab"><div class="bloco-num">2</div>
+  <h2>A estrutura dos doze minutos</h2></div>
+
+  <div class="tabela-rolar">
+  <table>
+    <tr><th>Tempo</th><th>Bloco</th><th>O que precisa ficar claro</th></tr>
+    <tr><td>2 min</td><td>Pergunta e hipótese</td><td>O que se queria saber, e por que isso importa em consultoria ambiental</td></tr>
+    <tr><td>3 min</td><td>Delineamento</td><td>Unidade amostral, fatores, réplicas e croqui na tela</td></tr>
+    <tr><td>2 min</td><td>Coleta e análise</td><td>Como mediram, qual teste, quais pressupostos verificaram</td></tr>
+    <tr><td>3 min</td><td>Resultados</td><td>Uma figura principal, no máximo duas de apoio, com os números ditos em voz alta</td></tr>
+    <tr><td>2 min</td><td>Significado e limitações</td><td>O que muda na prática, o que deu errado e o que fariam diferente</td></tr>
+  </table>
+  </div>
+
+  <div class="alerta">
+    <strong>O erro de distribuição de tempo que mais acontece.</strong> Gastar seis minutos na introdução, explicando a importância da água ou da agricultura no Brasil, e chegar aos resultados com dois minutos sobrando. A introdução tem dois minutos. Se em dois minutos não dá para justificar a pergunta, o problema é a pergunta, não o tempo.
+  </div>
+
+  <p>A Atividade 1 traz um cronômetro que divide os doze minutos exatamente nesses cinco blocos, para o grupo ensaiar com o tempo real correndo.</p>
+</div>
+
+<div class="bloco" id="p3">
+  <div class="bloco-cab"><div class="bloco-num">3</div>
+  <h2>Slides</h2></div>
+
+  <p>Regra de quantidade: cerca de <strong>um slide por minuto</strong>. Doze slides, com folga. Quem leva trinta não vai conseguir mostrar trinta.</p>
+
+  <div class="tabela-rolar">
+  <table>
+    <tr><th>Faça</th><th>Não faça</th></tr>
+    <tr><td>Uma ideia por slide</td><td>Três gráficos e dois parágrafos no mesmo slide</td></tr>
+    <tr><td>Frases curtas, no máximo seis linhas</td><td>Parágrafo copiado do relatório</td></tr>
+    <tr><td>Fonte grande, legível em celular</td><td>Fonte pequena porque o texto não cabia</td></tr>
+    <tr><td>Croqui e figura ocupando o slide inteiro</td><td>Figura miniatura em um canto</td></tr>
+    <tr><td>Fundo claro e contraste alto</td><td>Fundo escuro com texto colorido</td></tr>
+    <tr><td>Números importantes ditos em voz alta</td><td>Ler o slide para a plateia</td></tr>
+  </table>
+  </div>
+
+  <div class="destaque">
+    <strong>O teste do slide.</strong> Olhe o slide por três segundos e desvie o olhar. Se você não consegue dizer qual é a mensagem dele, a plateia também não consegue. Slide não é documento, é apoio visual. O documento é o relatório, que já foi entregue.
+  </div>
+
+  <p>Vale lembrar que a apresentação é online. O que aparece pequeno na sua tela de computador aparece menor ainda no celular de quem assiste.</p>
+</div>
+
+<div class="bloco" id="p4">
+  <div class="bloco-cab"><div class="bloco-num">4</div>
+  <h2>A figura principal</h2></div>
+
+  <p>Toda apresentação tem uma figura que carrega o resultado. Ela merece um slide sozinha, sem texto ao redor, e merece ser explicada em voz alta na ordem certa.</p>
+
+  <ol>
+    <li>Diga o que está no eixo horizontal e no vertical, com unidade.</li>
+    <li>Diga o que a barra de erro representa. Esta é a mesma exigência da Semana 12, e continua valendo aqui.</li>
+    <li>Aponte o padrão principal, com números.</li>
+    <li>Só então diga o que ele significa.</li>
+  </ol>
+
+  <div class="destaque">
+    <strong>Frase modelo, para dizer na apresentação.</strong> No eixo vertical está a altura em centímetros, no horizontal os três tipos de solo. As barras são o erro padrão da média, com cinco vasos por solo. O solo de horta chegou a 14,1 centímetros, contra 9,2 do arenoso, uma diferença de 4,9 centímetros, e as letras diferentes indicam que os três solos diferiram entre si pelo teste de Tukey.
+  </div>
+
+  <p>Repare que essa fala leva cerca de vinte segundos e comunica tudo o que a figura tem. Grupos que apenas colocam a figura na tela e dizem que deu diferença perdem exatamente aí.</p>
+</div>
+
+<div class="faixa">
+  <div class="l1">A ARGUIÇÃO NÃO É ARMADILHA</div>
+  <div class="l3">ELA PERGUNTA A MESMA COISA QUE UM ANALISTA DE ÓRGÃO<br>PERGUNTARIA SOBRE O SEU LAUDO.</div>
+</div>
+
+<div class="bloco" id="p5">
+  <div class="bloco-cab"><div class="bloco-num">5</div>
+  <h2>A arguição</h2></div>
+
+  <p>Cinco minutos de perguntas, e as perguntas são previsíveis. Elas saem do que a disciplina cobrou desde a Semana 3, e a Atividade 2 traz um banco delas para o grupo ensaiar.</p>
+
+  <h3>Como responder</h3>
+  <ul>
+    <li><strong>Responda a pergunta feita</strong>, e não a que você gostaria que tivessem feito.</li>
+    <li><strong>Diga não sei quando não souber.</strong> Isso vale mais que inventar. A resposta completa é: não medimos isso, e reconheço que teria sido importante.</li>
+    <li><strong>Não defenda o indefensável.</strong> Se a pergunta apontar uma falha real do delineamento, o correto é reconhecer, dizer o efeito que aquilo pode ter tido na conclusão e o que faria diferente.</li>
+    <li><strong>Qualquer integrante pode responder.</strong> Combinem antes quem responde o quê, mas ninguém pode ficar mudo o tempo todo.</li>
+  </ul>
+
+  <div class="alerta">
+    <strong>A resposta que mais custa nota.</strong> Foi assim porque o professor mandou, ou porque estava no roteiro. Cada decisão do delineamento tem uma razão técnica, e vocês tomaram essas decisões no protocolo da Semana 3. Se ninguém do grupo souber por que foram cinco réplicas e não três, isso aparece.
+  </div>
+</div>
+
+<div class="bloco" id="p6">
+  <div class="bloco-cab"><div class="bloco-num">6</div>
+  <h2>Como assistir aos outros grupos</h2></div>
+
+  <p>A presença é obrigatória durante as três horas, e não apenas no horário do seu grupo. Existe uma razão pedagógica direta: <strong>os dez experimentos usam métodos diferentes</strong>, e a prova presencial de 5 de dezembro cobre todos eles.</p>
+
+  <div class="tabela-rolar">
+  <table>
+    <tr><th>Experimento</th><th>Método que ele demonstra</th></tr>
+    <tr><td>Ovos e rendimento de suco</td><td>ANCOVA, com covariável de tamanho</td></tr>
+    <tr><td>Cebolinha e microclima</td><td>ANOVA de duas vias com interação</td></tr>
+    <tr><td>Fermentação e infiltração</td><td>Regressão e taxas</td></tr>
+    <tr><td>Turbidez e evaporação</td><td>ANOVA e regressão múltipla</td></tr>
+    <tr><td>Invertebrados</td><td>Contagem, qui-quadrado e a necessidade de GLM</td></tr>
+    <tr><td>Germinação</td><td>Proporção e dose e resposta</td></tr>
+  </table>
+  </div>
+
+  <p>Assistir aos outros grupos é a forma mais rápida de ver os métodos das próximas semanas aplicados a dados reais, coletados por colegas, com os problemas reais que aparecem.</p>
+
+  <div class="destaque">
+    <strong>Sugestão prática.</strong> Anote, para cada grupo, uma coisa que você faria diferente. Essa lista é excelente material de revisão para a prova, porque força você a exercitar o julgamento metodológico em situações que não são a sua.
+  </div>
+</div>
+
+<div class="bloco" id="p7">
+  <div class="bloco-cab"><div class="bloco-num">7</div>
+  <h2>A rubrica de avaliação</h2></div>
+
+  <p>A apresentação vale 50 por cento da Avaliação 2 e é avaliada por seis critérios, com pesos iguais. Eles estão abertos aqui para que ninguém seja surpreendido.</p>
+
+  <div class="tabela-rolar">
+  <table>
+    <tr><th>Critério</th><th>O que se espera</th></tr>
+    <tr><td><strong>Clareza da pergunta</strong></td><td>Pergunta, hipótese e predição enunciadas de forma direta e falseável</td></tr>
+    <tr><td><strong>Domínio do delineamento</strong></td><td>Unidade amostral, réplicas, aleatorização e croqui explicados sem hesitação</td></tr>
+    <tr><td><strong>Adequação da análise</strong></td><td>Teste compatível com o tipo de dado, pressupostos verificados e declarados</td></tr>
+    <tr><td><strong>Apresentação dos resultados</strong></td><td>Figura legível, barra de erro identificada, números ditos com unidade</td></tr>
+    <tr><td><strong>Discussão e aplicação</strong></td><td>Significado do achado e ligação explícita com consultoria ambiental</td></tr>
+    <tr><td><strong>Arguição</strong></td><td>Respostas consistentes, reconhecimento honesto de limitações</td></tr>
+  </table>
+  </div>
+
+  <p>A Atividade 4 permite ao grupo se avaliar por essa mesma rubrica antes do sábado.</p>
+</div>
+
+<div class="bloco" id="p8">
+  <div class="bloco-cab"><div class="bloco-num">8</div>
+  <h2>Logística do sábado</h2></div>
+
+  <ul>
+    <li>Entrem na sala com dez minutos de antecedência e testem áudio e compartilhamento de tela antes de começar.</li>
+    <li>Tenham o arquivo dos slides aberto e também salvo em PDF, como reserva.</li>
+    <li>Um integrante compartilha a tela e os demais falam nos seus blocos. Trocar de apresentador no meio consome tempo.</li>
+    <li>Se a conexão cair, o grupo continua de onde parou, sem reiniciar. O tempo perdido por falha técnica não é descontado.</li>
+    <li>Deixem a planilha bruta aberta em outra janela. Algumas perguntas de arguição são respondidas mais rápido mostrando o dado.</li>
+  </ul>
+
+  <div class="alerta">
+    <strong>Ordem de apresentação.</strong> Será sorteada no início do encontro, e não anunciada antes. Todos os grupos precisam estar prontos às 9h.
+  </div>
+</div>
+
+<div class="bloco" id="a1">
+  <div class="interativo">
+    <div class="interativo-cab"><span class="selo">ATIVIDADE 1</span></div>
+    <h3>Cronômetro de ensaio</h3>
+    <p class="instr">Doze minutos divididos nos cinco blocos da seção 2. Aperte iniciar e apresente de verdade, em voz alta. O cronômetro avisa quando cada bloco termina.</p>
+
+    <div class="cronometro">
+      <div class="crono-bloco" id="cBloco">Pronto para começar</div>
+      <div class="crono-tempo" id="cTempo">2:00</div>
+      <div class="crono-prox" id="cProx">Bloco 1 de 5: pergunta e hipótese</div>
+      <div class="crono-barras" id="cBarras"></div>
+      <div style="margin-top:16px">
+        <button class="btn-verde" id="btnCrono" onclick="toggleCrono()">Iniciar</button>
+        <button class="btn-claro" onclick="resetCrono()">Reiniciar</button>
+        <button class="btn-claro" onclick="pularBloco()">Pular bloco</button>
+      </div>
+    </div>
+    <div class="feedback ok" id="fbCrono" style="display:block">
+      <strong>Como usar.</strong> Ensaiem pelo menos duas vezes com o cronômetro rodando e falando em voz alta, não lendo mentalmente. Falar em voz alta leva cerca de o dobro do tempo que se imagina. Na primeira rodada quase todo grupo estoura o bloco do delineamento e chega sem tempo nos resultados.
+    </div>
+  </div>
+</div>
+
+<div class="bloco" id="a2">
+  <div class="interativo">
+    <div class="interativo-cab"><span class="selo">ATIVIDADE 2</span></div>
+    <h3>Banco de perguntas de arguição</h3>
+    <p class="instr">Sorteie perguntas e responda em voz alta, sem consultar nada, cronometrando um minuto para cada. São as perguntas que efetivamente serão feitas.</p>
+
+    <div class="controles">
+      <div class="campo"><label>Tema da pergunta</label>
+        <select id="temaPerg">
+          <option value="todos">Todos os temas</option>
+          <option value="delin">Delineamento</option>
+          <option value="analise">Análise e pressupostos</option>
+          <option value="result">Resultados e interpretação</option>
+          <option value="aplic">Aplicação e limitações</option>
+        </select></div>
+    </div>
+    <button class="btn-verde" onclick="sortearPergunta()">Sortear pergunta</button>
+    <div class="pergunta-sorteada" id="pergSorteada">Clique em sortear para começar.</div>
+    <div class="feedback ok" id="dicaPerg" style="display:none"></div>
+    <div class="placar" id="placarPerg">Perguntas sorteadas: 0</div>
+  </div>
+</div>
+
+<div class="bloco" id="a3">
+  <div class="interativo">
+    <div class="interativo-cab"><span class="selo">ATIVIDADE 3</span></div>
+    <h3>Esse slide funciona</h3>
+    <p class="instr">Cada item descreve um slide. Julgue.</p>
+    <div id="quizSlide"></div>
+    <div class="placar" id="placarSlide">Respondidas: 0 de 7</div>
+  </div>
+</div>
+
+<div class="bloco" id="a4">
+  <div class="interativo">
+    <div class="interativo-cab"><span class="selo">ATIVIDADE 4</span></div>
+    <h3>Autoavaliação pela rubrica</h3>
+    <p class="instr">Avalie o seu grupo em cada critério, com honestidade. O resultado é uma estimativa, e serve para mostrar onde falta ensaio.</p>
+    <div id="rubrica"></div>
+    <div class="nota-prevista" id="notaPrev">-</div>
+    <div style="text-align:center;font-size:13.5px;color:var(--cinza);margin-top:4px">estimativa da nota da apresentação</div>
+    <div class="feedback" id="fbRubrica" style="display:block"></div>
+  </div>
+</div>
+
+<div class="bloco" id="fecho">
+  <div class="bloco-cab"><div class="bloco-num">9</div>
+  <h2>Fechamento</h2></div>
+
+  <div class="card">
+    <h3>Checklist do sábado</h3>
+    <ul class="checklist">
+      <li><input type="checkbox"><span>Slides prontos, com cerca de doze telas</span></li>
+      <li><input type="checkbox"><span>Arquivo salvo também em PDF, como reserva</span></li>
+      <li><input type="checkbox"><span>Ensaiamos com o cronômetro pelo menos duas vezes</span></li>
+      <li><input type="checkbox"><span>A figura principal tem um slide só para ela</span></li>
+      <li><input type="checkbox"><span>Sabemos dizer o que a barra de erro representa</span></li>
+      <li><input type="checkbox"><span>Combinamos quem fala em cada bloco</span></li>
+      <li><input type="checkbox"><span>Treinamos pelo menos dez perguntas de arguição</span></li>
+      <li><input type="checkbox"><span>Todos sabem responder por que foram cinco réplicas</span></li>
+      <li><input type="checkbox"><span>A planilha bruta estará aberta em outra janela</span></li>
+      <li><input type="checkbox"><span>Testamos áudio e compartilhamento de tela</span></li>
+    </ul>
+  </div>
+
+  <div class="consult">
+    <strong>Depois do sábado.</strong> A Avaliação 2 estará encerrada e a disciplina retoma os métodos. Vêm modelos multilineares, Modelos Lineares Generalizados e viés estatístico, até a revisão e a prova presencial de 5 de dezembro. Vários dos assuntos que ficaram em aberto nos experimentos de vocês, principalmente contagem e proporção, são exatamente o conteúdo dessas semanas. Guardem as perguntas que não souberam responder na arguição, porque boa parte delas tem resposta nas próximas quatro semanas.
+  </div>
+</div>
+
+<footer class="rodape">
+  Modelagem e Experimentação em Biologia, FACAB-CAC-158, 60h, 2026.2<br>
+  UNEMAT, Campus de Cáceres, Faculdade de Ciências Agrárias e Biológicas<br>
+  Semana de segunda a sábado. Material de estudo autônomo.
+</footer>
+
+</div>
+<script>
+/* ATIVIDADE 1, cronometro */
+const blocos=[
+ {n:'Pergunta e hipótese',s:120},
+ {n:'Delineamento',s:180},
+ {n:'Coleta e análise',s:120},
+ {n:'Resultados',s:180},
+ {n:'Significado e limitações',s:120}
+];
+let idx=0,restante=blocos[0].s,rodando=false,timer=null,estourou=false;
+function fmtT(s){
+  const neg=s<0;const a=Math.abs(s);
+  const m=Math.floor(a/60),ss=a%60;
+  return (neg?'-':'')+m+':'+(ss<10?'0':'')+ss;
+}
+function pintarCrono(){
+  document.getElementById('cTempo').textContent=fmtT(restante);
+  document.getElementById('cTempo').className='crono-tempo'+(restante<0?' estourou':'');
+  document.getElementById('cBloco').textContent=blocos[idx].n;
+  document.getElementById('cProx').textContent=
+    'Bloco '+(idx+1)+' de 5, '+Math.round(blocos[idx].s/60)+' minutos'+
+    (idx<4?'. Depois: '+blocos[idx+1].n:'. Último bloco');
+  let b='';
+  blocos.forEach(function(x,i){
+    b+='<div class="'+(i<idx?'feito':(i===idx?'atual':''))+'"></div>';
+  });
+  document.getElementById('cBarras').innerHTML=b;
+  const fb=document.getElementById('fbCrono');
+  if(restante<0&&!estourou){
+    estourou=true;
+    fb.className='feedback nao';
+    fb.innerHTML='<strong>Bloco estourado.</strong> O tempo de '+blocos[idx].n.toLowerCase()+
+      ' acabou e o cronômetro está contando negativo. Cada segundo aqui sai dos resultados, que é onde a nota está. Aperte pular bloco para seguir e anote quanto passou.';
+  }
+}
+function tick(){
+  restante--;
+  pintarCrono();
+}
+function toggleCrono(){
+  const btn=document.getElementById('btnCrono');
+  if(rodando){clearInterval(timer);rodando=false;btn.textContent='Continuar';}
+  else{timer=setInterval(tick,1000);rodando=true;btn.textContent='Pausar';}
+}
+function resetCrono(){
+  clearInterval(timer);rodando=false;estourou=false;
+  idx=0;restante=blocos[0].s;
+  document.getElementById('btnCrono').textContent='Iniciar';
+  const fb=document.getElementById('fbCrono');
+  fb.className='feedback ok';
+  fb.innerHTML='<strong>Como usar.</strong> Ensaiem pelo menos duas vezes com o cronômetro rodando e falando em voz alta, não lendo mentalmente. Falar em voz alta leva cerca de o dobro do tempo que se imagina. Na primeira rodada quase todo grupo estoura o bloco do delineamento e chega sem tempo nos resultados.';
+  pintarCrono();
+}
+function pularBloco(){
+  estourou=false;
+  if(idx<blocos.length-1){idx++;restante=blocos[idx].s;pintarCrono();}
+  else{
+    clearInterval(timer);rodando=false;
+    document.getElementById('btnCrono').textContent='Iniciar';
+    document.getElementById('cBloco').textContent='Ensaio concluído';
+    document.getElementById('cTempo').textContent='0:00';
+    document.getElementById('cTempo').className='crono-tempo';
+    document.getElementById('cProx').textContent='Repita o ensaio pelo menos mais uma vez';
+    const fb=document.getElementById('fbCrono');
+    fb.className='feedback ok';
+    fb.innerHTML='<strong>Ensaio concluído.</strong> Agora repita. A segunda rodada é sempre bem melhor que a primeira, porque o grupo já sabe onde precisa cortar. Se algum bloco estourou, corte conteúdo dele em vez de tentar falar mais rápido.';
+  }
+}
+pintarCrono();
+
+/* ATIVIDADE 2, banco de perguntas */
+const perguntasArg=[
+ {t:'delin',p:'Qual era exatamente a unidade amostral do experimento de vocês?',
+  d:'Se a resposta hesitar, a arguição vai insistir. Unidade amostral é a menor entidade sobre a qual o tratamento foi aplicado de forma independente, e não cada medição feita.'},
+ {t:'delin',p:'Por que cinco réplicas por combinação, e não três?',
+  d:'A resposta técnica envolve graus de liberdade no resíduo e margem para perda de unidades. Se ninguém do grupo souber, isso indica que o protocolo foi preenchido sem entender.'},
+ {t:'delin',p:'Como vocês fizeram a aleatorização, e o sorteio foi registrado?',
+  d:'Espera-se a menção ao sorteio na planilha e à cópia como valor. Se a posição foi escolhida por conveniência, o correto é admitir e discutir o confundimento possível.'},
+ {t:'delin',p:'Que variável poderia estar confundindo o resultado de vocês, e como isso foi controlado?',
+  d:'Toda unidade amostral tem alguma fonte de variação não medida. A resposta boa nomeia pelo menos uma e explica se ela foi controlada por sorteio, por bloco ou não foi.'},
+ {t:'delin',p:'Vocês mediram mais de uma vez a mesma unidade amostral? O que fizeram com essas medidas?',
+  d:'Se houve subamostragem, a resposta correta é que cada unidade entrou na análise pela média das suas leituras, e não como observações independentes.'},
+ {t:'analise',p:'Por que esse teste, e não outro?',
+  d:'A resposta liga o tipo da variável resposta e o número de grupos ao modelo escolhido, exatamente como na árvore de decisão da Semana 6.'},
+ {t:'analise',p:'Quais pressupostos vocês verificaram, e como?',
+  d:'Espera-se normalidade avaliada por gráfico quantil-quantil e teste formal, homocedasticidade por Levene ou razão de variâncias, e a menção de que independência vem do desenho e não tem teste.'},
+ {t:'analise',p:'Algum pressuposto não foi atendido? O que vocês fizeram?',
+  d:'Declarar um problema e explicar a conduta vale mais que afirmar que estava tudo perfeito. Grupos que dizem que todos os pressupostos passaram sem ressalva costumam não ter verificado.'},
+ {t:'analise',p:'A variável resposta de vocês é contagem? Por que usaram ANOVA?',
+  d:'Se for contagem com média baixa, a resposta honesta é reconhecer a limitação e citar que o modelo indicado seria o de Poisson, tema da Semana 15.'},
+ {t:'analise',p:'Vocês testaram a interação? O que ela mostrou?',
+  d:'Em delineamento fatorial, a interação é relatada mesmo quando não é significativa, porque é ela que autoriza ler os efeitos principais de forma direta.'},
+ {t:'result',p:'O que a barra de erro da figura de vocês representa?',
+  d:'Desvio padrão, erro padrão ou intervalo de confiança produzem barras de tamanhos muito diferentes. Não saber responder isso é o erro mais frequente da apresentação.'},
+ {t:'result',p:'Qual foi o tamanho do efeito, e não apenas o valor de p?',
+  d:'Espera-se d de Cohen, eta quadrado ou R quadrado, conforme o modelo, e a diferença expressa na unidade original da variável.'},
+ {t:'result',p:'O resultado não foi significativo. Isso prova que não há efeito?',
+  d:'Não. Ausência de evidência não é evidência de ausência. A resposta boa cita o intervalo de confiança e discute se o esforço amostral era suficiente para detectar o efeito esperado.'},
+ {t:'result',p:'Se vocês tivessem o dobro de réplicas, o que mudaria?',
+  d:'O erro padrão cairia pela raiz de dois, e a capacidade de detectar diferenças aumentaria. O tamanho do efeito estimado não mudaria sistematicamente.'},
+ {t:'result',p:'Houve algum valor muito fora do conjunto? O que vocês fizeram com ele?',
+  d:'A conduta correta é conferir na caderneta de campo antes de qualquer decisão, e declarar. Remover dado sem justificativa documentada é manipulação.'},
+ {t:'aplic',p:'Como esse resultado apareceria em um laudo de consultoria ambiental?',
+  d:'É a exigência específica desta disciplina. A resposta precisa nomear uma decisão técnica concreta que o achado sustentaria.'},
+ {t:'aplic',p:'Vocês podem afirmar que o fator causou a diferença, ou apenas que está associado a ela?',
+  d:'Depende de ter havido manipulação e sorteio. Com variáveis naturais apenas observadas, só se afirma associação.'},
+ {t:'aplic',p:'Qual é a principal limitação do trabalho de vocês?',
+  d:'Todo trabalho tem uma. Grupos que respondem que não houve limitação perdem ponto no critério de arguição.'},
+ {t:'aplic',p:'O que vocês fariam diferente se recomeçassem hoje?',
+  d:'Pergunta quase certa de aparecer. A resposta boa é específica e metodológica, e não genérica do tipo teríamos começado antes.'},
+ {t:'aplic',p:'Até que faixa de valores a conclusão de vocês vale?',
+  d:'Ligada à extrapolação da Semana 10. A conclusão vale dentro da faixa observada de covariável, de tempo e de condições ambientais.'}
+];
+let contPerg=0,ultima=-1;
+function sortearPergunta(){
+  const tema=document.getElementById('temaPerg').value;
+  const pool=perguntasArg.filter(function(p){return tema==='todos'||p.t===tema;});
+  let i=Math.floor(Math.random()*pool.length);
+  if(pool.length>1){let tent=0;while(pool[i].p===document.getElementById('pergSorteada').textContent&&tent<10){i=Math.floor(Math.random()*pool.length);tent++;}}
+  document.getElementById('pergSorteada').textContent=pool[i].p;
+  const d=document.getElementById('dicaPerg');
+  d.style.display='none';
+  contPerg++;
+  document.getElementById('placarPerg').textContent='Perguntas sorteadas: '+contPerg;
+  setTimeout(function(){
+    d.style.display='block';d.className='feedback ok';
+    d.innerHTML='<strong>O que a arguição espera ouvir.</strong> '+pool[i].d;
+  },60000);
+  d.style.display='block';d.className='feedback ok';
+  d.innerHTML='<strong>Responda em voz alta antes de continuar.</strong> Dê um minuto para o grupo formular a resposta. Depois, clique aqui para ver o que a arguição espera ouvir.'+
+    '<br><br><button class="btn-claro" onclick="verDica('+pool.indexOf(pool[i])+',\''+tema+'\')">Mostrar o que se espera</button>';
+}
+function verDica(i,tema){
+  const pool=perguntasArg.filter(function(p){return tema==='todos'||p.t===tema;});
+  const d=document.getElementById('dicaPerg');
+  d.className='feedback ok';
+  d.innerHTML='<strong>O que a arguição espera ouvir.</strong> '+pool[i].d;
+}
+
+/* ATIVIDADE 3 */
+const slides=[
+ {t:'Slide com o croqui do experimento ocupando a tela inteira, com uma linha de texto embaixo indicando os tratamentos.',
+  o:['Funciona','Excesso de informação','Falta texto explicativo','Deveria ser tabela'],c:0,
+  j:'Croqui grande é exatamente o que o bloco de delineamento precisa. A plateia entende o experimento em segundos, e o apresentador fala por cima.'},
+ {t:'Slide com três gráficos lado a lado e dois parágrafos de texto ao redor.',
+  o:['Funciona','Excesso de informação, uma ideia por slide','Falta o valor de p','Falta legenda'],c:1,
+  j:'Ninguém consegue processar três gráficos e dois parágrafos em um minuto. Separe em três slides, ou escolha o gráfico principal e descarte os outros.'},
+ {t:'Slide com a figura principal sozinha, sem título e sem texto, com eixos legíveis.',
+  o:['Funciona','Falta o título dentro da figura','Falta a tabela ao lado','Fundo deveria ser escuro'],c:0,
+  j:'É o formato ideal para o bloco de resultados. O título vem na fala, não dentro da figura, exatamente como na Semana 12.'},
+ {t:'Slide de introdução com sete linhas explicando a importância da água no Brasil, com fonte pequena.',
+  o:['Funciona','Corte, a introdução tem dois minutos e precisa chegar rápido à pergunta','Aumente a fonte e mantenha','Mova para o fim'],c:1,
+  j:'É o erro de distribuição de tempo da seção 2. Contexto genérico consome o tempo que faltaria nos resultados, que é onde a nota está.'},
+ {t:'Slide com a tabela completa da ANOVA, com todas as somas de quadrados e graus de liberdade, em fonte pequena.',
+  o:['Funciona, mostra rigor','Simplifique, mostre F, graus de liberdade e valor de p, e deixe a tabela completa no relatório',
+     'Remova completamente','Transforme em gráfico de pizza'],c:1,
+  j:'A tabela completa é do relatório, que já foi entregue. Na tela, o que importa é o resultado do teste com os números que serão ditos em voz alta.'},
+ {t:'Slide final com uma frase dizendo o que o resultado significaria em um laudo ambiental.',
+  o:['Funciona e atende a uma exigência da disciplina','Desnecessário','Deveria vir no início','Deveria ser uma figura'],c:0,
+  j:'A ligação com consultoria é um dos seis critérios da rubrica. Terminar por ela deixa a mensagem final no lugar certo.'},
+ {t:'Slide com fundo preto, texto amarelo e gráfico com fundo branco recortado.',
+  o:['Funciona, tem contraste','Fundo claro e contraste alto funcionam melhor, sobretudo em tela de celular',
+     'Troque só a cor do texto','Aumente o gráfico'],c:1,
+  j:'A apresentação é online e boa parte da turma assiste pelo celular. Fundo escuro com figura de fundo branco recortada fica ilegível.'}
+];
+let respSlide=0;
+(function(){
+  const c=document.getElementById('quizSlide');
+  slides.forEach(function(k,i){
+    const d=document.createElement('div');d.className='caso';
+    const bts=k.o.map(function(op,j){
+      return '<button class="opcao" style="flex:1 1 100%;text-align:left" onclick="respSl('+i+','+j+',this)">'+op+'</button>';}).join('');
+    d.innerHTML='<div class="n">Slide '+(i+1)+'</div><p style="margin-bottom:10px">'+k.t+'</p>'+
+      '<div class="opcoes" style="flex-direction:column">'+bts+'</div>'+
+      '<div class="feedback" id="fbsl'+i+'"></div>';
+    c.appendChild(d);
+  });
+})();
+function respSl(i,j,btn){
+  const pai=btn.parentElement;
+  if(pai.dataset.feito)return;pai.dataset.feito='1';
+  Array.from(pai.children).forEach(function(b){b.disabled=true;});
+  const fb=document.getElementById('fbsl'+i);
+  if(j===slides[i].c){btn.classList.add('certa');fb.className='feedback ok';
+    fb.innerHTML='<strong>Correto.</strong> '+slides[i].j;}
+  else{btn.classList.add('errada');pai.children[slides[i].c].classList.add('certa');
+    fb.className='feedback nao';fb.innerHTML='<strong>Não é isso.</strong> '+slides[i].j;}
+  respSlide++;
+  document.getElementById('placarSlide').textContent='Respondidas: '+respSlide+' de 7';
+}
+
+/* ATIVIDADE 4, rubrica */
+const criterios=[
+ {c:'Clareza da pergunta',d:'Pergunta, hipótese e predição enunciadas de forma direta e falseável'},
+ {c:'Domínio do delineamento',d:'Unidade amostral, réplicas, aleatorização e croqui explicados sem hesitação'},
+ {c:'Adequação da análise',d:'Teste compatível com o dado, pressupostos verificados e declarados'},
+ {c:'Apresentação dos resultados',d:'Figura legível, barra de erro identificada, números ditos com unidade'},
+ {c:'Discussão e aplicação',d:'Significado do achado e ligação explícita com consultoria ambiental'},
+ {c:'Arguição',d:'Respostas consistentes e reconhecimento honesto de limitações'}
+];
+(function(){
+  let html='';
+  criterios.forEach(function(k,i){
+    html+='<div class="caso"><div class="n">'+k.c+'</div><p style="margin-bottom:10px;font-size:14.5px;color:var(--cinza)">'+k.d+'</p>'+
+      '<div class="opcoes">'+
+      '<button class="opcao" onclick="notaCrit('+i+',1,this)">Ainda não</button>'+
+      '<button class="opcao" onclick="notaCrit('+i+',2,this)">Parcialmente</button>'+
+      '<button class="opcao" onclick="notaCrit('+i+',3,this)">Quase pronto</button>'+
+      '<button class="opcao" onclick="notaCrit('+i+',4,this)">Pronto</button>'+
+      '</div></div>';
+  });
+  document.getElementById('rubrica').innerHTML=html;
+})();
+const notas=[0,0,0,0,0,0];
+function notaCrit(i,v,btn){
+  const pai=btn.parentElement;
+  Array.from(pai.children).forEach(function(b){b.classList.remove('certa');});
+  btn.classList.add('certa');
+  notas[i]=v;
+  let soma=0,faltam=0;
+  notas.forEach(function(n){if(n===0)faltam++;else soma+=n;});
+  const fb=document.getElementById('fbRubrica');
+  if(faltam>0){
+    document.getElementById('notaPrev').textContent='-';
+    fb.className='feedback ok';
+    fb.innerHTML='Faltam '+faltam+' critério(s) para avaliar.';
+    return;
+  }
+  const nota=soma/24*10;
+  document.getElementById('notaPrev').textContent=nota.toFixed(1).replace('.',',');
+  const fracos=[];
+  notas.forEach(function(n,i){if(n<=2)fracos.push(criterios[i].c.toLowerCase());});
+  if(fracos.length===0){fb.className='feedback ok';
+    fb.innerHTML='<strong>Grupo preparado.</strong> Os seis critérios estão em bom estado. Faça mais um ensaio com o cronômetro e sorteie dez perguntas de arguição para confirmar. E lembre que a autoavaliação tende a ser generosa: peça a alguém de fora do grupo para assistir ao ensaio.';}
+  else{fb.className='feedback nao';
+    fb.innerHTML='<strong>Concentre o ensaio em: '+fracos.join(', ')+'.</strong> '+
+      'Esses são os critérios com maior distância até o pronto, e cada um vale um sexto da nota da apresentação. '+
+      'Se o ponto fraco for arguição, use a Atividade 2. Se for apresentação dos resultados, refaça a figura principal seguindo as regras da Semana 12. '+
+      'Se for domínio do delineamento, volte ao protocolo entregue na Semana 3 e retome as decisões que o grupo tomou lá.';}
+}
+</script>
+</body>
+</html>

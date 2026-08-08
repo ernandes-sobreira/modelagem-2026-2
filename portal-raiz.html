@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Modelagem e Experimentação em Biologia, 2026/2</title>
+<style>
+:root{--azul:#1565c0;--azul-claro:#e3f0fc;--verde:#2e7d32;--verde-claro:#e6f4e7;
+  --cinza:#5a6472;--borda:#dfe4ea;--fundo:#f6f8fa}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;
+  background:#fff;color:#22272e;line-height:1.6;font-size:16px}
+.wrap{max-width:880px;margin:0 auto;padding:20px 18px 70px}
+header{background:linear-gradient(135deg,#1565c0,#1e88e5);border-radius:16px;
+  padding:28px 24px;color:#fff;margin-bottom:24px}
+header h1{font-size:25px;line-height:1.25;font-weight:700;margin-bottom:10px}
+header p{font-size:14.5px;opacity:.94}
+.aviso{background:var(--verde-claro);border-left:5px solid var(--verde);
+  border-radius:12px;padding:16px 18px;margin-bottom:24px;font-size:15px}
+.aviso strong{color:var(--verde)}
+h2{font-size:19px;margin:26px 0 14px;font-weight:700}
+.grade{display:grid;grid-template-columns:repeat(auto-fill,minmax(255px,1fr));gap:14px}
+a.cartao{display:block;text-decoration:none;color:inherit;background:#fff;
+  border:2px solid var(--borda);border-radius:14px;padding:18px;transition:.15s}
+a.cartao:hover{border-color:var(--azul);box-shadow:0 4px 14px rgba(21,101,192,.12);
+  transform:translateY(-2px)}
+.cartao.bloqueado{opacity:.55;pointer-events:none;background:var(--fundo)}
+.sem{font-size:12px;font-weight:700;letter-spacing:.7px;text-transform:uppercase;
+  color:var(--azul);margin-bottom:6px}
+.cartao.bloqueado .sem{color:var(--cinza)}
+.tit{font-size:16.5px;font-weight:650;line-height:1.35;margin-bottom:8px}
+.data{font-size:13.5px;color:var(--cinza)}
+.selo{display:inline-block;font-size:11.5px;font-weight:700;padding:4px 10px;
+  border-radius:20px;margin-top:10px;letter-spacing:.4px}
+.selo.aberto{background:var(--verde-claro);color:var(--verde)}
+.selo.breve{background:#eef1f4;color:var(--cinza)}
+footer{margin-top:40px;padding-top:20px;border-top:2px solid var(--borda);
+  font-size:13.5px;color:var(--cinza);text-align:center}
+@media(max-width:600px){.wrap{padding:14px 13px 50px}header h1{font-size:21px}}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <h1>Modelagem e Experimentação em Biologia</h1>
+  <p>FACAB-CAC-158, 60 horas, Turma 01, semestre 2026/2<br>
+  UNEMAT, Campus de Cáceres, Faculdade de Ciências Agrárias e Biológicas<br>
+  Prof. Dr. Ernandes Sobreira Oliveira Junior</p>
+</header>
+
+<div class="aviso">
+  <strong>Como usar este espaço.</strong> Cada semana tem um módulo próprio, com cerca de duas horas de leitura e duas horas de prática. A semana começa na segunda-feira e termina no sábado. O questionário da semana fecha na sexta-feira às 23h59. São necessários o Excel ou o Google Planilhas e o software PAST 4.
+</div>
+
+<h2>Módulos da disciplina</h2>
+<div class="grade" id="grade"></div>
+
+<footer>
+  Material didático da disciplina, uso acadêmico.<br>
+  UNEMAT, Campus de Cáceres, 2026.
+</footer>
+
+</div>
+<script>
+const semanas=[
+ {n:1,t:"O que é modelagem, e o primeiro modelo de todos: a média",d:"10 a 15 de agosto",p:"semana-01/"},
+ {n:2,d:"17 a 22 de agosto"},
+ {n:3,d:"24 a 29 de agosto"},
+ {n:4,d:"31 de agosto a 5 de setembro"},
+ {n:5,d:"7 a 12 de setembro"},
+ {n:6,d:"14 a 19 de setembro"},
+ {n:7,d:"21 a 26 de setembro"},
+ {n:8,d:"28 de setembro a 3 de outubro"},
+ {n:9,d:"5 a 10 de outubro"},
+ {n:10,d:"12 a 17 de outubro"},
+ {n:11,d:"19 a 24 de outubro"},
+ {n:12,d:"26 a 31 de outubro"},
+ {n:13,d:"2 a 7 de novembro"},
+ {n:14,d:"9 a 14 de novembro"},
+ {n:15,d:"16 a 21 de novembro"},
+ {n:16,d:"23 a 28 de novembro"},
+ {n:17,d:"30 de novembro a 5 de dezembro"},
+ {n:18,d:"7 a 12 de dezembro"}
+];
+const g=document.getElementById('grade');
+semanas.forEach(s=>{
+  const dispo=!!s.p;
+  const el=document.createElement(dispo?'a':'div');
+  el.className='cartao'+(dispo?'':' bloqueado');
+  if(dispo)el.href=s.p;
+  el.innerHTML=`<div class="sem">Semana ${String(s.n).padStart(2,'0')}</div>
+    <div class="tit">${s.t||'Tema a ser publicado'}</div>
+    <div class="data">${s.d}</div>
+    <span class="selo ${dispo?'aberto':'breve'}">${dispo?'Disponível':'Em breve'}</span>`;
+  g.appendChild(el);
+});
+</script>
+</body>
+</html>

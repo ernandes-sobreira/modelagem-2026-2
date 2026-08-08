@@ -1,0 +1,1047 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Semana 11: Análise de covariância, ANCOVA</title>
+<style>
+:root{
+  --azul:#ad1457; --azul-claro:#fce4ec;
+  --verde:#2e7d32; --verde-claro:#e6f4e7;
+  --teal:#00695c; --teal-claro:#e0f2f1;
+  --roxo:#6a1b9a; --roxo-claro:#f3e8f8;
+  --laranja:#e65100; --laranja-claro:#fff1e5;
+  --vermelho:#c62828; --vermelho-claro:#fdeaea;
+  --cinza:#5a6472; --borda:#dfe4ea; --fundo:#f6f8fa;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;
+  background:#fff;color:#22272e;line-height:1.65;font-size:16px}
+.wrap{max-width:880px;margin:0 auto;padding:20px 18px 80px}
+
+header.topo{background:linear-gradient(135deg,#880e4f,#c2185b);border-radius:16px;
+  padding:26px 24px;color:#fff;margin-bottom:22px}
+header.topo .tag{display:inline-block;background:rgba(255,255,255,.22);padding:5px 13px;
+  border-radius:20px;font-size:13px;font-weight:600;letter-spacing:.3px;margin-bottom:12px}
+header.topo h1{font-size:25px;line-height:1.28;margin-bottom:10px;font-weight:700}
+header.topo p{font-size:14.5px;opacity:.94}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:16px}
+.chip{background:rgba(255,255,255,.16);border:1px solid rgba(255,255,255,.3);
+  padding:7px 13px;border-radius:9px;font-size:13px;font-weight:500}
+
+nav.indice{background:var(--fundo);border:1px solid var(--borda);border-radius:14px;
+  padding:16px 18px;margin-bottom:26px}
+nav.indice strong{display:block;font-size:13px;text-transform:uppercase;
+  letter-spacing:.6px;color:var(--cinza);margin-bottom:10px}
+nav.indice a{display:block;color:var(--azul);text-decoration:none;padding:7px 0;
+  font-size:15px;border-bottom:1px solid #eef1f4}
+nav.indice a:last-child{border-bottom:none}
+nav.indice a:hover{text-decoration:underline}
+
+.bloco{margin-bottom:34px}
+.bloco-cab{display:flex;align-items:center;gap:12px;margin-bottom:16px;
+  padding-bottom:12px;border-bottom:3px solid var(--azul-claro)}
+.bloco-num{background:var(--azul);color:#fff;width:38px;height:38px;flex:0 0 38px;
+  border-radius:10px;display:flex;align-items:center;justify-content:center;
+  font-weight:700;font-size:17px}
+.bloco-cab h2{font-size:20px;font-weight:700;line-height:1.3}
+h3{font-size:17px;margin:22px 0 9px;color:#1a1f26;font-weight:650}
+p{margin-bottom:13px}
+ul,ol{margin:0 0 14px 22px}
+li{margin-bottom:7px}
+
+.card{border:1px solid var(--borda);border-radius:14px;padding:20px;margin:16px 0;background:#fff}
+.destaque{border-left:5px solid var(--verde);background:var(--verde-claro);
+  border-radius:12px;padding:16px 18px;margin:16px 0}
+.destaque strong{color:var(--verde)}
+.alerta{border-left:5px solid var(--vermelho);background:var(--vermelho-claro);
+  border-radius:12px;padding:16px 18px;margin:16px 0}
+.alerta strong{color:var(--vermelho)}
+.consult{border-left:5px solid var(--laranja);background:var(--laranja-claro);
+  border-radius:12px;padding:16px 18px;margin:16px 0}
+.consult strong{color:var(--laranja)}
+.livro{border-left:5px solid var(--roxo);background:var(--roxo-claro);
+  border-radius:12px;padding:14px 18px;margin:16px 0;font-size:14.5px}
+.livro strong{color:var(--roxo)}
+
+.faixa{background:#880e4f;color:#fff;border-radius:16px;padding:28px 24px;
+  margin:30px 0;text-align:center;box-shadow:0 5px 18px rgba(136,14,79,.22)}
+.faixa .l1{font-size:28px;font-weight:800;line-height:1.2;letter-spacing:-.4px;margin-bottom:12px}
+.faixa .l3{font-size:18.5px;font-weight:700;background:rgba(255,255,255,.16);
+  display:inline-block;padding:11px 20px;border-radius:11px;line-height:1.4}
+@media(max-width:600px){.faixa .l1{font-size:21px}.faixa .l3{font-size:15px}}
+
+table{width:100%;border-collapse:collapse;margin:14px 0;font-size:14.5px}
+th{background:var(--azul-claro);padding:11px 12px;text-align:left;font-weight:650;
+  border:1px solid var(--borda)}
+td{padding:11px 12px;border:1px solid var(--borda);vertical-align:top}
+.tabela-rolar{overflow-x:auto}
+.num{text-align:right;font-variant-numeric:tabular-nums}
+.cel-erro{background:var(--vermelho-claro);color:var(--vermelho);font-weight:650}
+.cel-ok{background:var(--verde-claro);color:var(--verde);font-weight:650}
+
+.xl{border:1px solid #b9c0c9;border-radius:9px;overflow:hidden;margin:16px 0;background:#fff;
+  font-family:ui-monospace,SFMono-Regular,Menlo,monospace}
+.xl-bar{display:flex;align-items:center;gap:8px;background:#f6f8fa;
+  border-bottom:1px solid #d5dbe2;padding:8px 10px;font-size:13px}
+.xl-ref{background:#fff;border:1px solid #c6cdd5;border-radius:5px;padding:4px 10px;
+  min-width:56px;text-align:center;font-weight:700;color:#22272e}
+.xl-fx{color:#9aa4b0;font-style:italic;font-weight:700;padding:0 2px}
+.xl-form{flex:1;background:#fff;border:1px solid #c6cdd5;border-radius:5px;padding:4px 10px;
+  overflow-x:auto;white-space:nowrap;color:#107c41;font-weight:650}
+.xl-rolar{overflow-x:auto}
+table.xl-grid{border-collapse:collapse;width:100%;margin:0;font-size:13px}
+table.xl-grid th,table.xl-grid td{border:1px solid #d5dbe2;padding:7px 10px;background:#fff;
+  white-space:nowrap;font-weight:400;text-align:left;vertical-align:middle}
+table.xl-grid th.col,table.xl-grid th.lin{background:#eef1f4;color:#5a6472;text-align:center;
+  font-weight:700;font-size:11.5px}
+table.xl-grid th.lin{width:36px}
+table.xl-grid td.cab{font-weight:700;background:#f6f8fa}
+table.xl-grid td.sel{outline:2.5px solid #107c41;outline-offset:-2px;background:#f0f9f4;font-weight:700}
+table.xl-grid td.n{text-align:right}
+.xl-nota{font-size:13.5px;color:var(--cinza);text-align:center;margin:-8px 0 18px}
+
+.interativo{border:2px solid var(--azul);border-radius:16px;padding:22px;
+  margin:22px 0;background:#fffafc}
+.interativo-cab{display:flex;align-items:center;gap:10px;margin-bottom:6px}
+.interativo-cab .selo{background:var(--azul);color:#fff;font-size:11.5px;font-weight:700;
+  padding:4px 11px;border-radius:20px;letter-spacing:.5px}
+.interativo h3{margin:8px 0 6px;font-size:17.5px}
+.interativo .instr{font-size:14.5px;color:var(--cinza);margin-bottom:16px}
+
+button{font-family:inherit;font-size:15px;font-weight:600;cursor:pointer;border:none;
+  border-radius:10px;padding:11px 20px;transition:.15s;margin:0 6px 6px 0}
+.btn{background:var(--azul);color:#fff}
+.btn:hover{background:#880e4f}
+.btn-verde{background:var(--azul);color:#fff}
+.btn-verde:hover{background:#880e4f}
+.btn-claro{background:#fff;color:var(--azul);border:2px solid var(--azul)}
+.btn-claro:hover{background:var(--azul-claro)}
+
+.opcoes{display:flex;flex-wrap:wrap;gap:9px;margin:12px 0}
+.opcao{flex:1 1 150px;min-width:130px;background:#fff;border:2px solid var(--borda);
+  border-radius:10px;padding:12px 14px;font-size:14.5px;font-weight:600;cursor:pointer;
+  text-align:center;transition:.15s}
+.opcao:hover{border-color:var(--azul);background:var(--azul-claro)}
+.opcao.certa{border-color:var(--verde);background:var(--verde-claro);color:var(--verde)}
+.opcao.errada{border-color:var(--vermelho);background:var(--vermelho-claro);color:var(--vermelho)}
+.opcao:disabled{cursor:default}
+
+.feedback{margin-top:13px;padding:14px 16px;border-radius:10px;font-size:14.5px;display:none}
+.feedback.ok{background:var(--verde-claro);border-left:4px solid var(--verde);display:block}
+.feedback.nao{background:var(--vermelho-claro);border-left:4px solid var(--vermelho);display:block}
+
+.caso{background:#fff;border:1px solid var(--borda);border-radius:10px;padding:15px 16px;
+  margin-bottom:10px;font-size:15px}
+.caso .n{font-size:12.5px;font-weight:700;color:var(--cinza);text-transform:uppercase;
+  letter-spacing:.6px;margin-bottom:6px}
+
+.controles{display:flex;flex-wrap:wrap;gap:16px;margin:14px 0;align-items:flex-end}
+.campo{flex:1 1 170px;min-width:150px}
+.campo label{display:block;font-size:13px;font-weight:650;color:var(--cinza);
+  margin-bottom:6px;text-transform:uppercase;letter-spacing:.4px}
+.campo input,.campo select{width:100%;padding:11px 12px;border:2px solid var(--borda);
+  border-radius:9px;font-size:15px;font-family:inherit;background:#fff}
+.campo input:focus{outline:none;border-color:var(--azul)}
+input[type=range]{width:100%;accent-color:var(--azul)}
+textarea{width:100%;padding:12px;border:2px solid var(--borda);border-radius:10px;
+  font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:14px;min-height:110px;
+  resize:vertical;background:#fff}
+textarea:focus{outline:none;border-color:var(--azul)}
+
+.saida{display:grid;grid-template-columns:repeat(auto-fit,minmax(128px,1fr));gap:11px;margin-top:16px}
+.metrica{background:#fff;border:1px solid var(--borda);border-radius:11px;padding:14px 12px;text-align:center}
+.metrica .rot{font-size:11.5px;text-transform:uppercase;letter-spacing:.6px;color:var(--cinza);
+  font-weight:650;margin-bottom:5px}
+.metrica .val{font-size:21px;font-weight:700;color:var(--azul)}
+.metrica.grande .val{font-size:26px}
+
+canvas{width:100%;height:auto;display:block;background:#fff;border:1px solid var(--borda);
+  border-radius:11px;margin-top:14px}
+.dois-graficos{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+@media(max-width:640px){.dois-graficos{grid-template-columns:1fr}}
+.legenda-grafico{display:flex;flex-wrap:wrap;gap:16px;justify-content:center;margin-top:10px;
+  font-size:13.5px;color:var(--cinza)}
+.legenda-grafico span{display:flex;align-items:center;gap:6px}
+.legenda-grafico i{width:14px;height:12px;border-radius:3px;display:inline-block}
+
+.arvore{background:#fff;border:1px solid var(--borda);border-radius:12px;padding:20px;margin-top:14px}
+.arvore .pergunta{font-size:16.5px;font-weight:650;margin-bottom:14px}
+.trilha{font-size:13px;color:var(--cinza);margin-bottom:12px}
+.trilha span{background:var(--azul-claro);color:var(--azul);padding:3px 9px;
+  border-radius:14px;margin-right:6px;display:inline-block;margin-bottom:5px;font-weight:650}
+.resultado{background:var(--azul-claro);border-left:5px solid var(--azul);
+  border-radius:10px;padding:16px 18px;font-size:15px}
+.resultado h4{color:var(--azul);font-size:18px;margin-bottom:8px}
+
+.placar{background:var(--azul-claro);border-radius:11px;padding:14px 16px;margin-top:14px;
+  font-size:15px;font-weight:600;color:var(--azul);text-align:center}
+
+.checklist{list-style:none;margin-left:0}
+.checklist li{display:flex;gap:11px;align-items:flex-start;padding:11px 0;border-bottom:1px solid #eef1f4}
+.checklist input[type=checkbox]{width:19px;height:19px;margin-top:3px;accent-color:var(--azul);flex:0 0 19px}
+
+footer.rodape{margin-top:44px;padding-top:20px;border-top:2px solid var(--borda);
+  font-size:13.5px;color:var(--cinza);text-align:center}
+
+@media(max-width:600px){
+  .wrap{padding:14px 13px 60px}
+  header.topo h1{font-size:21px}
+  .bloco-cab h2{font-size:18px}
+  .opcao{flex:1 1 100%}
+}
+@media print{
+  body{font-size:11.5pt}
+  header.topo,.faixa{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  nav.indice,button,.opcoes{display:none}
+  .interativo,.bloco{page-break-inside:avoid}
+}
+
+.dois-textos{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+@media(max-width:600px){.dois-textos{grid-template-columns:1fr}}
+table.conting input{width:78px;padding:8px;border:2px solid var(--borda);border-radius:7px;
+  text-align:right;font-family:inherit;font-size:14.5px}
+table.conting input:focus{outline:none;border-color:var(--azul)}
+
+.tres-textos{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px}
+table.anova td.destaq{background:#fce4ec;font-weight:700}
+.matriz td{text-align:center;font-size:13.5px}
+.matriz td.dif{background:#e6f4e7;color:#2e7d32;font-weight:700}
+.matriz td.igual{background:#f6f8fa;color:#5a6472}
+
+.grade-celulas{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px}
+.grade-celulas textarea{min-height:104px}
+.rot-celula{font-size:12.5px;font-weight:700;color:var(--cinza);text-transform:uppercase;
+  letter-spacing:.4px;margin-bottom:6px}
+
+.quatro-graf{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:14px}
+.mini-rot{font-size:13.5px;font-weight:700;color:var(--azul);text-align:center;margin-top:6px}
+</style></head>
+<body>
+<div class="wrap">
+
+<header class="topo">
+  <span class="tag">SEMANA 11 &nbsp;|&nbsp; SEGUNDA 19 A SÁBADO 24 DE OUTUBRO DE 2026</span>
+  <h1>Análise de covariância, ANCOVA</h1>
+  <p>Modelagem e Experimentação em Biologia, FACAB-CAC-158, 60h, Turma 01, 2026.2<br>
+  Prof. Dr. Ernandes Sobreira Oliveira Junior, UNEMAT, Campus de Cáceres</p>
+  <div class="chips">
+    <span class="chip">2h de leitura, de segunda a sexta</span>
+    <span class="chip">2h de prática, de segunda a sexta</span>
+    <span class="chip">Questionário fecha sexta, 23h59</span>
+  </div>
+</header>
+
+<nav class="indice">
+  <strong>Roteiro da semana</strong>
+  <a href="#p1">1. A comparação injusta</a>
+  <a href="#p2">2. O que é ANCOVA</a>
+  <a href="#p3">3. Médias ajustadas</a>
+  <a href="#p4">4. O pressuposto exclusivo: inclinações paralelas</a>
+  <a href="#p5">5. Quando as inclinações não são paralelas</a>
+  <a href="#p6">6. O ganho de poder</a>
+  <a href="#p7">7. A covariável não pode ser afetada pelo tratamento</a>
+  <a href="#p8">8. Como relatar</a>
+  <a href="#a1">Atividade 1: a comparação antes e depois do ajuste</a>
+  <a href="#a2">Atividade 2: calculadora de ANCOVA</a>
+  <a href="#a3">Atividade 3: paralelas ou não</a>
+  <a href="#a4">Atividade 4: interpretando resultados</a>
+  <a href="#fecho">Autoavaliação e checklist</a>
+</nav>
+
+<div class="bloco" id="p1">
+  <div class="bloco-cab"><div class="bloco-num">1</div>
+  <h2>A comparação injusta</h2></div>
+
+  <p>Um grupo comparou a massa dos ovos de duas granjas. A granja B veio com média de 64 gramas, contra 58 da granja A. Diferença significativa, teste t rodado, conclusão escrita.</p>
+
+  <p>Só que os ovos da granja B também eram mais compridos, em média. E ovo mais comprido é ovo maior, e ovo maior é ovo mais pesado, independentemente de granja.</p>
+
+  <p>A pergunta que interessa não foi respondida: <strong>se os ovos das duas granjas tivessem o mesmo comprimento, a massa ainda seria diferente?</strong></p>
+
+  <p>Essa é a pergunta da ANCOVA, e ela aparece em praticamente todos os experimentos do semestre.</p>
+
+  <div class="tabela-rolar">
+  <table>
+    <tr><th>Experimento</th><th>Fator</th><th>Covariável a descontar</th></tr>
+    <tr><td>Ovos</td><td>Granja</td><td>Comprimento do ovo</td></tr>
+    <tr><td>Suco de laranja</td><td>Laranjal</td><td>Massa da fruta</td></tr>
+    <tr><td>Cebolinha</td><td>Tipo de solo</td><td>Dias desde o plantio</td></tr>
+    <tr><td>Evaporação</td><td>Local</td><td>Temperatura do ar registrada</td></tr>
+    <tr><td>Invertebrados</td><td>Cobertura do solo</td><td>Horas de exposição da armadilha</td></tr>
+  </table>
+  </div>
+
+  <p>Repare que a exigência de uma covariável contínua em todo delineamento, feita lá na Semana 3, não era detalhe burocrático. Era preparação para esta semana.</p>
+
+  <div class="livro">
+    <strong>No livro.</strong> Modelagem e Experimentação em Biologia, um guia prático, Editora UNEMAT, 2025. Localize no sumário a parte sobre modelos de análise de covariância.
+  </div>
+</div>
+
+<div class="bloco" id="p2">
+  <div class="bloco-cab"><div class="bloco-num">2</div>
+  <h2>O que é ANCOVA</h2></div>
+
+  <p>A <strong>análise de covariância</strong> é literalmente a ANOVA das Semanas 8 e 9 somada à regressão da Semana 10, dentro de um único modelo.</p>
+
+  <div class="destaque" style="text-align:center;font-size:17px">
+    <strong>resposta = efeito do grupo + inclinação vezes covariável</strong>
+  </div>
+
+  <p>O modelo ajusta <strong>uma reta para cada grupo</strong>, todas com a mesma inclinação, mas com alturas diferentes. A distância vertical entre essas retas é o efeito do grupo, já descontado o efeito da covariável.</p>
+
+  <h3>Três nomes para as três coisas</h3>
+  <ul>
+    <li><strong>Fator.</strong> A variável categórica cujos níveis você quer comparar. Granja, solo, cobertura.</li>
+    <li><strong>Covariável.</strong> A variável contínua que influencia a resposta e cujo efeito você quer descontar. Comprimento, dias, temperatura.</li>
+    <li><strong>Resposta.</strong> O que está sendo medido. Massa, altura, volume.</li>
+  </ul>
+
+  <p>É a mesma distinção que a Semana 2 apresentou no dicionário de dados, e que o próprio sistema avisava quando alguém marcava uma variável categórica como covariável.</p>
+
+  <div class="alerta">
+    <strong>ANCOVA não é o mesmo que ANOVA de duas vias.</strong> Na Semana 9 os dois fatores eram categóricos, e cada combinação tinha suas réplicas. Aqui um dos preditores é contínuo e não tem níveis, então não existe combinação nem interação no mesmo sentido. Confundir os dois leva a montar o delineamento errado.
+  </div>
+</div>
+
+<div class="bloco" id="p3">
+  <div class="bloco-cab"><div class="bloco-num">3</div>
+  <h2>Médias ajustadas</h2></div>
+
+  <p>O resultado mais útil da ANCOVA é um conjunto de <strong>médias ajustadas</strong>: as médias que cada grupo teria se todos tivessem o mesmo valor da covariável, geralmente a média geral dela.</p>
+
+  <p>Voltando aos ovos. Suponha que a média geral do comprimento seja 55 milímetros. A granja A tem comprimento médio de 53 e a B de 57. A ANCOVA responde: qual seria a massa média de cada granja se todos os ovos tivessem 55 milímetros?</p>
+
+  <div class="tabela-rolar">
+  <table>
+    <tr><th>Granja</th><th class="num">Comprimento médio</th><th class="num">Massa média bruta</th><th class="num">Massa média ajustada</th></tr>
+    <tr><td>A</td><td class="num">53 mm</td><td class="num">58,0 g</td><td class="num">60,4 g</td></tr>
+    <tr><td>B</td><td class="num">57 mm</td><td class="num">64,0 g</td><td class="num">61,6 g</td></tr>
+    <tr><td colspan="2"><strong>Diferença</strong></td><td class="num cel-erro">6,0 g</td><td class="num cel-ok">1,2 g</td></tr>
+  </table>
+  </div>
+
+  <p>Valores didáticos, criados para o exercício. A diferença bruta de 6 gramas encolheu para 1,2 grama depois do ajuste. Quase toda a diferença aparente entre as granjas vinha do tamanho dos ovos, e não da granja.</p>
+
+  <div class="destaque">
+    <strong>O ajuste pode ir nas duas direções.</strong> Ele reduz diferenças quando a covariável favorecia um grupo, e amplia diferenças quando a covariável estava mascarando o efeito. Um resultado comum e interessante é a ANOVA não encontrar nada e a ANCOVA encontrar, porque a covariável estava escondendo o efeito real. A Atividade 1 mostra os dois casos.
+  </div>
+</div>
+
+<div class="bloco" id="p4">
+  <div class="bloco-cab"><div class="bloco-num">4</div>
+  <h2>O pressuposto exclusivo: inclinações paralelas</h2></div>
+
+  <p>Além de independência, normalidade dos resíduos, homocedasticidade e linearidade, a ANCOVA exige mais um, e ele é o que mais reprova análise em banca.</p>
+
+  <p><strong>Homogeneidade das inclinações.</strong> A relação entre a covariável e a resposta precisa ser aproximadamente a mesma em todos os grupos. Em outras palavras, as retas precisam ser paralelas.</p>
+
+  <p>Por que isso é obrigatório: o modelo estima <strong>uma única inclinação</strong> para todos os grupos e usa a distância vertical entre as retas como efeito do grupo. Se as retas não forem paralelas, essa distância muda conforme o valor da covariável, e não existe um número único que a descreva.</p>
+
+  <div class="destaque">
+    <strong>Como testar.</strong> Ajuste um modelo que permita inclinações diferentes por grupo e teste se a melhora em relação ao modelo de inclinação única é significativa. Esse teste tem nome familiar: é a <strong>interação entre o fator e a covariável</strong>. Se ela for significativa, o pressuposto foi violado. A calculadora da Atividade 2 faz esse teste antes de qualquer outra coisa.
+  </div>
+
+  <p>Repare que é a mesma ideia de interação da Semana 9, agora com um preditor contínuo em vez de categórico. Linhas paralelas continuam significando ausência de interação.</p>
+</div>
+
+<div class="bloco" id="p5">
+  <div class="bloco-cab"><div class="bloco-num">5</div>
+  <h2>Quando as inclinações não são paralelas</h2></div>
+
+  <p>Se a interação entre o fator e a covariável for significativa, a ANCOVA clássica está fora. E isso não é um fracasso, é um resultado.</p>
+
+  <p>Significa que <strong>a diferença entre os grupos depende do valor da covariável</strong>. Um solo pode ser melhor nos primeiros dias e pior depois. Uma granja pode produzir ovos mais pesados apenas entre os ovos pequenos.</p>
+
+  <h3>Três condutas possíveis</h3>
+  <ol>
+    <li><strong>Relatar a interação como achado.</strong> Descrever a inclinação de cada grupo separadamente e discutir o que significa a diferença entre elas. Muitas vezes é o resultado mais interessante do trabalho.</li>
+    <li><strong>Comparar os grupos em valores específicos da covariável.</strong> Escolher valores relevantes, como o mínimo, a mediana e o máximo, e comparar as retas em cada um deles.</li>
+    <li><strong>Restringir a análise a uma faixa</strong> onde as retas sejam aproximadamente paralelas, declarando essa restrição.</li>
+  </ol>
+
+  <div class="alerta">
+    <strong>O que não se faz.</strong> Ignorar o teste de paralelismo, rodar a ANCOVA assim mesmo e relatar médias ajustadas. Elas seriam médias de uma diferença que não existe como número único. É o erro que mais aparece em trabalhos que usam ANCOVA sem entendê-la.
+  </div>
+</div>
+
+<div class="faixa">
+  <div class="l1">A ANCOVA COMPARA EM PÉ DE IGUALDADE</div>
+  <div class="l3">ELA PERGUNTA COMO SERIAM AS MÉDIAS<br>SE TODOS TIVESSEM A MESMA COVARIÁVEL.</div>
+</div>
+
+<div class="bloco" id="p6">
+  <div class="bloco-cab"><div class="bloco-num">6</div>
+  <h2>O ganho de poder</h2></div>
+
+  <p>Existe um segundo motivo para usar ANCOVA, além da justiça na comparação, e ele é puramente prático.</p>
+
+  <p>Lembre da Semana 7: a estatística de teste é sinal dividido por ruído. Na ANOVA, tudo o que a covariável explicava ficava dentro do resíduo, ou seja, dentro do ruído. A ANCOVA tira aquela parcela do resíduo e a coloca em uma fonte própria.</p>
+
+  <p><strong>Resíduo menor, denominador menor, teste mais capaz de detectar diferenças reais.</strong> É o mesmo mecanismo do teste t pareado da Semana 7, e o mesmo da blocagem da Semana 3: retirar do ruído uma variação que você consegue explicar.</p>
+
+  <div class="consult">
+    <strong>Por que isso importa em consultoria.</strong> Comparar a qualidade da água entre dois trechos sem descontar a vazão do dia da coleta é comparar coisas diferentes, porque a vazão dilui. A ANCOVA com a vazão como covariável é a análise tecnicamente correta, e frequentemente muda a conclusão do laudo. O mesmo vale para comparar abundância de fauna sem descontar o esforço amostral de cada armadilha.
+  </div>
+</div>
+
+<div class="bloco" id="p7">
+  <div class="bloco-cab"><div class="bloco-num">7</div>
+  <h2>A covariável não pode ser afetada pelo tratamento</h2></div>
+
+  <p>Esta é a regra que separa o uso correto do uso desastroso, e ela é ignorada com frequência.</p>
+
+  <p><strong>A covariável precisa ser medida antes do tratamento, ou ser independente dele.</strong> Se o próprio tratamento altera a covariável, descontá-la remove parte do efeito que você queria medir.</p>
+
+  <div class="tabela-rolar">
+  <table>
+    <tr><th>Situação</th><th>Uso da covariável</th><th>Por quê</th></tr>
+    <tr><td>Comprimento do ovo, comparando granjas</td><td class="cel-ok">Correto</td><td>A granja não foi atribuída ao ovo, e o comprimento é característica prévia</td></tr>
+    <tr><td>Dias desde o plantio, comparando solos</td><td class="cel-ok">Correto</td><td>O tempo passa igual para todos os vasos, independente do solo</td></tr>
+    <tr><td>Temperatura registrada no dia, comparando locais de evaporação</td><td class="cel-ok">Correto</td><td>Medida do ambiente, não alterada pelo tratamento</td></tr>
+    <tr><td>Número de folhas, comparando o efeito do solo sobre a altura</td><td class="cel-erro">Errado</td><td>O solo afeta o número de folhas, que é parte do efeito que se quer medir</td></tr>
+    <tr><td>Biomassa final, comparando fertilizantes sobre a produção</td><td class="cel-erro">Errado</td><td>A biomassa é consequência do tratamento, e descontá-la apaga o resultado</td></tr>
+  </table>
+  </div>
+
+  <div class="alerta">
+    <strong>Teste mental antes de escolher a covariável.</strong> Pergunte se o valor dela mudaria caso a unidade amostral tivesse recebido outro tratamento. Se a resposta for sim, ela não serve como covariável. Se for não, pode usar.
+  </div>
+</div>
+
+<div class="bloco" id="p8">
+  <div class="bloco-cab"><div class="bloco-num">8</div>
+  <h2>Como relatar</h2></div>
+
+  <div class="destaque">
+    <strong>Modelo de frase completa.</strong> As inclinações foram homogêneas entre as granjas, interação entre granja e comprimento com F igual a 0,38 e valor de p igual a 0,54, o que autoriza a ANCOVA. O comprimento do ovo afetou a massa, F igual a 84,2 com 1 e 57 graus de liberdade, valor de p menor que 0,001, com inclinação de 0,61 grama por milímetro. Descontado o comprimento, a massa não diferiu entre as granjas, F igual a 1,12 com 1 e 57 graus de liberdade, valor de p igual a 0,29. As médias ajustadas para o comprimento de 55 milímetros foram de 60,4 gramas na granja A e 61,6 na granja B.
+  </div>
+
+  <p>Quatro elementos aparecem nessa frase e nenhum é dispensável: o <strong>teste de paralelismo</strong> vindo primeiro, o <strong>efeito da covariável</strong> com a inclinação, o <strong>efeito do fator já ajustado</strong>, e as <strong>médias ajustadas</strong> com o valor da covariável usado no ajuste.</p>
+
+  <p>Vale também informar as médias brutas ao lado das ajustadas, para que o leitor veja o tamanho e a direção do ajuste. É essa comparação que mostra o que a análise fez.</p>
+</div>
+
+<div class="bloco" id="a1">
+  <div class="interativo">
+    <div class="interativo-cab"><span class="selo">ATIVIDADE 1</span></div>
+    <h3>A comparação antes e depois do ajuste</h3>
+    <p class="instr">Dois grupos, uma covariável. Você controla o efeito real do grupo e o desequilíbrio da covariável entre eles. Compare o resultado da ANOVA, que ignora a covariável, com o da ANCOVA. Valores simulados, apenas para treino.</p>
+
+    <div class="controles">
+      <div class="campo"><label>Efeito real do grupo: <span id="egLab">0</span></label>
+        <input type="range" id="eg" min="-10" max="10" value="0"></div>
+      <div class="campo"><label>Desequilíbrio da covariável: <span id="ecLab">6</span></label>
+        <input type="range" id="ec" min="-10" max="10" value="6"></div>
+      <div class="campo"><label>Força da covariável: <span id="efLab">8</span></label>
+        <input type="range" id="ef" min="0" max="15" value="8"></div>
+      <div class="campo"><label>Dispersão: <span id="epLab">3</span></label>
+        <input type="range" id="ep" min="1" max="12" value="3"></div>
+    </div>
+    <button class="btn-verde" onclick="simAncova()">Sortear de novo</button>
+
+    <div class="saida">
+      <div class="metrica"><div class="rot">Médias brutas</div><div class="val" id="s1Bruta">-</div></div>
+      <div class="metrica grande"><div class="rot">p da ANOVA</div><div class="val" id="s1PAnova">-</div></div>
+      <div class="metrica"><div class="rot">Médias ajustadas</div><div class="val" id="s1Ajust">-</div></div>
+      <div class="metrica grande"><div class="rot">p da ANCOVA</div><div class="val" id="s1PAncova">-</div></div>
+    </div>
+    <canvas id="grafAnc" width="820" height="340"></canvas>
+    <div class="legenda-grafico">
+      <span><i style="background:#ad1457;border-radius:50%;width:12px;height:12px"></i> Grupo 1</span>
+      <span><i style="background:#0277bd;border-radius:50%;width:12px;height:12px"></i> Grupo 2</span>
+      <span><i style="background:#5a6472;height:4px"></i> Retas ajustadas, com a mesma inclinação</span>
+    </div>
+    <div class="feedback" id="fbAnc"></div>
+  </div>
+</div>
+
+<div class="bloco" id="a2">
+  <div class="interativo">
+    <div class="interativo-cab"><span class="selo">ATIVIDADE 2</span></div>
+    <h3>Calculadora de ANCOVA</h3>
+    <p class="instr">Cole os pares de covariável e resposta de cada grupo, um par por linha, separados por ponto e vírgula. A calculadora testa o paralelismo antes de tudo e só prossegue se ele for atendido. Tudo é calculado no seu navegador.</p>
+
+    <div class="controles">
+      <div class="campo"><label>Nome da covariável</label><input type="text" id="ncov" value="comprimento_mm"></div>
+      <div class="campo"><label>Nome da resposta</label><input type="text" id="nresp" value="massa_g"></div>
+    </div>
+
+    <div class="tres-textos">
+      <div><div class="rot-celula">Grupo 1</div>
+        <input type="text" id="an1" value="granja A" style="width:100%;padding:9px;border:2px solid var(--borda);border-radius:8px;margin-bottom:8px">
+        <textarea id="ad1"></textarea></div>
+      <div><div class="rot-celula">Grupo 2</div>
+        <input type="text" id="an2" value="granja B" style="width:100%;padding:9px;border:2px solid var(--borda);border-radius:8px;margin-bottom:8px">
+        <textarea id="ad2"></textarea></div>
+      <div><div class="rot-celula">Grupo 3, opcional</div>
+        <input type="text" id="an3" value="granja C" style="width:100%;padding:9px;border:2px solid var(--borda);border-radius:8px;margin-bottom:8px">
+        <textarea id="ad3"></textarea></div>
+    </div>
+    <div style="margin-top:12px">
+      <button class="btn-verde" onclick="calcAncova()">Calcular</button>
+      <button class="btn-claro" onclick="exemploAncova()">Usar dados de exemplo</button>
+    </div>
+    <div id="saidaAncova"></div>
+  </div>
+</div>
+
+<div class="bloco" id="a3">
+  <div class="interativo">
+    <div class="interativo-cab"><span class="selo">ATIVIDADE 3</span></div>
+    <h3>Paralelas ou não</h3>
+    <p class="instr">Cada situação descreve as inclinações estimadas em cada grupo. Decida se a ANCOVA clássica é aplicável.</p>
+    <div id="quizPar"></div>
+    <div class="placar" id="placarPar">Respondidas: 0 de 6</div>
+  </div>
+</div>
+
+<div class="bloco" id="a4">
+  <div class="interativo">
+    <div class="interativo-cab"><span class="selo">ATIVIDADE 4</span></div>
+    <h3>Interpretando resultados</h3>
+    <p class="instr">Cada situação descreve uma análise. Julgue a conduta.</p>
+    <div id="quizCond"></div>
+    <div class="placar" id="placarCond">Respondidas: 0 de 6</div>
+  </div>
+</div>
+
+<div class="bloco" id="fecho">
+  <div class="bloco-cab"><div class="bloco-num">9</div>
+  <h2>Autoavaliação e checklist</h2></div>
+
+  <div class="interativo">
+    <div class="interativo-cab"><span class="selo">AUTOAVALIAÇÃO</span></div>
+    <h3>Seis perguntas antes do questionário</h3>
+    <p class="instr">Não valem nota. Servem para você medir se está pronto.</p>
+    <div id="quizFinal"></div>
+    <div class="placar" id="placarFinal">Respondidas: 0 de 6</div>
+  </div>
+
+  <div class="card">
+    <h3>Prática obrigatória, e fechamento das análises</h3>
+    <p>Esta é a última semana de análise antes da entrega. O relatório vence na sexta-feira da semana que vem.</p>
+    <ol>
+      <li>Rode a ANCOVA do seu experimento com a covariável definida lá na Semana 3.</li>
+      <li>Faça primeiro o gráfico de dispersão com um símbolo por grupo, e olhe se as nuvens sugerem retas paralelas.</li>
+      <li>Teste o paralelismo antes de qualquer coisa, com a calculadora da Atividade 2 ou no PAST 4.</li>
+      <li>Se as retas forem paralelas, obtenha as médias ajustadas e compare com as brutas.</li>
+      <li>Se não forem, relate a interação como achado, seguindo as condutas da seção 5.</li>
+      <li>No PAST 4, use Statistics, ANCOVA, com uma coluna de grupo, uma de covariável e uma de resposta.</li>
+      <li>Escreva a frase de relato da seção 8, com os quatro elementos.</li>
+    </ol>
+
+    <div class="xl">
+      <div class="xl-bar"><span class="xl-ref">D2</span><span class="xl-fx">fx</span><span class="xl-form">=C2-$G$1*(B2-MÉDIA($B$2:$B$61))</span></div>
+      <div class="xl-rolar">
+      <table class="xl-grid">
+        <tr><th class="col"></th><th class="col">A</th><th class="col">B</th><th class="col">C</th><th class="col">D</th></tr>
+        <tr><th class="lin">1</th><td class="cab">granja</td><td class="cab">comprimento_mm</td><td class="cab">massa_g</td><td class="cab">massa_ajustada</td></tr>
+        <tr><th class="lin">2</th><td>A</td><td class="n">53,1</td><td class="n">57,8</td><td class="sel n">59,0</td></tr>
+        <tr><th class="lin">3</th><td>A</td><td class="n">52,4</td><td class="n">57,1</td><td class="n">58,7</td></tr>
+        <tr><th class="lin">4</th><td>B</td><td class="n">57,3</td><td class="n">64,2</td><td class="n">62,8</td></tr>
+        <tr><th class="lin">5</th><td>B</td><td class="n">56,8</td><td class="n">63,5</td><td class="n">62,4</td></tr>
+      </table>
+      </div>
+    </div>
+    <p class="xl-nota">A coluna D mostra a massa que cada ovo teria se seu comprimento fosse igual à média geral. A célula G1 guarda a inclinação comum estimada pelo modelo.</p>
+
+    <div class="tabela-rolar">
+    <table>
+      <tr><th>Para que serve</th><th>Excel em português</th><th>Google Planilhas</th></tr>
+      <tr><td>Inclinação dentro de um grupo</td><td>=INCLINAÇÃO(y_grupo;x_grupo)</td><td>=SLOPE(y_grupo;x_grupo)</td></tr>
+      <tr><td>Regressão múltipla, para o modelo completo</td><td>=PROJ.LIN(y;matriz_x;VERDADEIRO;VERDADEIRO)</td><td>=LINEST(y;matriz_x;TRUE;TRUE)</td></tr>
+      <tr><td>Soma de quadrados dos desvios</td><td>=DESVQ(intervalo)</td><td>=DEVSQ(intervalo)</td></tr>
+      <tr><td>Valor de p a partir do F</td><td>=DIST.F.CD(F;gl1;gl2)</td><td>=FDIST(F;gl1;gl2)</td></tr>
+    </table>
+    </div>
+    <p>Para usar regressão múltipla na planilha, o fator precisa virar coluna de zeros e uns, uma para cada nível além do primeiro. Esse é o assunto da Semana 14.</p>
+  </div>
+
+  <div class="card">
+    <h3>Checklist da semana</h3>
+    <ul class="checklist">
+      <li><input type="checkbox"><span>Li os oito pontos do bloco de leitura</span></li>
+      <li><input type="checkbox"><span>Completei as quatro atividades</span></li>
+      <li><input type="checkbox"><span>Sei explicar o que é uma média ajustada</span></li>
+      <li><input type="checkbox"><span>Sei testar e interpretar a homogeneidade das inclinações</span></li>
+      <li><input type="checkbox"><span>Sei dizer por que a covariável não pode ser afetada pelo tratamento</span></li>
+      <li><input type="checkbox"><span>Rodei a ANCOVA do meu experimento e comparei médias brutas com ajustadas</span></li>
+      <li><input type="checkbox"><span>Escrevi a frase de relato com os quatro elementos</span></li>
+      <li><input type="checkbox"><span>As análises do relatório estão fechadas</span></li>
+      <li><input type="checkbox"><span>Respondi o questionário antes de sexta às 23h59</span></li>
+    </ul>
+  </div>
+
+  <div class="consult">
+    <strong>Para fechar a semana.</strong> A partir daqui não entra mais método novo antes da entrega. A semana que vem é oficina de redação e o relatório vence na sexta, dia 30 de outubro, com a apresentação em 7 de novembro. Use o fim de semana para rodar a análise completa, do começo ao fim, com os dados definitivos. Se alguma coisa não fechar, esta é a última janela para pedir ajuda com tempo de corrigir.
+  </div>
+</div>
+
+<footer class="rodape">
+  Modelagem e Experimentação em Biologia, FACAB-CAC-158, 60h, 2026.2<br>
+  UNEMAT, Campus de Cáceres, Faculdade de Ciências Agrárias e Biológicas<br>
+  Semana de segunda a sábado. Material de estudo autônomo.
+</footer>
+
+</div>
+<script>
+function normalR(m,s){
+  let u=0,v=0;
+  while(u===0)u=Math.random();
+  while(v===0)v=Math.random();
+  return m+s*Math.sqrt(-2*Math.log(u))*Math.cos(2*Math.PI*v);
+}
+function media(a){return a.reduce(function(x,y){return x+y;},0)/a.length;}
+function logGama(x){
+  const c=[76.18009172947146,-86.50532032941677,24.01409824083091,
+           -1.231739572450155,0.1208650973866179e-2,-0.5395239384953e-5];
+  let y=x,tmp=x+5.5;
+  tmp-=(x+0.5)*Math.log(tmp);
+  let ser=1.000000000190015;
+  for(let j=0;j<6;j++)ser+=c[j]/++y;
+  return -tmp+Math.log(2.5066282746310005*ser/x);
+}
+function betacf(a,b,x){
+  const MAXIT=250,EPS=3e-14,FPMIN=1e-300;
+  let qab=a+b,qap=a+1,qam=a-1,c=1,d=1-qab*x/qap;
+  if(Math.abs(d)<FPMIN)d=FPMIN;
+  d=1/d;let h=d;
+  for(let m=1;m<=MAXIT;m++){
+    const m2=2*m;
+    let aa=m*(b-m)*x/((qam+m2)*(a+m2));
+    d=1+aa*d;if(Math.abs(d)<FPMIN)d=FPMIN;
+    c=1+aa/c;if(Math.abs(c)<FPMIN)c=FPMIN;
+    d=1/d;h*=d*c;
+    aa=-(a+m)*(qab+m)*x/((a+m2)*(qap+m2));
+    d=1+aa*d;if(Math.abs(d)<FPMIN)d=FPMIN;
+    c=1+aa/c;if(Math.abs(c)<FPMIN)c=FPMIN;
+    d=1/d;
+    const del=d*c;h*=del;
+    if(Math.abs(del-1)<EPS)break;
+  }
+  return h;
+}
+function betai(a,b,x){
+  if(x<=0)return 0;if(x>=1)return 1;
+  const bt=Math.exp(logGama(a+b)-logGama(a)-logGama(b)+a*Math.log(x)+b*Math.log(1-x));
+  return x<(a+1)/(a+b+2)?bt*betacf(a,b,x)/a:1-bt*betacf(b,a,1-x)/b;
+}
+function pF(F,gl1,gl2){
+  if(F<=0||!isFinite(F))return 1;
+  return betai(gl2/2,gl1/2,gl2/(gl2+gl1*F));
+}
+function fmtP(p){return p<0.001?'menor que 0,001':'igual a '+p.toFixed(4).replace('.',',');}
+function fmtPc(p){return p<0.001?'&lt;0,001':p.toFixed(4).replace('.',',');}
+
+/* ANCOVA para k grupos, cada grupo com vetores x e y */
+function ancova(gx,gy){
+  const k=gx.length;
+  let N=0;
+  const allX=[],allY=[];
+  for(let i=0;i<k;i++){N+=gx[i].length;
+    gx[i].forEach(function(v){allX.push(v);});
+    gy[i].forEach(function(v){allY.push(v);});}
+  const mgx=media(allX),mgy=media(allY);
+  /* somas totais corrigidas */
+  let Txx=0,Txy=0,Tyy=0;
+  for(let i=0;i<N;i++){
+    Txx+=(allX[i]-mgx)*(allX[i]-mgx);
+    Txy+=(allX[i]-mgx)*(allY[i]-mgy);
+    Tyy+=(allY[i]-mgy)*(allY[i]-mgy);
+  }
+  /* somas dentro dos grupos */
+  let Wxx=0,Wxy=0,Wyy=0;
+  const mx=[],my=[],bi=[],SSEi=[];
+  for(let i=0;i<k;i++){
+    const xi=gx[i],yi=gy[i],mxi=media(xi),myi=media(yi);
+    mx.push(mxi);my.push(myi);
+    let sxx=0,sxy=0,syy=0;
+    for(let j=0;j<xi.length;j++){
+      sxx+=(xi[j]-mxi)*(xi[j]-mxi);
+      sxy+=(xi[j]-mxi)*(yi[j]-myi);
+      syy+=(yi[j]-myi)*(yi[j]-myi);
+    }
+    Wxx+=sxx;Wxy+=sxy;Wyy+=syy;
+    const b=sxy/sxx;
+    bi.push(b);
+    SSEi.push(syy-sxy*sxy/sxx);
+  }
+  const bComum=Wxy/Wxx;
+  /* modelo com inclinacoes separadas */
+  const SSEfull=SSEi.reduce(function(a,b){return a+b;},0);
+  const glFull=N-2*k;
+  /* modelo com inclinacao comum */
+  const SSEcomum=Wyy-Wxy*Wxy/Wxx;
+  const glComum=N-k-1;
+  /* teste de paralelismo */
+  const Fpar=((SSEcomum-SSEfull)/(k-1))/(SSEfull/glFull);
+  const pPar=pF(Fpar,k-1,glFull);
+  /* modelo so com covariavel, ignorando grupos */
+  const SSEreg=Tyy-Txy*Txy/Txx;
+  const SSgrupo=SSEreg-SSEcomum;
+  const QME=SSEcomum/glComum;
+  const Fgrupo=(SSgrupo/(k-1))/QME;
+  const pGrupo=pF(Fgrupo,k-1,glComum);
+  /* efeito da covariavel */
+  const SScov=Wxy*Wxy/Wxx;
+  const Fcov=SScov/QME;
+  const pCov=pF(Fcov,1,glComum);
+  /* medias ajustadas */
+  const ajust=[];
+  for(let i=0;i<k;i++)ajust.push(my[i]-bComum*(mx[i]-mgx));
+  /* ANOVA ignorando a covariavel */
+  let SQentre=0;
+  for(let i=0;i<k;i++)SQentre+=gy[i].length*(my[i]-mgy)*(my[i]-mgy);
+  const SQdentro=Wyy;
+  const Fanova=(SQentre/(k-1))/(SQdentro/(N-k));
+  const pAnova=pF(Fanova,k-1,N-k);
+  return {k:k,N:N,mgx:mgx,mgy:mgy,mx:mx,my:my,bi:bi,bComum:bComum,ajust:ajust,
+    Fpar:Fpar,pPar:pPar,glParNum:k-1,glParDen:glFull,
+    SScov:SScov,Fcov:Fcov,pCov:pCov,
+    SSgrupo:SSgrupo,Fgrupo:Fgrupo,pGrupo:pGrupo,glGrupo:k-1,glRes:glComum,
+    SSEcomum:SSEcomum,QME:QME,
+    Fanova:Fanova,pAnova:pAnova};
+}
+
+/* ATIVIDADE 1 */
+['eg','ec','ef','ep'].forEach(function(id){
+  document.getElementById(id).addEventListener('input',function(e){
+    document.getElementById(id+'Lab').textContent=e.target.value;simAncova();});});
+function simAncova(){
+  const eg=parseInt(document.getElementById('eg').value);
+  const ec=parseInt(document.getElementById('ec').value);
+  const ef=parseInt(document.getElementById('ef').value)/10;
+  const ep=parseInt(document.getElementById('ep').value);
+  const n=18;
+  const gx=[[],[]],gy=[[],[]];
+  for(let g=0;g<2;g++)for(let i=0;i<n;i++){
+    const x=50+(g===1?ec:0)+normalR(0,4);
+    const y=40+(g===1?eg:0)+ef*(x-50)+normalR(0,ep);
+    gx[g].push(x);gy[g].push(y);
+  }
+  const R=ancova(gx,gy);
+  document.getElementById('s1Bruta').textContent=R.my[0].toFixed(1)+' e '+R.my[1].toFixed(1);
+  document.getElementById('s1Ajust').textContent=R.ajust[0].toFixed(1)+' e '+R.ajust[1].toFixed(1);
+  document.getElementById('s1PAnova').textContent=fmtPc(R.pAnova);
+  document.getElementById('s1PAncova').textContent=fmtPc(R.pGrupo);
+  /* grafico */
+  const cv=document.getElementById('grafAnc'),ctx=cv.getContext('2d');
+  const W=cv.width,H=cv.height,mE=56,mD=24,mT=22,mB=50;
+  ctx.clearRect(0,0,W,H);ctx.fillStyle='#fff';ctx.fillRect(0,0,W,H);
+  const allX=gx[0].concat(gx[1]),allY=gy[0].concat(gy[1]);
+  const X0=Math.min.apply(null,allX)-2,X1=Math.max.apply(null,allX)+2;
+  const Y0=Math.min.apply(null,allY)-2,Y1=Math.max.apply(null,allY)+2;
+  const px=function(v){return mE+((v-X0)/(X1-X0))*(W-mE-mD);};
+  const py=function(v){return H-mB-((v-Y0)/(Y1-Y0))*(H-mT-mB);};
+  ctx.strokeStyle='#eef1f4';ctx.lineWidth=1;
+  for(let i=0;i<=4;i++){const yy=mT+i*(H-mT-mB)/4;
+    ctx.beginPath();ctx.moveTo(mE,yy);ctx.lineTo(W-mD,yy);ctx.stroke();}
+  const cores=['#ad1457','#0277bd'];
+  for(let g=0;g<2;g++){
+    const a=R.my[g]-R.bComum*R.mx[g];
+    ctx.strokeStyle='#5a6472';ctx.lineWidth=2.6;
+    ctx.beginPath();ctx.moveTo(px(X0),py(a+R.bComum*X0));ctx.lineTo(px(X1),py(a+R.bComum*X1));ctx.stroke();
+    for(let i=0;i<gx[g].length;i++){
+      ctx.fillStyle=cores[g];
+      ctx.beginPath();ctx.arc(px(gx[g][i]),py(gy[g][i]),6,0,2*Math.PI);ctx.fill();
+      ctx.strokeStyle='#fff';ctx.lineWidth=1.5;ctx.stroke();
+    }
+  }
+  ctx.strokeStyle='#8d6e63';ctx.lineWidth=2;ctx.setLineDash([6,5]);
+  ctx.beginPath();ctx.moveTo(px(R.mgx),mT);ctx.lineTo(px(R.mgx),H-mB);ctx.stroke();ctx.setLineDash([]);
+  ctx.strokeStyle='#95a1b0';ctx.lineWidth=1.6;
+  ctx.beginPath();ctx.moveTo(mE,mT);ctx.lineTo(mE,H-mB);ctx.lineTo(W-mD,H-mB);ctx.stroke();
+  ctx.fillStyle='#5a6472';ctx.font='12.5px sans-serif';ctx.textAlign='center';
+  for(let i=0;i<=4;i++){const v=X0+(X1-X0)*i/4;ctx.fillText(v.toFixed(0),px(v),H-mB+20);}
+  ctx.textAlign='right';
+  for(let i=0;i<=4;i++){const v=Y1-(Y1-Y0)*i/4;ctx.fillText(v.toFixed(0),mE-8,mT+i*(H-mT-mB)/4+4);}
+  ctx.textAlign='center';ctx.font='13px sans-serif';
+  ctx.fillText('Covariável, a linha tracejada marca a média geral',(mE+W-mD)/2,H-10);
+  ctx.save();ctx.translate(15,(mT+H-mB)/2);ctx.rotate(-Math.PI/2);
+  ctx.fillText('Resposta',0,0);ctx.restore();
+  const fb=document.getElementById('fbAnc');
+  let m='',cls='ok';
+  const difBruta=Math.abs(R.my[1]-R.my[0]),difAj=Math.abs(R.ajust[1]-R.ajust[0]);
+  if(R.pAnova<0.05&&R.pGrupo>=0.05){cls='nao';
+    m='<strong>A ANOVA achou o que não existe.</strong> Ignorando a covariável, a diferença bruta de '+difBruta.toFixed(1)+
+      ' unidades deu significativa. Descontando a covariável, a diferença cai para '+difAj.toFixed(1)+
+      ' e deixa de ser significativa. O que a ANOVA chamou de efeito do grupo era, na verdade, o desequilíbrio da covariável entre os grupos. É exatamente o caso dos ovos da seção 1.';}
+  else if(R.pAnova>=0.05&&R.pGrupo<0.05){cls='ok';
+    m='<strong>A ANCOVA enxergou o que a ANOVA não viu.</strong> Sem o ajuste, o valor de p era '+R.pAnova.toFixed(3).replace('.',',')+
+      ' e nada seria detectado. Com o ajuste, o p caiu para '+fmtPc(R.pGrupo)+
+      '. Duas coisas aconteceram ao mesmo tempo: a covariável estava mascarando o efeito, e retirar a variação explicada por ela reduziu o resíduo, o que aumentou a capacidade do teste. É o ganho de poder da seção 6.';}
+  else if(R.pGrupo<0.05){
+    m='<strong>Efeito confirmado nas duas análises.</strong> Diferença bruta de '+difBruta.toFixed(1)+
+      ' e ajustada de '+difAj.toFixed(1)+'. Mesmo assim, repare no tamanho do ajuste: ele mostra quanto da diferença aparente vinha da covariável. Agora aumente o desequilíbrio da covariável e observe as duas conclusões se separarem.';}
+  else{
+    m='<strong>Nenhuma das duas análises detectou efeito de grupo.</strong> Diferença bruta de '+difBruta.toFixed(1)+
+      ' e ajustada de '+difAj.toFixed(1)+'. Mexa no efeito real do grupo, ou no desequilíbrio da covariável, e observe as duas conclusões deixarem de concordar. Os casos interessantes são justamente aqueles em que ANOVA e ANCOVA discordam.';}
+  m+='<br><br>Inclinação comum estimada: '+R.bComum.toFixed(3)+
+     '. As duas retas do gráfico são paralelas por construção do modelo, e a distância vertical entre elas é o efeito do grupo já ajustado.';
+  fb.innerHTML=m;fb.className='feedback '+cls;
+}
+simAncova();
+
+/* ATIVIDADE 2 */
+function lerPares(id){
+  const x=[],y=[];
+  document.getElementById(id).value.split(/\n/).forEach(function(l){
+    const p=l.split(/[;\t]+/).map(function(s){return s.trim().replace(',','.');}).filter(function(s){return s!=='';});
+    if(p.length>=2){
+      const a=Number(p[0]),b=Number(p[1]);
+      if(!isNaN(a)&&!isNaN(b)){x.push(a);y.push(b);}
+    }
+  });
+  return {x:x,y:y};
+}
+function exemploAncova(){
+  document.getElementById('ad1').value=
+    '52,1; 56,8\n53,4; 57,9\n51,8; 56,2\n54,2; 58,7\n52,9; 57,4\n53,8; 58,2\n51,5; 55,9\n54,6; 59,1\n52,4; 57,0\n53,1; 57,6';
+  document.getElementById('ad2').value=
+    '56,3; 62,4\n57,8; 63,6\n55,9; 61,8\n58,4; 64,2\n56,7; 62,9\n57,2; 63,1\n58,9; 64,8\n55,4; 61,4\n57,6; 63,4\n56,1; 62,1';
+  document.getElementById('ad3').value='';
+  calcAncova();
+}
+function calcAncova(){
+  const nomes=[],gx=[],gy=[];
+  ['1','2','3'].forEach(function(k){
+    const d=lerPares('ad'+k);
+    if(d.x.length>=4){gx.push(d.x);gy.push(d.y);nomes.push(document.getElementById('an'+k).value||('grupo '+k));}
+  });
+  const alvo=document.getElementById('saidaAncova');
+  if(gx.length<2){
+    alvo.innerHTML='<div class="feedback nao">Preencha pelo menos dois grupos, com quatro pares ou mais em cada. Separe a covariável da resposta por ponto e vírgula.</div>';return;}
+  const ncov=document.getElementById('ncov').value||'covariável';
+  const nresp=document.getElementById('nresp').value||'resposta';
+  const R=ancova(gx,gy);
+  let linhasIncl='';
+  R.bi.forEach(function(b,i){
+    linhasIncl+='<tr><td>'+nomes[i]+'</td><td class="num">'+gx[i].length+'</td><td class="num">'+b.toFixed(3)+'</td></tr>';
+  });
+  let html=
+    '<h3>Passo 1: teste de homogeneidade das inclinações</h3>'+
+    '<div class="tabela-rolar"><table><tr><th>Grupo</th><th class="num">n</th><th class="num">Inclinação estimada</th></tr>'+
+    linhasIncl+'<tr><td><strong>Inclinação comum</strong></td><td class="num">'+R.N+'</td><td class="num destaq">'+R.bComum.toFixed(3)+'</td></tr></table></div>'+
+    '<div class="tabela-rolar"><table class="anova"><tr><th>Teste</th><th class="num">F</th><th class="num">gl</th><th class="num">valor de p</th></tr>'+
+    '<tr><td>Interação entre grupo e '+ncov+'</td><td class="num destaq">'+R.Fpar.toFixed(2)+'</td><td class="num">'+R.glParNum+' e '+R.glParDen+
+    '</td><td class="num destaq">'+fmtPc(R.pPar)+'</td></tr></table></div>';
+  if(R.pPar<0.05){
+    html+='<div class="feedback nao"><strong>Pressuposto violado. A ANCOVA clássica não se aplica aqui.</strong><br><br>'+
+      'A interação entre o grupo e a covariável deu p '+fmtP(R.pPar)+', o que significa que as inclinações diferem entre os grupos. '+
+      'As inclinações estimadas foram '+R.bi.map(function(b){return b.toFixed(3);}).join(', ')+
+      ', e elas não podem ser resumidas em um número único. '+
+      'Como a distância vertical entre as retas muda conforme o valor de '+ncov+', não existe uma diferença única entre os grupos, e portanto não faz sentido calcular médias ajustadas. '+
+      '<br><br><strong>Isso não é um fracasso, é um resultado.</strong> Siga uma das três condutas da seção 5: relatar a interação como achado principal, descrevendo a inclinação de cada grupo, comparar os grupos em valores específicos da covariável, ou restringir a análise a uma faixa onde as retas sejam aproximadamente paralelas. '+
+      'A calculadora não segue adiante de propósito, porque seguir seria produzir números sem significado.</div>';
+    alvo.innerHTML=html;return;
+  }
+  let linhasM='';
+  for(let i=0;i<R.k;i++){
+    linhasM+='<tr><td>'+nomes[i]+'</td><td class="num">'+R.mx[i].toFixed(2)+'</td><td class="num">'+R.my[i].toFixed(2)+
+      '</td><td class="num destaq">'+R.ajust[i].toFixed(2)+'</td><td class="num">'+(R.ajust[i]-R.my[i]).toFixed(2)+'</td></tr>';
+  }
+  html+=
+    '<div class="feedback ok"><strong>Pressuposto atendido.</strong> A interação deu p '+fmtP(R.pPar)+
+    ', então as inclinações podem ser consideradas homogêneas e a ANCOVA é aplicável. A inclinação comum estimada é '+R.bComum.toFixed(3)+
+    ' unidades de '+nresp+' por unidade de '+ncov+'.</div>'+
+    '<h3>Passo 2: a tabela da ANCOVA</h3>'+
+    '<div class="tabela-rolar"><table class="anova">'+
+    '<tr><th>Fonte</th><th class="num">SQ</th><th class="num">gl</th><th class="num">F</th><th class="num">valor de p</th></tr>'+
+    '<tr><td>'+ncov+', a covariável</td><td class="num">'+R.SScov.toFixed(2)+'</td><td class="num">1</td><td class="num">'+R.Fcov.toFixed(2)+'</td><td class="num">'+fmtPc(R.pCov)+'</td></tr>'+
+    '<tr><td><strong>Grupo, já ajustado</strong></td><td class="num">'+R.SSgrupo.toFixed(2)+'</td><td class="num">'+R.glGrupo+
+    '</td><td class="num destaq">'+R.Fgrupo.toFixed(2)+'</td><td class="num destaq">'+fmtPc(R.pGrupo)+'</td></tr>'+
+    '<tr><td>Resíduo</td><td class="num">'+R.SSEcomum.toFixed(2)+'</td><td class="num">'+R.glRes+'</td><td></td><td></td></tr>'+
+    '</table></div>'+
+    '<h3>Passo 3: médias brutas e ajustadas</h3>'+
+    '<div class="tabela-rolar"><table>'+
+    '<tr><th>Grupo</th><th class="num">'+ncov+' médio</th><th class="num">'+nresp+' bruto</th><th class="num">'+nresp+' ajustado</th><th class="num">Tamanho do ajuste</th></tr>'+
+    linhasM+'</table></div>'+
+    '<p style="font-size:14.5px;color:var(--cinza)">As médias ajustadas correspondem ao valor de '+ncov+' igual a '+R.mgx.toFixed(2)+', que é a média geral.</p>'+
+    '<div class="tabela-rolar"><table><tr><th>Análise</th><th class="num">F</th><th class="num">valor de p</th><th>Conclusão sobre o grupo</th></tr>'+
+    '<tr><td>ANOVA, ignorando a covariável</td><td class="num">'+R.Fanova.toFixed(2)+'</td><td class="num">'+fmtPc(R.pAnova)+
+    '</td><td class="'+(R.pAnova<0.05?'cel-ok':'cel-erro')+'">'+(R.pAnova<0.05?'difere':'não difere')+'</td></tr>'+
+    '<tr><td>ANCOVA, descontando a covariável</td><td class="num">'+R.Fgrupo.toFixed(2)+'</td><td class="num">'+fmtPc(R.pGrupo)+
+    '</td><td class="'+(R.pGrupo<0.05?'cel-ok':'cel-erro')+'">'+(R.pGrupo<0.05?'difere':'não difere')+'</td></tr>'+
+    '</table></div>'+
+    ((R.pAnova<0.05)!==(R.pGrupo<0.05)?
+      '<div class="feedback nao"><strong>As duas análises discordam, e a ANCOVA é a correta.</strong> A comparação sem ajuste estava contaminada pelo desequilíbrio da covariável entre os grupos. Este é justamente o tipo de caso que justifica a existência da ANCOVA, e merece uma frase explícita na discussão do relatório.</div>':'')+
+    '<div class="feedback ok"><strong>Frase de relato pronta.</strong> As inclinações foram homogêneas entre os grupos, interação entre grupo e '+ncov+
+    ' com F igual a '+R.Fpar.toFixed(2)+' e valor de p '+fmtP(R.pPar)+', o que autoriza a ANCOVA. '+
+    ncov+' '+(R.pCov<0.05?'afetou':'não afetou de forma detectável')+' '+nresp+', F igual a '+R.Fcov.toFixed(2)+' com 1 e '+R.glRes+
+    ' graus de liberdade, valor de p '+fmtP(R.pCov)+', com inclinação de '+R.bComum.toFixed(3)+'. '+
+    'Descontado '+ncov+', '+nresp+' '+(R.pGrupo<0.05?'diferiu':'não diferiu')+' entre os grupos, F igual a '+R.Fgrupo.toFixed(2)+
+    ' com '+R.glGrupo+' e '+R.glRes+' graus de liberdade, valor de p '+fmtP(R.pGrupo)+'. As médias ajustadas para '+ncov+' igual a '+R.mgx.toFixed(2)+
+    ' foram de '+R.ajust.map(function(a,i){return a.toFixed(2)+' em '+nomes[i];}).join(', ')+'.</div>';
+  alvo.innerHTML=html;
+}
+exemploAncova();
+
+/* ATIVIDADE 3 */
+const pares=[
+ {t:"Comparando três solos, as inclinações da altura sobre os dias foram 0,41, 0,43 e 0,40. O teste de interação deu p igual a 0,72.",
+  r:"ANCOVA aplicável",
+  j:"As inclinações são praticamente iguais e o teste confirma. As retas são paralelas, a distância vertical entre elas é constante e as médias ajustadas fazem sentido."},
+ {t:"Comparando duas granjas, as inclinações da massa sobre o comprimento foram 0,62 e 0,11. O teste de interação deu p igual a 0,003.",
+  r:"ANCOVA não aplicável",
+  j:"Em uma granja a massa acompanha fortemente o comprimento e na outra quase não acompanha. A diferença entre as granjas depende do tamanho do ovo, e não existe um número único que a descreva."},
+ {t:"Comparando dois locais de evaporação, as inclinações sobre a temperatura foram 1,8 e menos 0,4. O teste deu p igual a 0,001.",
+  r:"ANCOVA não aplicável",
+  j:"As inclinações têm sinais opostos, o que significa que as retas se cruzam. É o caso mais extremo de violação, e relatar médias ajustadas seria inventar um resultado."},
+ {t:"Comparando três coberturas de solo, as inclinações sobre o esforço amostral foram 0,22, 0,26 e 0,19. O teste deu p igual a 0,41.",
+  r:"ANCOVA aplicável",
+  j:"Variação pequena entre inclinações e teste não significativo. Pode prosseguir com a inclinação comum e as médias ajustadas."},
+ {t:"Comparando dois laranjais, as inclinações do rendimento sobre a massa da fruta foram 0,58 e 0,71. O teste deu p igual a 0,09.",
+  r:"ANCOVA aplicável",
+  j:"As inclinações diferem um pouco e o teste não rejeitou. É um caso de fronteira: prossiga, mas registre no relatório que a homogeneidade foi aceita com valor de p próximo do limite."},
+ {t:"Comparando dois tratamentos de germinação, as inclinações sobre a concentração foram menos 0,04 e menos 0,31. O teste deu p igual a 0,008.",
+  r:"ANCOVA não aplicável",
+  j:"Um tratamento é praticamente insensível à concentração e o outro é bastante sensível. Essa diferença de sensibilidade é o achado principal e deve ser relatada como tal."}
+];
+let respPar=0;
+(function(){
+  const c=document.getElementById('quizPar');
+  pares.forEach(function(k,i){
+    const d=document.createElement('div');d.className='caso';
+    d.innerHTML='<div class="n">Situação '+(i+1)+'</div><p style="margin-bottom:10px">'+k.t+'</p>'+
+      '<div class="opcoes">'+
+      '<button class="opcao" onclick="respP('+i+',\'ANCOVA aplicável\',this)">ANCOVA aplicável</button>'+
+      '<button class="opcao" onclick="respP('+i+',\'ANCOVA não aplicável\',this)">ANCOVA não aplicável</button>'+
+      '</div><div class="feedback" id="fbp'+i+'"></div>';
+    c.appendChild(d);
+  });
+})();
+function respP(i,esc,btn){
+  const pai=btn.parentElement;
+  if(pai.dataset.feito)return;pai.dataset.feito='1';
+  Array.from(pai.children).forEach(function(b){b.disabled=true;});
+  const fb=document.getElementById('fbp'+i),certo=pares[i].r;
+  if(esc===certo){btn.classList.add('certa');fb.className='feedback ok';
+    fb.innerHTML='<strong>Correto.</strong> '+pares[i].j;}
+  else{btn.classList.add('errada');
+    Array.from(pai.children).forEach(function(b){if(b.textContent===certo)b.classList.add('certa');});
+    fb.className='feedback nao';fb.innerHTML='<strong>Não é isso.</strong> '+pares[i].j;}
+  respPar++;
+  document.getElementById('placarPar').textContent='Respondidas: '+respPar+' de 6';
+}
+
+/* ATIVIDADE 4 */
+const condutas=[
+ {t:"O grupo quer comparar o efeito de três solos sobre a altura e usou o número de folhas como covariável, porque folhas se relacionam com altura.",
+  o:["Correto, a covariável está fortemente relacionada à resposta","Errado, o solo afeta o número de folhas, que é parte do efeito que se quer medir",
+     "Correto, desde que teste o paralelismo","Errado, covariável precisa ser categórica"],
+  c:1,
+  j:"Aplique o teste mental da seção 7: o número de folhas mudaria se o vaso tivesse recebido outro solo? Sim. Então descontá-lo apaga parte do efeito do tratamento."},
+ {t:"O teste de paralelismo deu p igual a 0,004. O grupo rodou a ANCOVA assim mesmo e relatou as médias ajustadas.",
+  o:["Correto, o teste de paralelismo é opcional","Errado, sem paralelismo não existe uma diferença única entre os grupos",
+     "Correto se o p da ANCOVA for baixo","Errado, deveria ter usado ANOVA"],
+  c:1,
+  j:"Com inclinações diferentes, a distância vertical entre as retas muda conforme a covariável. Médias ajustadas nesse caso são números sem significado."},
+ {t:"A ANOVA não detectou diferença entre os solos, mas a ANCOVA com dias como covariável detectou.",
+  o:["Contradição, uma das análises está errada","Situação esperada: a covariável estava mascarando o efeito e o ajuste reduziu o resíduo",
+     "A ANOVA é a correta, porque é mais simples","Erro de digitação nos dados"],
+  c:1,
+  j:"É o ganho de poder da seção 6. Retirar do resíduo a variação explicada pela covariável reduz o denominador do teste e aumenta a capacidade de detectar o efeito real."},
+ {t:"A ANOVA detectou diferença entre as granjas e a ANCOVA, descontando o comprimento, não detectou. O grupo relatou apenas a ANOVA.",
+  o:["Correto, o resultado significativo é o que importa","Errado, a diferença bruta vinha do tamanho dos ovos e a ANCOVA é a análise correta",
+     "Correto se as inclinações forem paralelas","Errado, deveria repetir o experimento"],
+  c:1,
+  j:"É exatamente o caso da seção 1. Relatar apenas a análise que deu o resultado desejado é seleção de conveniência, e é o oposto do que a Semana 16 vai chamar de integridade da inferência."},
+ {t:"A covariável não teve efeito significativo sobre a resposta, com p igual a 0,61, e as inclinações eram paralelas.",
+  o:["A ANCOVA foi inútil e deve ser descartada","Resultado legítimo: a covariável não explicou variação, e a análise equivale praticamente à ANOVA",
+     "Erro de escolha da covariável","O paralelismo é impossível nesse caso"],
+  c:1,
+  j:"Covariável sem efeito significa que ela não ajudou a reduzir o resíduo, o que é uma informação. A conclusão sobre o fator permanece válida, e vale registrar que o ajuste foi pequeno."},
+ {t:"O relatório informa apenas o valor de p do fator, sem mencionar o teste de paralelismo nem as médias ajustadas.",
+  o:["Relato adequado","Relato incompleto, faltam três dos quatro elementos exigidos",
+     "Relato adequado se houver gráfico","Relato errado, ANCOVA não tem valor de p para o fator"],
+  c:1,
+  j:"O relato precisa do teste de paralelismo, do efeito da covariável com a inclinação, do efeito ajustado do fator e das médias ajustadas com o valor da covariável usado."}
+];
+let respCond=0;
+(function(){
+  const c=document.getElementById('quizCond');
+  condutas.forEach(function(k,i){
+    const d=document.createElement('div');d.className='caso';
+    const bts=k.o.map(function(op,j){
+      return '<button class="opcao" style="flex:1 1 100%;text-align:left" onclick="respC('+i+','+j+',this)">'+op+'</button>';}).join('');
+    d.innerHTML='<div class="n">Situação '+(i+1)+'</div><p style="margin-bottom:10px">'+k.t+'</p>'+
+      '<div class="opcoes" style="flex-direction:column">'+bts+'</div>'+
+      '<div class="feedback" id="fbc'+i+'"></div>';
+    c.appendChild(d);
+  });
+})();
+function respC(i,j,btn){
+  const pai=btn.parentElement;
+  if(pai.dataset.feito)return;pai.dataset.feito='1';
+  Array.from(pai.children).forEach(function(b){b.disabled=true;});
+  const fb=document.getElementById('fbc'+i);
+  if(j===condutas[i].c){btn.classList.add('certa');fb.className='feedback ok';
+    fb.innerHTML='<strong>Correto.</strong> '+condutas[i].j;}
+  else{btn.classList.add('errada');pai.children[condutas[i].c].classList.add('certa');
+    fb.className='feedback nao';fb.innerHTML='<strong>Não é isso.</strong> '+condutas[i].j;}
+  respCond++;
+  document.getElementById('placarCond').textContent='Respondidas: '+respCond+' de 6';
+}
+
+/* AUTOAVALIACAO */
+const perguntas=[
+ {p:"O que é uma média ajustada?",
+  o:["A média dos valores depois de remover os extremos","A média que cada grupo teria se todos tivessem o mesmo valor da covariável",
+     "A média ponderada pelo tamanho dos grupos","A média dos resíduos do modelo"],
+  c:1,
+  j:"É o resultado mais útil da ANCOVA, porque coloca os grupos em pé de igualdade quanto à covariável."},
+ {p:"Qual é o pressuposto exclusivo da ANCOVA?",
+  o:["Normalidade dos resíduos","Homocedasticidade","Homogeneidade das inclinações entre os grupos","Independência das observações"],
+  c:2,
+  j:"Os outros três também são exigidos, mas aparecem em todos os modelos anteriores. O paralelismo das retas é o pressuposto próprio da ANCOVA."},
+ {p:"Como se testa a homogeneidade das inclinações?",
+  o:["Comparando as variâncias dos grupos","Testando a interação entre o fator e a covariável",
+     "Com o teste de Shapiro-Wilk","Comparando as médias ajustadas com as brutas"],
+  c:1,
+  j:"É a mesma ideia de interação da Semana 9, agora com um preditor contínuo. Se a interação for significativa, as retas não são paralelas."},
+ {p:"Por que a ANCOVA costuma ter mais poder que a ANOVA?",
+  o:["Porque usa mais graus de liberdade","Porque retira do resíduo a variação explicada pela covariável, reduzindo o ruído",
+     "Porque exige menos réplicas","Porque não precisa de pressupostos"],
+  c:1,
+  j:"É o mesmo mecanismo do teste t pareado e da blocagem: explicar parte do ruído em vez de deixá-lo no denominador do teste."},
+ {p:"Por que a covariável não pode ser afetada pelo tratamento?",
+  o:["Porque isso viola a normalidade","Porque descontá-la removeria parte do próprio efeito que se quer medir",
+     "Porque a covariável precisa ser categórica","Porque isso impede o cálculo das inclinações"],
+  c:1,
+  j:"O teste mental é perguntar se o valor da covariável mudaria caso a unidade tivesse recebido outro tratamento. Se mudaria, ela não serve."},
+ {p:"O teste de paralelismo deu significativo. Qual é a conduta correta?",
+  o:["Rodar a ANCOVA e relatar as médias ajustadas","Descartar os dados",
+     "Relatar a interação como achado e descrever a inclinação de cada grupo","Trocar a covariável por outra qualquer"],
+  c:2,
+  j:"Inclinações diferentes significam que a diferença entre os grupos depende da covariável. Isso é um resultado, e frequentemente o mais interessante do trabalho."}
+];
+let respFinal=0;
+(function(){
+  const c=document.getElementById('quizFinal');
+  perguntas.forEach(function(q,i){
+    const d=document.createElement('div');d.className='caso';
+    const botoes=q.o.map(function(op,j){
+      return '<button class="opcao" style="flex:1 1 100%;text-align:left" onclick="respFF('+i+','+j+',this)">'+op+'</button>';}).join('');
+    d.innerHTML='<div class="n">Questão '+(i+1)+'</div><p style="margin-bottom:10px"><strong>'+q.p+'</strong></p>'+
+      '<div class="opcoes" style="flex-direction:column">'+botoes+'</div>'+
+      '<div class="feedback" id="fbq'+i+'"></div>';
+    c.appendChild(d);
+  });
+})();
+function respFF(i,j,btn){
+  const pai=btn.parentElement;
+  if(pai.dataset.feito)return;pai.dataset.feito='1';
+  Array.from(pai.children).forEach(function(b){b.disabled=true;});
+  const fb=document.getElementById('fbq'+i);
+  if(j===perguntas[i].c){btn.classList.add('certa');fb.className='feedback ok';
+    fb.innerHTML='<strong>Correto.</strong> '+perguntas[i].j;}
+  else{btn.classList.add('errada');pai.children[perguntas[i].c].classList.add('certa');
+    fb.className='feedback nao';fb.innerHTML='<strong>Não é isso.</strong> '+perguntas[i].j;}
+  respFinal++;
+  document.getElementById('placarFinal').textContent='Respondidas: '+respFinal+' de 6';
+}
+</script>
+</body>
+</html>

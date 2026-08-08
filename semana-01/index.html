@@ -1,0 +1,966 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Semana 1: O que é modelagem, média, moda, mediana e desvio padrão</title>
+<style>
+:root{
+  --azul:#1565c0; --azul-claro:#e3f0fc;
+  --verde:#2e7d32; --verde-claro:#e6f4e7;
+  --laranja:#e65100; --laranja-claro:#fff1e5;
+  --roxo:#6a1b9a; --roxo-claro:#f3e8f8;
+  --vermelho:#c62828; --vermelho-claro:#fdeaea;
+  --cinza:#5a6472; --borda:#dfe4ea; --fundo:#f6f8fa;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;
+  background:#fff;color:#22272e;line-height:1.65;font-size:16px}
+.wrap{max-width:880px;margin:0 auto;padding:20px 18px 80px}
+
+header.topo{background:linear-gradient(135deg,#1565c0,#1e88e5);border-radius:16px;
+  padding:26px 24px;color:#fff;margin-bottom:22px}
+header.topo .tag{display:inline-block;background:rgba(255,255,255,.22);padding:5px 13px;
+  border-radius:20px;font-size:13px;font-weight:600;letter-spacing:.3px;margin-bottom:12px}
+header.topo h1{font-size:25px;line-height:1.28;margin-bottom:10px;font-weight:700}
+header.topo p{font-size:14.5px;opacity:.94}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:16px}
+.chip{background:rgba(255,255,255,.16);border:1px solid rgba(255,255,255,.3);
+  padding:7px 13px;border-radius:9px;font-size:13px;font-weight:500}
+
+nav.indice{background:var(--fundo);border:1px solid var(--borda);border-radius:14px;
+  padding:16px 18px;margin-bottom:26px}
+nav.indice strong{display:block;font-size:13px;text-transform:uppercase;
+  letter-spacing:.6px;color:var(--cinza);margin-bottom:10px}
+nav.indice a{display:block;color:var(--azul);text-decoration:none;padding:7px 0;
+  font-size:15px;border-bottom:1px solid #eef1f4}
+nav.indice a:last-child{border-bottom:none}
+nav.indice a:hover{text-decoration:underline}
+
+.bloco{margin-bottom:34px}
+.bloco-cab{display:flex;align-items:center;gap:12px;margin-bottom:16px;
+  padding-bottom:12px;border-bottom:3px solid var(--azul-claro)}
+.bloco-num{background:var(--azul);color:#fff;width:38px;height:38px;flex:0 0 38px;
+  border-radius:10px;display:flex;align-items:center;justify-content:center;
+  font-weight:700;font-size:17px}
+.bloco-cab h2{font-size:20px;font-weight:700;line-height:1.3}
+h3{font-size:17px;margin:22px 0 9px;color:#1a1f26;font-weight:650}
+p{margin-bottom:13px}
+ul,ol{margin:0 0 14px 22px}
+li{margin-bottom:7px}
+
+.card{border:1px solid var(--borda);border-radius:14px;padding:20px;margin:16px 0;background:#fff}
+.destaque{border-left:5px solid var(--verde);background:var(--verde-claro);
+  border-radius:12px;padding:16px 18px;margin:16px 0}
+.destaque strong{color:var(--verde)}
+.alerta{border-left:5px solid var(--vermelho);background:var(--vermelho-claro);
+  border-radius:12px;padding:16px 18px;margin:16px 0}
+.alerta strong{color:var(--vermelho)}
+.consult{border-left:5px solid var(--laranja);background:var(--laranja-claro);
+  border-radius:12px;padding:16px 18px;margin:16px 0}
+.consult strong{color:var(--laranja)}
+.livro{border-left:5px solid var(--roxo);background:var(--roxo-claro);
+  border-radius:12px;padding:14px 18px;margin:16px 0;font-size:14.5px}
+.livro strong{color:var(--roxo)}
+
+/* faixa de aviso gigante */
+.faixa{background:#c62828;color:#fff;border-radius:16px;padding:30px 24px;
+  margin:30px 0;text-align:center;box-shadow:0 5px 18px rgba(198,40,40,.22)}
+.faixa .l1{font-size:31px;font-weight:800;line-height:1.2;letter-spacing:-.4px;margin-bottom:6px}
+.faixa .l2{font-size:31px;font-weight:800;line-height:1.2;letter-spacing:-.4px;
+  opacity:.72;margin-bottom:14px}
+.faixa .l3{font-size:20px;font-weight:700;background:rgba(255,255,255,.16);
+  display:inline-block;padding:11px 20px;border-radius:11px;line-height:1.35}
+@media(max-width:600px){
+  .faixa .l1,.faixa .l2{font-size:23px}
+  .faixa .l3{font-size:16px}
+}
+
+table{width:100%;border-collapse:collapse;margin:14px 0;font-size:14.5px}
+th{background:var(--azul-claro);padding:11px 12px;text-align:left;font-weight:650;
+  border:1px solid var(--borda)}
+td{padding:11px 12px;border:1px solid var(--borda);vertical-align:top}
+.tabela-rolar{overflow-x:auto}
+.num{text-align:right;font-variant-numeric:tabular-nums}
+
+.formula{background:var(--fundo);border:1px solid var(--borda);border-radius:11px;
+  padding:16px 18px;margin:14px 0;text-align:center;font-size:17px;
+  font-family:ui-monospace,SFMono-Regular,Menlo,monospace}
+
+.interativo{border:2px solid var(--verde);border-radius:16px;padding:22px;
+  margin:22px 0;background:#fbfefb}
+.interativo-cab{display:flex;align-items:center;gap:10px;margin-bottom:6px}
+.interativo-cab .selo{background:var(--verde);color:#fff;font-size:11.5px;font-weight:700;
+  padding:4px 11px;border-radius:20px;letter-spacing:.5px}
+.interativo h3{margin:8px 0 6px;font-size:17.5px}
+.interativo .instr{font-size:14.5px;color:var(--cinza);margin-bottom:16px}
+
+button{font-family:inherit;font-size:15px;font-weight:600;cursor:pointer;border:none;
+  border-radius:10px;padding:11px 20px;transition:.15s;margin:0 6px 6px 0}
+.btn{background:var(--azul);color:#fff}
+.btn:hover{background:#0d47a1}
+.btn-verde{background:var(--verde);color:#fff}
+.btn-verde:hover{background:#1b5e20}
+.btn-claro{background:#fff;color:var(--azul);border:2px solid var(--azul)}
+.btn-claro:hover{background:var(--azul-claro)}
+
+.opcoes{display:flex;flex-wrap:wrap;gap:9px;margin:12px 0}
+.opcao{flex:1 1 150px;min-width:140px;background:#fff;border:2px solid var(--borda);
+  border-radius:10px;padding:12px 14px;font-size:14.5px;font-weight:600;cursor:pointer;
+  text-align:center;transition:.15s}
+.opcao:hover{border-color:var(--azul);background:var(--azul-claro)}
+.opcao.certa{border-color:var(--verde);background:var(--verde-claro);color:var(--verde)}
+.opcao.errada{border-color:var(--vermelho);background:var(--vermelho-claro);color:var(--vermelho)}
+.opcao:disabled{cursor:default}
+
+.feedback{margin-top:13px;padding:14px 16px;border-radius:10px;font-size:14.5px;display:none}
+.feedback.ok{background:var(--verde-claro);border-left:4px solid var(--verde);display:block}
+.feedback.nao{background:var(--vermelho-claro);border-left:4px solid var(--vermelho);display:block}
+
+.caso{background:#fff;border:1px solid var(--borda);border-radius:10px;padding:15px 16px;
+  margin-bottom:10px;font-size:15px}
+.caso .n{font-size:12.5px;font-weight:700;color:var(--cinza);text-transform:uppercase;
+  letter-spacing:.6px;margin-bottom:6px}
+
+.controles{display:flex;flex-wrap:wrap;gap:16px;margin:14px 0;align-items:flex-end}
+.campo{flex:1 1 170px;min-width:155px}
+.campo label{display:block;font-size:13px;font-weight:650;color:var(--cinza);
+  margin-bottom:6px;text-transform:uppercase;letter-spacing:.4px}
+.campo input,.campo select{width:100%;padding:11px 12px;border:2px solid var(--borda);
+  border-radius:9px;font-size:15px;font-family:inherit;background:#fff}
+.campo input:focus{outline:none;border-color:var(--azul)}
+textarea{width:100%;padding:12px;border:2px solid var(--borda);border-radius:10px;
+  font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:14px;min-height:110px;
+  resize:vertical;background:#fff}
+textarea:focus{outline:none;border-color:var(--azul)}
+input[type=range]{width:100%;accent-color:var(--verde)}
+
+.saida{display:grid;grid-template-columns:repeat(auto-fit,minmax(128px,1fr));gap:11px;margin-top:16px}
+.metrica{background:#fff;border:1px solid var(--borda);border-radius:11px;padding:14px 12px;text-align:center}
+.metrica .rot{font-size:11.5px;text-transform:uppercase;letter-spacing:.6px;color:var(--cinza);
+  font-weight:650;margin-bottom:5px}
+.metrica .val{font-size:21px;font-weight:700;color:var(--azul)}
+
+canvas{width:100%;height:auto;display:block;background:#fff;border:1px solid var(--borda);
+  border-radius:11px;margin-top:14px}
+.legenda-grafico{display:flex;flex-wrap:wrap;gap:16px;justify-content:center;margin-top:10px;
+  font-size:13.5px;color:var(--cinza)}
+.legenda-grafico span{display:flex;align-items:center;gap:6px}
+.legenda-grafico i{width:14px;height:12px;border-radius:3px;display:inline-block}
+
+.placar{background:var(--azul-claro);border-radius:11px;padding:14px 16px;margin-top:14px;
+  font-size:15px;font-weight:600;color:var(--azul);text-align:center}
+
+.checklist{list-style:none;margin-left:0}
+.checklist li{display:flex;gap:11px;align-items:flex-start;padding:11px 0;border-bottom:1px solid #eef1f4}
+.checklist input[type=checkbox]{width:19px;height:19px;margin-top:3px;accent-color:var(--verde);flex:0 0 19px}
+
+footer.rodape{margin-top:44px;padding-top:20px;border-top:2px solid var(--borda);
+  font-size:13.5px;color:var(--cinza);text-align:center}
+
+@media(max-width:600px){
+  .wrap{padding:14px 13px 60px}
+  header.topo h1{font-size:21px}
+  .bloco-cab h2{font-size:18px}
+  .opcao{flex:1 1 100%}
+}
+@media print{
+  body{font-size:11.5pt}
+  header.topo,.faixa{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  nav.indice,button,.opcoes{display:none}
+  .interativo,.bloco{page-break-inside:avoid}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="topo">
+  <span class="tag">SEMANA 1 &nbsp;|&nbsp; SEGUNDA 10 A SÁBADO 15 DE AGOSTO DE 2026</span>
+  <h1>O que é modelagem, e o primeiro modelo de todos: a média</h1>
+  <p>Modelagem e Experimentação em Biologia, FACAB-CAC-158, 60h, Turma 01, 2026.2<br>
+  Prof. Dr. Ernandes Sobreira Oliveira Junior, UNEMAT, Campus de Cáceres</p>
+  <div class="chips">
+    <span class="chip">2h de leitura, de segunda a sexta</span>
+    <span class="chip">2h de prática, de segunda a sexta</span>
+    <span class="chip">Questionário fecha sexta, 23h59</span>
+  </div>
+</header>
+
+<nav class="indice">
+  <strong>Roteiro da semana</strong>
+  <a href="#p1">1. O que é modelagem e para que ela serve</a>
+  <a href="#p2">2. A média, o modelo mais simples que existe</a>
+  <a href="#p3">3. Moda e mediana</a>
+  <a href="#p4">4. Não acredite na média</a>
+  <a href="#p5">5. O desvio padrão, que mostra o porquê</a>
+  <a href="#p6">6. Coeficiente de variação, comparando dispersões</a>
+  <a href="#a1">Atividade 1: calcular o desvio padrão na mão</a>
+  <a href="#a2">Atividade 2: três conjuntos, a mesma média</a>
+  <a href="#a3">Atividade 3: o controle deslizante do desvio padrão</a>
+  <a href="#a4">Atividade 4: a média mente ou não mente?</a>
+  <a href="#a5">Atividade 5: média contra mediana</a>
+  <a href="#a6">Atividade 6: os seus próprios dados</a>
+  <a href="#a7">Atividade 7: decisão de consultoria</a>
+  <a href="#fecho">Autoavaliação e checklist</a>
+</nav>
+
+<!-- =============== LEITURA =============== -->
+
+<div class="bloco" id="p1">
+  <div class="bloco-cab"><div class="bloco-num">1</div>
+  <h2>O que é modelagem e para que ela serve</h2></div>
+
+  <p><strong>Modelo é uma representação simplificada da realidade, construída para responder a uma pergunta específica.</strong> Modelar é decidir o que vale a pena manter e o que pode ser descartado sem estragar a resposta.</p>
+
+  <p>Um mapa é um modelo. Ele joga fora quase tudo do território, a cor das casas, o cheiro do rio, a altura do capim, e mantém apenas o que serve para você chegar a algum lugar. Um mapa que mantivesse tudo teria o tamanho do território e seria inútil.</p>
+
+  <p>O estatístico britânico George Box escreveu a frase mais citada da área: todos os modelos estão errados, mas alguns são úteis. Isso não é pessimismo, é o critério de trabalho. Nenhum modelo descreve a realidade inteira. A pergunta certa nunca é se o modelo está certo, e sim <strong>se ele é bom o bastante para a decisão que precisa ser tomada</strong>.</p>
+
+  <h3>Para que a modelagem serve na biologia e na consultoria ambiental</h3>
+
+  <div class="tabela-rolar">
+  <table>
+    <tr><th>Função</th><th>Pergunta que responde</th><th>Exemplo em consultoria</th></tr>
+    <tr><td>Descrever</td><td>Como esse sistema é?</td><td>Qual a turbidez típica do córrego e quanto ela varia</td></tr>
+    <tr><td>Comparar</td><td>Esses grupos diferem?</td><td>A jusante do lançamento difere da montante</td></tr>
+    <tr><td>Relacionar</td><td>Uma variável acompanha a outra?</td><td>A temperatura da superfície acompanha o tipo de cobertura do solo</td></tr>
+    <tr><td>Prever</td><td>O que acontece se mudar?</td><td>Quanto a vazão cai se a área impermeável dobrar</td></tr>
+    <tr><td>Decidir</td><td>Qual conclusão o dado sustenta?</td><td>O empreendimento altera ou não a qualidade da água</td></tr>
+  </table>
+  </div>
+
+  <div class="consult">
+    <strong>Por que isso importa no seu futuro profissional.</strong> Um laudo ambiental é, do começo ao fim, uma sequência de modelos. Quando alguém escreve que a concentração média de um parâmetro está dentro do limite legal, essa pessoa já construiu um modelo: reduziu dezenas de medições a um único número. Esta semana inteira é sobre entender o que esse número guarda e o que ele esconde.
+  </div>
+
+  <div class="livro">
+    <strong>No livro.</strong> Modelagem e Experimentação em Biologia, um guia prático, Editora UNEMAT, 2025. Localize no sumário a parte introdutória sobre o que é um modelo e a seção de estatística descritiva.
+  </div>
+</div>
+
+<div class="bloco" id="p2">
+  <div class="bloco-cab"><div class="bloco-num">2</div>
+  <h2>A média, o modelo mais simples que existe</h2></div>
+
+  <p>Você mediu a altura de 8 plantas de cebolinha. São 8 números diferentes. Se alguém perguntar quanto cresceu a cebolinha, você não vai recitar os 8 valores. Vai dizer um só.</p>
+
+  <p>Esse único número é um modelo. É a primeira simplificação da sua vida como pesquisador, e a mais radical de todas: <strong>substituir todo o conjunto por um valor que representa o conjunto.</strong></p>
+
+  <p>A <strong>média aritmética</strong> soma todos os valores e divide pelo número de observações.</p>
+
+  <div class="formula">média = (soma de todos os valores) / n</div>
+
+  <p>Exemplo didático, valores criados para o exercício. Alturas de cebolinha em centímetros:</p>
+
+  <div class="formula">12, 14, 15, 13, 16, 14, 15, 13</div>
+
+  <p>Soma igual a 112. Número de plantas igual a 8. Média igual a 112 dividido por 8, ou seja, 14 centímetros.</p>
+
+  <div class="destaque">
+    <strong>O que a média realmente é.</strong> É o ponto de equilíbrio do conjunto. Se você colocasse cada valor como um peso sobre uma régua, a média seria o ponto onde a régua fica equilibrada. É por isso que um valor muito distante puxa a média inteira na direção dele, como uma criança pesada na ponta de uma gangorra.
+  </div>
+</div>
+
+<div class="bloco" id="p3">
+  <div class="bloco-cab"><div class="bloco-num">3</div>
+  <h2>Moda e mediana</h2></div>
+
+  <p>A média não é a única forma de resumir um conjunto em um número. Existem outras duas que você precisa dominar.</p>
+
+  <h3>Moda</h3>
+  <p>É o valor que mais se repete. No conjunto acima, o 13, o 14 e o 15 aparecem duas vezes cada, então o conjunto tem três modas. A moda é a única medida que funciona com dados que não são números, como cor da casca do ovo ou tipo de cobertura do solo. Em um levantamento de fauna, a espécie mais frequente é a moda.</p>
+
+  <h3>Mediana</h3>
+  <p>É o valor que fica exatamente no meio quando você ordena todos os dados do menor para o maior. Metade fica abaixo dela, metade acima.</p>
+
+  <p>Ordenando o conjunto: 12, 13, 13, 14, 14, 15, 15, 16. Como há 8 valores, número par, a mediana é a média dos dois centrais, o quarto e o quinto: (14 mais 14) dividido por 2, igual a 14.</p>
+
+  <div class="destaque">
+    <strong>A diferença que decide tudo.</strong> A média usa o valor de cada observação. A mediana usa apenas a posição de cada observação. Por isso a média é sensível a valores extremos e a mediana não é. Guarde essa frase, ela reaparece na atividade 5.
+  </div>
+</div>
+
+<!-- =============== FAIXA =============== -->
+
+<div class="faixa">
+  <div class="l1">NÃO ACREDITE NA MÉDIA</div>
+  <div class="l2">NÃO ACREDITE NA MÉDIA</div>
+  <div class="l3">A MÉDIA MENTE.<br>O DESVIO PADRÃO MOSTRA O PORQUÊ.</div>
+</div>
+
+<div class="bloco" id="p4">
+  <div class="bloco-cab"><div class="bloco-num">4</div>
+  <h2>Não acredite na média</h2></div>
+
+  <p>A média mente porque ela é boa demais no que faz. Ela apaga todas as diferenças individuais e devolve um número liso, confortável, que parece descrever o conjunto. E às vezes não descreve nada.</p>
+
+  <h3>O rio de profundidade média de um metro</h3>
+  <p>Um rio tem profundidade média de um metro. Você atravessa? A resposta é que não dá para saber. Pode ser um rio com um metro em toda a extensão. Pode ser um rio com 20 centímetros nas margens e quatro metros no meio. A média é a mesma nos dois casos. A decisão de atravessar é completamente diferente.</p>
+
+  <div class="alerta">
+    <strong>Este é o ponto central da semana.</strong> Dois conjuntos com a mesma média podem descrever realidades opostas. A média sozinha nunca é resposta suficiente. Sempre que você ler ou escrever uma média sem o desvio padrão ao lado, alguma informação essencial foi perdida no caminho.
+  </div>
+
+  <h3>Onde a média mente na consultoria ambiental</h3>
+  <ul>
+    <li><strong>Qualidade da água.</strong> A concentração média de um parâmetro pode ficar dentro do limite legal enquanto medições individuais estouram esse limite várias vezes ao longo do ano. A média dilui o pico. O pico é justamente o que mata peixe.</li>
+    <li><strong>Clima.</strong> Duas cidades com a mesma temperatura média anual podem ter regimes térmicos completamente diferentes, uma estável e outra com extremos severos. Estresse térmico não é causado pela média.</li>
+    <li><strong>Biodiversidade.</strong> A abundância média por armadilha pode ser idêntica em duas áreas, uma com indivíduos distribuídos de forma homogênea e outra com quase todos concentrados em uma única armadilha. São situações ecológicas distintas.</li>
+    <li><strong>Quantidade de água.</strong> A vazão média anual de um rio diz pouco sobre a estiagem. Quem outorga uso de água precisa saber o mínimo, não o médio.</li>
+  </ul>
+
+  <div class="consult">
+    <strong>Frase que você vai usar na vida profissional.</strong> Média sem medida de dispersão ao lado é informação incompleta, e em laudo técnico é motivo legítimo para pedir complementação.
+  </div>
+</div>
+
+<div class="bloco" id="p5">
+  <div class="bloco-cab"><div class="bloco-num">5</div>
+  <h2>O desvio padrão, que mostra o porquê</h2></div>
+
+  <p>Se a média responde onde está o centro, o <strong>desvio padrão</strong> responde o quanto os dados se espalham em torno desse centro. Ele é a resposta à pergunta que a média não responde: os valores estão todos perto da média ou estão espalhados longe dela?</p>
+
+  <h3>Como ele é construído, passo a passo</h3>
+  <ol>
+    <li>Calcule a média do conjunto.</li>
+    <li>Para cada valor, calcule o quanto ele se afasta da média. Isso é o desvio.</li>
+    <li>Eleve cada desvio ao quadrado. Isso elimina o sinal negativo, porque a soma dos desvios sem elevar ao quadrado sempre dá zero.</li>
+    <li>Some todos os quadrados. Esse total é chamado soma de quadrados.</li>
+    <li>Divida pela quantidade de valores menos um. O resultado é a variância.</li>
+    <li>Tire a raiz quadrada da variância. Esse é o desvio padrão.</li>
+  </ol>
+
+  <div class="formula">desvio padrão = raiz de [ soma dos (valor menos média) ao quadrado / (n menos 1) ]</div>
+
+  <p>A raiz quadrada existe por um motivo prático. A variância está em unidade ao quadrado, centímetros quadrados no exemplo da cebolinha, o que não significa nada fisicamente. A raiz devolve o resultado para a mesma unidade dos dados, e o desvio padrão volta a ser em centímetros.</p>
+
+  <div class="destaque">
+    <strong>Por que dividir por n menos 1 e não por n.</strong> Quando você trabalha com uma amostra e não com a população inteira, dividir por n subestima a dispersão real. O ajuste para n menos 1 corrige esse viés. Na sua planilha, use sempre a função para amostra: DESVPAD.A no Excel em português, ou STDEV.S em inglês, e STDEV no Google Planilhas.
+  </div>
+
+  <h3>Lendo o desvio padrão</h3>
+  <ul>
+    <li><strong>Desvio padrão pequeno em relação à média.</strong> Os valores estão agrupados perto do centro. A média representa bem o conjunto.</li>
+    <li><strong>Desvio padrão grande em relação à média.</strong> Os valores estão espalhados. A média existe, mas não representa quase nenhuma observação individual.</li>
+    <li><strong>Desvio padrão igual a zero.</strong> Todos os valores são idênticos. Situação rara em dados biológicos, e quando aparece costuma indicar erro de digitação ou instrumento travado.</li>
+  </ul>
+</div>
+
+<div class="bloco" id="p6">
+  <div class="bloco-cab"><div class="bloco-num">6</div>
+  <h2>Coeficiente de variação, comparando dispersões</h2></div>
+
+  <p>Um desvio padrão de 3 é grande ou pequeno? Depende da escala. Três centímetros em plantas de 14 centímetros é muito. Três centímetros em árvores de 12 metros é nada.</p>
+
+  <p>O <strong>coeficiente de variação</strong> resolve isso expressando o desvio padrão como porcentagem da média, o que permite comparar a dispersão de variáveis com unidades e escalas diferentes.</p>
+
+  <div class="formula">coeficiente de variação = (desvio padrão / média) x 100</div>
+
+  <div class="tabela-rolar">
+  <table>
+    <tr><th>Faixa aproximada</th><th>Leitura</th><th>Consequência prática</th></tr>
+    <tr><td>Abaixo de 10 por cento</td><td>Baixa dispersão</td><td>Poucas réplicas já dão estimativa precisa</td></tr>
+    <tr><td>Entre 10 e 30 por cento</td><td>Dispersão comum em biologia</td><td>Situação usual, planeje esforço amostral moderado</td></tr>
+    <tr><td>Acima de 30 por cento</td><td>Alta dispersão</td><td>Serão necessárias muitas réplicas para detectar diferenças</td></tr>
+  </table>
+  </div>
+
+  <p>Essas faixas são orientações práticas, não regras rígidas. Em algumas variáveis ambientais, como contagem de organismos, coeficientes acima de 50 por cento são normais e esperados.</p>
+</div>
+
+<!-- =============== ATIVIDADES =============== -->
+
+<div class="bloco" id="a1">
+  <div class="interativo">
+    <div class="interativo-cab"><span class="selo">ATIVIDADE 1</span></div>
+    <h3>Calcular o desvio padrão na mão, passo a passo</h3>
+    <p class="instr">Digite até dez valores separados por vírgula. A tabela mostra cada etapa do cálculo, exatamente como você faria no papel e como monta na planilha.</p>
+    <div class="campo" style="max-width:420px">
+      <label>Valores</label>
+      <input type="text" id="passoDados" value="12, 14, 15, 13, 16, 14, 15, 13">
+    </div>
+    <button class="btn-verde" onclick="passoAPasso()">Mostrar o cálculo</button>
+    <div id="passoSaida"></div>
+  </div>
+</div>
+
+<div class="bloco" id="a2">
+  <div class="interativo">
+    <div class="interativo-cab"><span class="selo">ATIVIDADE 2</span></div>
+    <h3>Três conjuntos, exatamente a mesma média</h3>
+    <p class="instr">Os três conjuntos abaixo são exemplos didáticos, com valores criados para o exercício. Todos têm média 50. Olhe para os pontos antes de olhar para os números.</p>
+    <canvas id="graf3" width="820" height="380"></canvas>
+    <div class="legenda-grafico">
+      <span><i style="background:#2e7d32"></i> Conjunto A</span>
+      <span><i style="background:#1565c0"></i> Conjunto B</span>
+      <span><i style="background:#c62828"></i> Conjunto C</span>
+      <span><i style="background:#5a6472;height:3px"></i> Média, igual a 50 nos três</span>
+    </div>
+    <div class="tabela-rolar">
+    <table>
+      <tr><th>Conjunto</th><th>Valores</th><th class="num">Média</th><th class="num">Desvio padrão</th><th class="num">CV</th></tr>
+      <tr><td>A</td><td>48, 49, 50, 51, 52</td><td class="num">50,0</td><td class="num">1,6</td><td class="num">3,2%</td></tr>
+      <tr><td>B</td><td>35, 43, 50, 57, 65</td><td class="num">50,0</td><td class="num">11,9</td><td class="num">23,8%</td></tr>
+      <tr><td>C</td><td>10, 12, 50, 88, 90</td><td class="num">50,0</td><td class="num">40,0</td><td class="num">80,0%</td></tr>
+    </table>
+    </div>
+    <div class="alerta" style="margin-top:6px">
+      <strong>Repare no conjunto C.</strong> A média é 50 e nenhum valor sequer se aproxima de 50, com exceção de um. Se alguém apresentasse apenas a média, você imaginaria um conjunto parecido com o A. É exatamente assim que a média mente.
+    </div>
+    <div class="opcoes">
+      <button class="opcao" onclick="resp3(this,false)">O conjunto A</button>
+      <button class="opcao" onclick="resp3(this,false)">O conjunto B</button>
+      <button class="opcao" onclick="resp3(this,true)">O conjunto C</button>
+    </div>
+    <p style="font-size:14px;color:var(--cinza);margin-top:-6px">Pergunta: em qual conjunto a média é o pior representante das observações individuais?</p>
+    <div class="feedback" id="fb3"></div>
+  </div>
+</div>
+
+<div class="bloco" id="a3">
+  <div class="interativo">
+    <div class="interativo-cab"><span class="selo">ATIVIDADE 3</span></div>
+    <h3>O controle deslizante do desvio padrão</h3>
+    <p class="instr">Mantenha a média fixa e mova apenas o desvio padrão. Os dados são gerados artificialmente para treino, nenhum valor aqui é medição real. Observe o que acontece com a nuvem de pontos enquanto a média não sai do lugar.</p>
+    <div class="controles">
+      <div class="campo">
+        <label>Média fixa</label>
+        <input type="number" id="slMedia" value="50">
+      </div>
+      <div class="campo">
+        <label>Desvio padrão: <span id="slDpLabel">5</span></label>
+        <input type="range" id="slDp" min="1" max="40" value="5">
+      </div>
+      <div class="campo">
+        <label>Quantidade de valores: <span id="slNLabel">40</span></label>
+        <input type="range" id="slN" min="10" max="120" value="40">
+      </div>
+    </div>
+    <button class="btn-verde" onclick="desenharNuvem()">Gerar de novo</button>
+    <canvas id="grafNuvem" width="820" height="330"></canvas>
+    <div class="legenda-grafico">
+      <span><i style="background:#1565c0;border-radius:50%;width:12px;height:12px"></i> Cada observação</span>
+      <span><i style="background:#c62828;height:3px"></i> Média</span>
+      <span><i style="background:#e65100;height:3px"></i> Faixa de uma vez o desvio padrão em torno da média</span>
+    </div>
+    <div class="feedback ok" id="fbNuvem"></div>
+  </div>
+</div>
+
+<div class="bloco" id="a4">
+  <div class="interativo">
+    <div class="interativo-cab"><span class="selo">ATIVIDADE 4</span></div>
+    <h3>A média mente ou não mente?</h3>
+    <p class="instr">Em cada situação, decida se apresentar apenas a média é aceitável ou enganoso. O retorno explica o raciocínio.</p>
+    <div id="quizMente"></div>
+    <div class="placar" id="placarMente">Respondidas: 0 de 6</div>
+  </div>
+</div>
+
+<div class="bloco" id="a5">
+  <div class="interativo">
+    <div class="interativo-cab"><span class="selo">ATIVIDADE 5</span></div>
+    <h3>Média contra mediana</h3>
+    <p class="instr">Um único valor extremo entra no conjunto. Mova o controle devagar e acompanhe os dois primeiros números lado a lado. Um deles vai correr atrás do valor extremo. O outro não vai sair do lugar.</p>
+    <p style="font-size:15px">Conjunto base, exemplo didático, com sete valores fixos: <strong>12, 13, 13, 14, 14, 15, 15</strong>. A soma desses sete é 96. Você controla apenas o oitavo valor.</p>
+    <div class="destaque" style="font-size:14.5px">
+      <strong>Antes de mover, faça a conta de cabeça.</strong> A média sempre será 96 mais o oitavo valor, dividido por 8. Se o oitavo valor for 16, a média dá exatamente 14. Se for 40, a média dá 17. Se for 200, a média dá 37. <strong>A média muda com qualquer valor que entrar.</strong> Agora observe a mediana enquanto faz isso.
+    </div>
+    <div class="controles">
+      <div class="campo">
+        <label>Oitavo valor: <span id="outLabel">16</span></label>
+        <input type="range" id="outlier" min="14" max="200" value="16">
+      </div>
+    </div>
+    <div class="saida">
+      <div class="metrica"><div class="rot">Média</div><div class="val" id="oMedia">-</div></div>
+      <div class="metrica"><div class="rot">Mediana</div><div class="val" id="oMediana">-</div></div>
+      <div class="metrica"><div class="rot">Desvio padrão</div><div class="val" id="oDp">-</div></div>
+      <div class="metrica"><div class="rot">CV</div><div class="val" id="oCv">-</div></div>
+    </div>
+    <div class="feedback ok" id="fbOut"></div>
+    <div class="alerta" style="font-size:14.5px">
+      <strong>Um detalhe que costuma confundir.</strong> Aqui o controle começa em 14 porque o valor extremo entra por cima do conjunto. Se em vez disso ele entrasse por baixo, por exemplo com o valor 10, a mediana também se deslocaria um pouco, de 14,00 para 13,50. O motivo é que a mediana depende da posição central, e um valor novo abaixo de todos empurra essa posição um passo para trás. A mediana é resistente a valores extremos, e não imune a eles. A média, essa se move sempre.
+    </div>
+  </div>
+</div>
+
+<div class="bloco" id="a6">
+  <div class="interativo">
+    <div class="interativo-cab"><span class="selo">ATIVIDADE 6</span></div>
+    <h3>Os seus próprios dados</h3>
+    <p class="instr">Cole valores medidos por você, um por linha ou separados por vírgula. Tudo é calculado no seu navegador e nada é enviado para lugar nenhum. Use esta ferramenta com os dados do seu experimento a partir das próximas semanas.</p>
+    <textarea id="meusDados" placeholder="Cole assim:&#10;12,4&#10;13,1&#10;11,8&#10;14,0&#10;12,9"></textarea>
+    <div style="margin-top:12px">
+      <button class="btn" onclick="calcularMeus()">Calcular</button>
+      <button class="btn-claro" onclick="document.getElementById('meusDados').value='';document.getElementById('saidaMeus').style.display='none'">Limpar</button>
+    </div>
+    <div id="saidaMeus" style="display:none">
+      <div class="saida">
+        <div class="metrica"><div class="rot">n</div><div class="val" id="mN">-</div></div>
+        <div class="metrica"><div class="rot">Média</div><div class="val" id="mMedia">-</div></div>
+        <div class="metrica"><div class="rot">Mediana</div><div class="val" id="mMed">-</div></div>
+        <div class="metrica"><div class="rot">Moda</div><div class="val" id="mModa">-</div></div>
+        <div class="metrica"><div class="rot">Desvio padrão</div><div class="val" id="mDp">-</div></div>
+        <div class="metrica"><div class="rot">Variância</div><div class="val" id="mVar">-</div></div>
+        <div class="metrica"><div class="rot">CV</div><div class="val" id="mCv">-</div></div>
+        <div class="metrica"><div class="rot">Amplitude</div><div class="val" id="mAmp">-</div></div>
+      </div>
+      <canvas id="grafMeus" width="820" height="260"></canvas>
+      <div class="legenda-grafico">
+        <span><i style="background:#1565c0;border-radius:50%;width:12px;height:12px"></i> Seus valores</span>
+        <span><i style="background:#c62828;height:3px"></i> Média</span>
+        <span><i style="background:#e65100;height:3px"></i> Uma vez o desvio padrão</span>
+      </div>
+      <div class="feedback ok" id="fbMeus"></div>
+    </div>
+  </div>
+</div>
+
+<div class="bloco" id="a7">
+  <div class="interativo">
+    <div class="interativo-cab"><span class="selo">ATIVIDADE 7</span></div>
+    <h3>Decisão de consultoria</h3>
+    <p class="instr">Exemplo didático com valores criados para o exercício. Você recebeu o monitoramento de turbidez de dois pontos de um córrego, doze medições em cada um ao longo do ano, em unidades nefelométricas de turbidez.</p>
+    <div class="tabela-rolar">
+    <table>
+      <tr><th>Ponto</th><th>Média</th><th>Desvio padrão</th><th>Menor valor</th><th>Maior valor</th></tr>
+      <tr><td>Ponto 1</td><td>38,0</td><td>4,2</td><td>31</td><td>45</td></tr>
+      <tr><td>Ponto 2</td><td>38,0</td><td>29,5</td><td>6</td><td>96</td></tr>
+    </table>
+    </div>
+    <p style="font-size:15px;margin-top:10px"><strong>O limite de referência do estudo é 40 unidades. Qual ponto exige atenção prioritária no relatório?</strong></p>
+    <div class="opcoes">
+      <button class="opcao" onclick="respLaudo(this,'a')">Ponto 1, porque a média está próxima do limite</button>
+      <button class="opcao" onclick="respLaudo(this,'b')">Ponto 2, porque a variação indica eventos acima do limite</button>
+      <button class="opcao" onclick="respLaudo(this,'c')">Nenhum, porque as médias estão abaixo de 40</button>
+    </div>
+    <div class="feedback" id="fbLaudo"></div>
+  </div>
+</div>
+
+<!-- =============== FECHO =============== -->
+
+<div class="bloco" id="fecho">
+  <div class="bloco-cab"><div class="bloco-num">7</div>
+  <h2>Autoavaliação e checklist</h2></div>
+
+  <div class="interativo">
+    <div class="interativo-cab"><span class="selo">AUTOAVALIAÇÃO</span></div>
+    <h3>Seis perguntas antes do questionário</h3>
+    <p class="instr">Não valem nota. Servem para você saber se está pronto para o questionário que fecha na sexta às 23h59.</p>
+    <div id="quizFinal"></div>
+    <div class="placar" id="placarFinal">Respondidas: 0 de 6</div>
+  </div>
+
+  <div class="card">
+    <h3>Prática obrigatória na planilha</h3>
+    <p>Antes de responder o questionário, monte uma planilha no Excel ou no Google Planilhas com os oito valores de cebolinha usados nesta aula e calcule, com fórmula e não na calculadora:</p>
+    <div class="tabela-rolar">
+    <table>
+      <tr><th>O que calcular</th><th>Excel em português</th><th>Google Planilhas</th></tr>
+      <tr><td>Média</td><td>=MÉDIA(intervalo)</td><td>=AVERAGE(intervalo)</td></tr>
+      <tr><td>Mediana</td><td>=MED(intervalo)</td><td>=MEDIAN(intervalo)</td></tr>
+      <tr><td>Moda</td><td>=MODO.ÚNICO(intervalo)</td><td>=MODE(intervalo)</td></tr>
+      <tr><td>Desvio padrão da amostra</td><td>=DESVPAD.A(intervalo)</td><td>=STDEV(intervalo)</td></tr>
+      <tr><td>Variância da amostra</td><td>=VAR.A(intervalo)</td><td>=VAR(intervalo)</td></tr>
+      <tr><td>Contagem</td><td>=CONT.NÚM(intervalo)</td><td>=COUNT(intervalo)</td></tr>
+      <tr><td>Coeficiente de variação</td><td>=DESVPAD.A(intervalo)/MÉDIA(intervalo)*100</td><td>=STDEV(intervalo)/AVERAGE(intervalo)*100</td></tr>
+    </table>
+    </div>
+    <p>Depois refaça o desvio padrão em colunas separadas, uma para o desvio de cada valor e outra para o quadrado do desvio, e confira se o resultado bate com a fórmula pronta. Quem faz isso uma vez nunca mais esquece de onde o número vem.</p>
+  </div>
+
+  <div class="card">
+    <h3>Checklist da semana</h3>
+    <ul class="checklist">
+      <li><input type="checkbox"><span>Li os seis pontos do bloco de leitura</span></li>
+      <li><input type="checkbox"><span>Completei as sete atividades</span></li>
+      <li><input type="checkbox"><span>Sei explicar com as minhas palavras por que a média pode mentir</span></li>
+      <li><input type="checkbox"><span>Calculei o desvio padrão na planilha, com fórmula e passo a passo</span></li>
+      <li><input type="checkbox"><span>Instalei o PAST 4</span></li>
+      <li><input type="checkbox"><span>Consultei a seção correspondente no livro da disciplina</span></li>
+      <li><input type="checkbox"><span>Meu grupo está formado para o trabalho do semestre</span></li>
+      <li><input type="checkbox"><span>Respondi o questionário antes de sexta às 23h59</span></li>
+    </ul>
+  </div>
+
+  <div class="consult">
+    <strong>Para fechar a semana.</strong> Se você sabe explicar por que a média pode mentir, sabe calcular o desvio padrão na planilha e entende o que ele revela, o objetivo desta semana está cumprido. Guarde a planilha que você montou, porque ela vira a base do trabalho das próximas semanas. Qualquer dúvida pode ser enviada por mensagem institucional a qualquer momento.
+  </div>
+</div>
+
+<footer class="rodape">
+  Modelagem e Experimentação em Biologia, FACAB-CAC-158, 60h, 2026.2<br>
+  UNEMAT, Campus de Cáceres, Faculdade de Ciências Agrárias e Biológicas<br>
+  Semana de segunda a sábado. Material de estudo autônomo.
+</footer>
+
+</div>
+
+<script>
+/* ---------- utilitarios ---------- */
+function estat(v){
+  const n=v.length;
+  const media=v.reduce((a,b)=>a+b,0)/n;
+  const varn=n>1?v.reduce((a,b)=>a+(b-media)**2,0)/(n-1):0;
+  const dp=Math.sqrt(varn);
+  const ord=[...v].sort((a,b)=>a-b);
+  const mediana=n%2?ord[(n-1)/2]:(ord[n/2-1]+ord[n/2])/2;
+  return {n,media,varn,dp,mediana,min:ord[0],max:ord[n-1],cv:media!==0?dp/media*100:0};
+}
+function normal(m,s){
+  let u=0,v=0;
+  while(u===0)u=Math.random();
+  while(v===0)v=Math.random();
+  return m+s*Math.sqrt(-2*Math.log(u))*Math.cos(2*Math.PI*v);
+}
+
+/* ---------- ATIVIDADE 1 ---------- */
+function passoAPasso(){
+  const bruto=document.getElementById('passoDados').value;
+  const v=bruto.split(/[,;\n\t ]+/).map(s=>s.trim().replace(',','.'))
+    .filter(s=>s!=='').map(Number).filter(x=>!isNaN(x)).slice(0,10);
+  const alvo=document.getElementById('passoSaida');
+  if(v.length<2){alvo.innerHTML='<div class="feedback nao">Informe pelo menos dois valores.</div>';return;}
+  const e=estat(v);
+  let linhas='';let somaQ=0;
+  v.forEach((x,i)=>{
+    const d=x-e.media, q=d*d; somaQ+=q;
+    linhas+=`<tr><td>${i+1}</td><td class="num">${x}</td><td class="num">${d.toFixed(2)}</td><td class="num">${q.toFixed(2)}</td></tr>`;
+  });
+  alvo.innerHTML=`
+    <div class="tabela-rolar"><table style="margin-top:16px">
+      <tr><th>#</th><th class="num">Valor</th><th class="num">Valor menos a média</th><th class="num">Desvio ao quadrado</th></tr>
+      ${linhas}
+      <tr style="background:#f6f8fa;font-weight:700">
+        <td colspan="2">Soma</td>
+        <td class="num">0,00</td>
+        <td class="num">${somaQ.toFixed(2)}</td>
+      </tr>
+    </table></div>
+    <div class="saida">
+      <div class="metrica"><div class="rot">n</div><div class="val">${e.n}</div></div>
+      <div class="metrica"><div class="rot">Média</div><div class="val">${e.media.toFixed(2)}</div></div>
+      <div class="metrica"><div class="rot">Soma de quadrados</div><div class="val">${somaQ.toFixed(2)}</div></div>
+      <div class="metrica"><div class="rot">Variância</div><div class="val">${e.varn.toFixed(2)}</div></div>
+      <div class="metrica"><div class="rot">Desvio padrão</div><div class="val">${e.dp.toFixed(2)}</div></div>
+      <div class="metrica"><div class="rot">CV</div><div class="val">${e.cv.toFixed(1)}%</div></div>
+    </div>
+    <div class="feedback ok">
+      <strong>Olhe para a coluna do meio.</strong> A soma dos desvios sem elevar ao quadrado dá exatamente zero, sempre, em qualquer conjunto. Isso acontece porque a média é o ponto de equilíbrio: o que sobra de um lado falta do outro. É por essa razão que os desvios são elevados ao quadrado antes de somar. Depois disso a variância vale ${e.varn.toFixed(2)}, ou seja, ${somaQ.toFixed(2)} dividido por ${e.n-1}, e o desvio padrão é a raiz quadrada disso, ${e.dp.toFixed(2)}, de volta na unidade original dos dados.
+    </div>`;
+}
+passoAPasso();
+
+/* ---------- ATIVIDADE 2 ---------- */
+const conj={A:[48,49,50,51,52],B:[35,43,50,57,65],C:[10,12,50,88,90]};
+function desenhar3(){
+  const cv=document.getElementById('graf3'),ctx=cv.getContext('2d');
+  const W=cv.width,H=cv.height,mE=74,mD=26,mT=22,mB=48;
+  ctx.clearRect(0,0,W,H);ctx.fillStyle='#fff';ctx.fillRect(0,0,W,H);
+  const x=v=>mE+(v/100)*(W-mE-mD);
+  const linhas=[{k:'A',c:'#2e7d32'},{k:'B',c:'#1565c0'},{k:'C',c:'#c62828'}];
+  const alt=(H-mT-mB)/3;
+  ctx.strokeStyle='#eef1f4';ctx.lineWidth=1;
+  for(let v=0;v<=100;v+=20){ctx.beginPath();ctx.moveTo(x(v),mT);ctx.lineTo(x(v),H-mB);ctx.stroke();}
+  ctx.strokeStyle='#5a6472';ctx.lineWidth=2.4;ctx.setLineDash([6,5]);
+  ctx.beginPath();ctx.moveTo(x(50),mT);ctx.lineTo(x(50),H-mB);ctx.stroke();ctx.setLineDash([]);
+  linhas.forEach((L,i)=>{
+    const yy=mT+alt*i+alt/2;
+    ctx.strokeStyle='#dfe4ea';ctx.lineWidth=1.6;
+    ctx.beginPath();ctx.moveTo(mE,yy);ctx.lineTo(W-mD,yy);ctx.stroke();
+    ctx.fillStyle='#22272e';ctx.font='bold 15px sans-serif';ctx.textAlign='right';
+    ctx.fillText('Conjunto '+L.k,mE-12,yy+5);
+    conj[L.k].forEach(v=>{
+      ctx.fillStyle=L.c;ctx.beginPath();ctx.arc(x(v),yy,9,0,2*Math.PI);ctx.fill();
+      ctx.strokeStyle='#fff';ctx.lineWidth=2.2;ctx.stroke();
+    });
+  });
+  ctx.fillStyle='#5a6472';ctx.font='13px sans-serif';ctx.textAlign='center';
+  for(let v=0;v<=100;v+=20)ctx.fillText(v,x(v),H-mB+22);
+  ctx.font='13.5px sans-serif';ctx.fillText('Valor observado',(mE+W-mD)/2,H-12);
+}
+desenhar3();
+function resp3(btn,certo){
+  const pai=btn.parentElement;
+  if(pai.dataset.feito)return;pai.dataset.feito='1';
+  [...pai.children].forEach(b=>b.disabled=true);
+  const fb=document.getElementById('fb3');
+  if(certo){btn.classList.add('certa');fb.className='feedback ok';
+    fb.innerHTML='<strong>Correto.</strong> No conjunto C apenas um valor está próximo da média. Os outros quatro estão muito longe dela, dois muito abaixo e dois muito acima. A média de 50 não descreve nenhuma dessas observações. É o rio de um metro de profundidade média com as margens rasas e o meio fundo.';}
+  else{btn.classList.add('errada');pai.children[2].classList.add('certa');
+    fb.className='feedback nao';
+    fb.innerHTML='<strong>Não é esse.</strong> A resposta é o conjunto C, que tem desvio padrão de 40 e coeficiente de variação de 80 por cento. Quanto maior o desvio padrão em relação à média, pior a média representa as observações individuais.';}
+}
+
+/* ---------- ATIVIDADE 3 ---------- */
+let nuvemDados=[];
+document.getElementById('slDp').addEventListener('input',e=>{
+  document.getElementById('slDpLabel').textContent=e.target.value;desenharNuvem();});
+document.getElementById('slN').addEventListener('input',e=>{
+  document.getElementById('slNLabel').textContent=e.target.value;desenharNuvem();});
+document.getElementById('slMedia').addEventListener('change',desenharNuvem);
+function desenharNuvem(){
+  const mu=parseFloat(document.getElementById('slMedia').value)||50;
+  const sd=parseInt(document.getElementById('slDp').value);
+  const n=parseInt(document.getElementById('slN').value);
+  nuvemDados=[];for(let i=0;i<n;i++)nuvemDados.push(normal(mu,sd));
+  const cv=document.getElementById('grafNuvem'),ctx=cv.getContext('2d');
+  const W=cv.width,H=cv.height,mE=52,mD=26,mT=24,mB=50;
+  ctx.clearRect(0,0,W,H);ctx.fillStyle='#fff';ctx.fillRect(0,0,W,H);
+  const lo=mu-45, hi=mu+45;
+  const x=v=>mE+((v-lo)/(hi-lo))*(W-mE-mD);
+  ctx.strokeStyle='#eef1f4';ctx.lineWidth=1;
+  for(let k=0;k<=6;k++){const v=lo+k*(hi-lo)/6;
+    ctx.beginPath();ctx.moveTo(x(v),mT);ctx.lineTo(x(v),H-mB);ctx.stroke();}
+  // faixa de 1 dp
+  ctx.fillStyle='rgba(230,81,0,.12)';
+  ctx.fillRect(x(mu-sd),mT,x(mu+sd)-x(mu-sd),H-mT-mB);
+  ctx.strokeStyle='#e65100';ctx.lineWidth=2.4;
+  [mu-sd,mu+sd].forEach(v=>{ctx.beginPath();ctx.moveTo(x(v),mT);ctx.lineTo(x(v),H-mB);ctx.stroke();});
+  // pontos
+  nuvemDados.forEach(v=>{
+    if(v<lo||v>hi)return;
+    const yy=mT+18+Math.random()*(H-mT-mB-36);
+    ctx.fillStyle='rgba(21,101,192,.72)';
+    ctx.beginPath();ctx.arc(x(v),yy,6,0,2*Math.PI);ctx.fill();
+  });
+  // media
+  ctx.strokeStyle='#c62828';ctx.lineWidth=3;
+  ctx.beginPath();ctx.moveTo(x(mu),mT);ctx.lineTo(x(mu),H-mB);ctx.stroke();
+  ctx.fillStyle='#5a6472';ctx.font='13px sans-serif';ctx.textAlign='center';
+  for(let k=0;k<=6;k++){const v=lo+k*(hi-lo)/6;ctx.fillText(v.toFixed(0),x(v),H-mB+22);}
+  ctx.font='13.5px sans-serif';ctx.fillText('Valor observado',(mE+W-mD)/2,H-12);
+  const e=estat(nuvemDados);
+  const dentro=nuvemDados.filter(v=>v>=mu-sd&&v<=mu+sd).length;
+  document.getElementById('fbNuvem').innerHTML=
+    '<strong>A média não saiu do lugar.</strong> Ela continua em '+mu.toFixed(0)+
+    ', a linha vermelha, enquanto os pontos se espalham cada vez mais. Com desvio padrão de '+sd+
+    ', cerca de '+Math.round(dentro/nuvemDados.length*100)+' por cento das observações caíram dentro da faixa laranja, que vai de '+
+    (mu-sd).toFixed(0)+' a '+(mu+sd).toFixed(0)+
+    '. Em uma distribuição simétrica esse valor gira em torno de 68 por cento. Quanto mais larga essa faixa, menos a média sozinha diz alguma coisa útil.';
+  document.getElementById('fbNuvem').className='feedback ok';
+}
+desenharNuvem();
+
+/* ---------- ATIVIDADE 4 ---------- */
+const situacoes=[
+ {t:"Um relatório informa que a concentração média de um parâmetro no córrego foi de 8 unidades, com limite legal de 10, e não apresenta o desvio padrão nem os valores individuais.",
+  r:"Engana",
+  j:"Sem dispersão não há como saber se houve medições acima de 10. Uma média de 8 é compatível com um conjunto sempre próximo de 8 e também com um conjunto que oscila entre 2 e 16. As consequências ambientais das duas situações são completamente diferentes."},
+ {t:"Um grupo relata que a altura média das plantas foi de 14 centímetros, com desvio padrão de 0,8 centímetro, e mostra os valores individuais em anexo.",
+  r:"Aceitável",
+  j:"A média vem acompanhada da dispersão e os dados brutos estão disponíveis. Com desvio padrão de 0,8 em uma média de 14, o coeficiente de variação é de cerca de 6 por cento, então a média representa bem o conjunto."},
+ {t:"Uma nota informa que a temperatura média anual da cidade é de 26 graus, para justificar que não há risco de estresse térmico para a população.",
+  r:"Engana",
+  j:"Estresse térmico é causado por extremos, não por médias. Uma média anual de 26 graus é compatível com dias de 42 graus. Para essa conclusão seriam necessários os máximos, a frequência de dias acima de limiares críticos e a duração das ondas de calor."},
+ {t:"Um inventário registra abundância média de 12 indivíduos por armadilha e apresenta a tabela completa com o número de indivíduos de cada uma das 20 armadilhas.",
+  r:"Aceitável",
+  j:"A tabela completa permite que qualquer leitor calcule a dispersão por conta própria e verifique se os indivíduos estão distribuídos ou concentrados. Transparência do dado bruto resolve boa parte do problema."},
+ {t:"Um estudo conclui que a vazão do rio é suficiente para a outorga solicitada, baseando-se apenas na vazão média anual.",
+  r:"Engana",
+  j:"A disponibilidade hídrica que limita a outorga é a das estiagens, não a média. A média anual é puxada para cima pelo período chuvoso. Análises de outorga trabalham com vazões mínimas de referência justamente por isso."},
+ {t:"Um trabalho apresenta a massa média dos ovos de duas granjas, com desvio padrão, número de ovos medidos e um gráfico mostrando a distribuição dos valores de cada granja.",
+  r:"Aceitável",
+  j:"Média, dispersão, tamanho amostral e representação gráfica da distribuição. É o conjunto mínimo que permite ao leitor julgar se a média é um bom resumo daquele conjunto."}
+];
+let respMente=0;
+(function(){
+  const c=document.getElementById('quizMente');
+  situacoes.forEach((s,i)=>{
+    const d=document.createElement('div');d.className='caso';
+    d.innerHTML=`<div class="n">Situação ${i+1}</div><p style="margin-bottom:10px">${s.t}</p>
+      <div class="opcoes">
+        <button class="opcao" onclick="respM(${i},'Aceitável',this)">Aceitável</button>
+        <button class="opcao" onclick="respM(${i},'Engana',this)">Engana o leitor</button>
+      </div>
+      <div class="feedback" id="fbm${i}"></div>`;
+    c.appendChild(d);
+  });
+})();
+function respM(i,esc,btn){
+  const pai=btn.parentElement;
+  if(pai.dataset.feito)return;pai.dataset.feito='1';
+  [...pai.children].forEach(b=>b.disabled=true);
+  const fb=document.getElementById('fbm'+i);
+  const certo=situacoes[i].r;
+  if(esc===certo){btn.classList.add('certa');fb.className='feedback ok';
+    fb.innerHTML='<strong>Correto.</strong> '+situacoes[i].j;}
+  else{btn.classList.add('errada');
+    [...pai.children].forEach(b=>{if(b.textContent.startsWith(certo.substring(0,6)))b.classList.add('certa')});
+    fb.className='feedback nao';
+    fb.innerHTML='<strong>Não é isso.</strong> '+situacoes[i].j;}
+  respMente++;
+  document.getElementById('placarMente').textContent='Respondidas: '+respMente+' de 6';
+}
+
+/* ---------- ATIVIDADE 5 ---------- */
+const base=[12,13,13,14,14,15,15];
+document.getElementById('outlier').addEventListener('input',atualizarOut);
+function atualizarOut(){
+  const x=parseInt(document.getElementById('outlier').value);
+  document.getElementById('outLabel').textContent=x;
+  const v=[...base,x];const e=estat(v);
+  document.getElementById('oMedia').textContent=e.media.toFixed(2);
+  document.getElementById('oMediana').textContent=e.mediana.toFixed(2);
+  document.getElementById('oDp').textContent=e.dp.toFixed(2);
+  document.getElementById('oCv').textContent=e.cv.toFixed(1)+'%';
+  const fb=document.getElementById('fbOut');
+  const conta='A conta da média é 96 mais '+x+', dividido por 8, igual a '+e.media.toFixed(2)+'. ';
+  let m='';
+  if(x<=20){m='<strong>Ainda tudo tranquilo.</strong> '+conta+'A mediana está em '+e.mediana.toFixed(2)+
+    ', praticamente colada na média. Com valores próximos entre si, média e mediana concordam, e aí a média é um bom resumo do conjunto. Continue subindo o controle.';}
+  else if(x<=60){m='<strong>Olhe os dois números agora.</strong> '+conta+'A média já subiu para '+e.media.toFixed(2)+
+    ', mas a mediana continua exatamente em '+e.mediana.toFixed(2)+'. Ela não se mexeu, e não vai se mexer, porque a mediana olha para a posição do meio e não para o tamanho dos valores. O desvio padrão saltou para '+e.dp.toFixed(2)+
+    ', e é ele que está avisando que alguma coisa mudou no conjunto.';}
+  else{m='<strong>A média deixou de descrever o conjunto.</strong> '+conta+'Nenhum dos sete valores originais chega perto de '+e.media.toFixed(2)+
+    ', porque todos eles estão entre 12 e 15. Um único valor extremo arrastou a média para longe de todo mundo. A mediana continua firme em '+e.mediana.toFixed(2)+
+    ', que é onde o conjunto realmente está. Coeficiente de variação de '+e.cv.toFixed(0)+
+    ' por cento. Se um relatório apresentasse apenas a média deste conjunto, estaria mentindo com números corretos.';}
+  fb.innerHTML=m;fb.className='feedback ok';
+}
+atualizarOut();
+
+/* ---------- ATIVIDADE 6 ---------- */
+function calcularMeus(){
+  const bruto=document.getElementById('meusDados').value;
+  const v=bruto.split(/[\n,;\t ]+/).map(s=>s.trim().replace(',','.'))
+    .filter(s=>s!=='').map(Number).filter(x=>!isNaN(x));
+  if(v.length<2){alert('Cole pelo menos dois valores numéricos.');return;}
+  const e=estat(v);
+  const cont={};v.forEach(x=>cont[x]=(cont[x]||0)+1);
+  const maxF=Math.max(...Object.values(cont));
+  const modas=Object.keys(cont).filter(k=>cont[k]===maxF);
+  document.getElementById('mN').textContent=e.n;
+  document.getElementById('mMedia').textContent=e.media.toFixed(2);
+  document.getElementById('mMed').textContent=e.mediana.toFixed(2);
+  document.getElementById('mModa').textContent=maxF===1?'sem moda':(modas.length>3?modas.length+' modas':modas.join(', '));
+  document.getElementById('mDp').textContent=e.dp.toFixed(2);
+  document.getElementById('mVar').textContent=e.varn.toFixed(2);
+  document.getElementById('mCv').textContent=e.cv.toFixed(1)+'%';
+  document.getElementById('mAmp').textContent=(e.max-e.min).toFixed(2);
+  document.getElementById('saidaMeus').style.display='block';
+  desenharMeus(v,e);
+  let msg='<strong>Leitura do seu conjunto.</strong> ';
+  if(e.cv<10)msg+='Coeficiente de variação de '+e.cv.toFixed(1)+' por cento indica conjunto pouco disperso, e a média representa bem os seus dados. ';
+  else if(e.cv<30)msg+='Coeficiente de variação de '+e.cv.toFixed(1)+' por cento está na faixa comum em dados biológicos. A média é utilizável, desde que sempre acompanhada do desvio padrão. ';
+  else msg+='Coeficiente de variação de '+e.cv.toFixed(1)+' por cento indica alta dispersão. Cuidado ao apresentar a média sozinha, ela representa mal as suas observações individuais. ';
+  const dif=Math.abs(e.media-e.mediana)/(e.dp||1);
+  if(dif>0.4)msg+='Além disso, média e mediana estão distantes uma da outra, o que sugere distribuição assimétrica ou presença de valor extremo. Vale olhar o gráfico acima e conferir se algum valor foi digitado errado.';
+  else msg+='Média e mediana estão próximas, o que sugere distribuição razoavelmente simétrica.';
+  const fb=document.getElementById('fbMeus');fb.innerHTML=msg;fb.className='feedback ok';
+}
+function desenharMeus(v,e){
+  const cvs=document.getElementById('grafMeus'),ctx=cvs.getContext('2d');
+  const W=cvs.width,H=cvs.height,mE=46,mD=26,mT=22,mB=46;
+  ctx.clearRect(0,0,W,H);ctx.fillStyle='#fff';ctx.fillRect(0,0,W,H);
+  const pad=(e.max-e.min)*0.15||1;
+  const lo=e.min-pad,hi=e.max+pad;
+  const x=val=>mE+((val-lo)/(hi-lo))*(W-mE-mD);
+  ctx.strokeStyle='#eef1f4';ctx.lineWidth=1;
+  for(let k=0;k<=6;k++){const val=lo+k*(hi-lo)/6;
+    ctx.beginPath();ctx.moveTo(x(val),mT);ctx.lineTo(x(val),H-mB);ctx.stroke();}
+  ctx.fillStyle='rgba(230,81,0,.12)';
+  ctx.fillRect(x(e.media-e.dp),mT,x(e.media+e.dp)-x(e.media-e.dp),H-mT-mB);
+  ctx.strokeStyle='#e65100';ctx.lineWidth=2.2;
+  [e.media-e.dp,e.media+e.dp].forEach(val=>{
+    ctx.beginPath();ctx.moveTo(x(val),mT);ctx.lineTo(x(val),H-mB);ctx.stroke();});
+  v.forEach(val=>{
+    const yy=mT+18+Math.random()*(H-mT-mB-36);
+    ctx.fillStyle='rgba(21,101,192,.75)';
+    ctx.beginPath();ctx.arc(x(val),yy,6.5,0,2*Math.PI);ctx.fill();});
+  ctx.strokeStyle='#c62828';ctx.lineWidth=3;
+  ctx.beginPath();ctx.moveTo(x(e.media),mT);ctx.lineTo(x(e.media),H-mB);ctx.stroke();
+  ctx.fillStyle='#5a6472';ctx.font='13px sans-serif';ctx.textAlign='center';
+  for(let k=0;k<=6;k++){const val=lo+k*(hi-lo)/6;ctx.fillText(val.toFixed(1),x(val),H-mB+22);}
+  ctx.font='13.5px sans-serif';ctx.fillText('Valor observado',(mE+W-mD)/2,H-12);
+}
+
+/* ---------- ATIVIDADE 7 ---------- */
+function respLaudo(btn,op){
+  const pai=btn.parentElement;
+  if(pai.dataset.feito)return;pai.dataset.feito='1';
+  [...pai.children].forEach(b=>b.disabled=true);
+  const fb=document.getElementById('fbLaudo');
+  if(op==='b'){btn.classList.add('certa');fb.className='feedback ok';
+    fb.innerHTML='<strong>Correto.</strong> As duas médias são idênticas, 38, e as duas ficam abaixo do limite de 40. Mas o Ponto 2 tem desvio padrão de 29,5 e o maior valor registrado chegou a 96, mais que o dobro do limite. Isso significa que houve eventos de turbidez muito acima do permitido, provavelmente associados a chuva, obra ou lançamento pontual. O Ponto 1, com desvio padrão de 4,2 e máximo de 45, é estável e previsível. Quem lê só a média conclui que os dois pontos são equivalentes, o que é falso.';}
+  else{btn.classList.add('errada');pai.children[1].classList.add('certa');
+    fb.className='feedback nao';
+    fb.innerHTML='<strong>Não é isso.</strong> A resposta é o Ponto 2. As médias são iguais, mas o desvio padrão de 29,5 e o valor máximo de 96 revelam eventos muito acima do limite de 40, que a média esconde. O Ponto 1 é estável, com máximo de 45. Este exercício é a razão de existir a faixa vermelha desta aula.';}
+}
+
+/* ---------- AUTOAVALIACAO ---------- */
+const perguntas=[
+ {p:"O que é um modelo, na definição usada nesta disciplina?",
+  o:["Uma representação simplificada da realidade, construída para responder a uma pergunta específica",
+     "Uma fórmula matemática que descreve a realidade de forma completa",
+     "Um programa de computador que analisa dados",
+     "O resultado final de um teste estatístico"],
+  c:0,
+  j:"Modelo é simplificação com propósito. A frase de George Box resume a ideia: todos os modelos estão errados, mas alguns são úteis. O critério nunca é estar certo, e sim ser útil para a decisão em questão."},
+ {p:"Por que a soma dos desvios em relação à média sempre dá zero?",
+  o:["Porque os dados biológicos são sempre simétricos",
+     "Porque a média é o ponto de equilíbrio do conjunto, e o que sobra de um lado falta do outro",
+     "Porque os desvios negativos são descartados no cálculo",
+     "Porque a média é sempre um número inteiro"],
+  c:1,
+  j:"A média equilibra o conjunto. Justamente por isso os desvios são elevados ao quadrado antes de somar, senão o resultado seria sempre zero e não haveria como medir dispersão."},
+ {p:"Dois conjuntos têm a mesma média, um com desvio padrão 2 e outro com desvio padrão 30. O que isso significa?",
+  o:["O segundo conjunto tem mais observações",
+     "O segundo conjunto tem valores muito mais espalhados, e a média o representa mal",
+     "O primeiro conjunto tem erro de medição",
+     "Os dois conjuntos são estatisticamente equivalentes"],
+  c:1,
+  j:"Desvio padrão é dispersão, não quantidade. Com desvio padrão 30, os valores estão longe da média, e a média deixa de ser um bom representante das observações individuais."},
+ {p:"Um conjunto tem média 20 e mediana 14. O que isso indica?",
+  o:["Erro de cálculo, porque média e mediana devem ser iguais",
+     "Distribuição simétrica",
+     "Provável assimetria ou presença de valores extremos altos puxando a média",
+     "Que o desvio padrão é igual a zero"],
+  c:2,
+  j:"A média usa o valor de cada observação e a mediana usa apenas a posição. Quando a média fica bem acima da mediana, valores altos extremos estão puxando a média para cima."},
+ {p:"Qual é a função do coeficiente de variação?",
+  o:["Substituir o desvio padrão em conjuntos pequenos",
+     "Expressar a dispersão como porcentagem da média, permitindo comparar variáveis de escalas diferentes",
+     "Indicar se os dados seguem distribuição normal",
+     "Calcular o tamanho amostral necessário"],
+  c:1,
+  j:"Um desvio padrão de 3 é enorme em plantas de 14 centímetros e desprezível em árvores de 12 metros. O coeficiente de variação torna essas dispersões comparáveis."},
+ {p:"Em um laudo de qualidade da água, por que apresentar apenas a média de um parâmetro é problemático?",
+  o:["Porque a média é difícil de calcular",
+     "Porque órgãos ambientais não aceitam médias",
+     "Porque a média pode ficar dentro do limite legal enquanto medições individuais o ultrapassam, e é o pico que causa dano",
+     "Porque a mediana é sempre mais precisa que a média"],
+  c:2,
+  j:"A média dilui os picos. O efeito ecológico e a violação legal acontecem nos eventos extremos, que a média esconde. Por isso média sem dispersão em laudo técnico é motivo legítimo de pedido de complementação."}
+];
+let respFinal=0;
+(function(){
+  const c=document.getElementById('quizFinal');
+  perguntas.forEach((q,i)=>{
+    const d=document.createElement('div');d.className='caso';
+    const botoes=q.o.map((op,j)=>
+      `<button class="opcao" style="flex:1 1 100%;text-align:left" onclick="respF(${i},${j},this)">${op}</button>`).join('');
+    d.innerHTML=`<div class="n">Questão ${i+1}</div><p style="margin-bottom:10px"><strong>${q.p}</strong></p>
+      <div class="opcoes" style="flex-direction:column">${botoes}</div>
+      <div class="feedback" id="fbq${i}"></div>`;
+    c.appendChild(d);
+  });
+})();
+function respF(i,j,btn){
+  const pai=btn.parentElement;
+  if(pai.dataset.feito)return;pai.dataset.feito='1';
+  [...pai.children].forEach(b=>b.disabled=true);
+  const fb=document.getElementById('fbq'+i);
+  if(j===perguntas[i].c){btn.classList.add('certa');fb.className='feedback ok';
+    fb.innerHTML='<strong>Correto.</strong> '+perguntas[i].j;}
+  else{btn.classList.add('errada');pai.children[perguntas[i].c].classList.add('certa');
+    fb.className='feedback nao';fb.innerHTML='<strong>Não é isso.</strong> '+perguntas[i].j;}
+  respFinal++;
+  document.getElementById('placarFinal').textContent='Respondidas: '+respFinal+' de 6';
+}
+</script>
+</body>
+</html>

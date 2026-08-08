@@ -1,0 +1,1039 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Semana 2: Tipos de dados, variáveis e a planilha que funciona</title>
+<style>
+:root{
+  --azul:#00796b; --azul-claro:#e0f2f1;
+  --verde:#2e7d32; --verde-claro:#e6f4e7;
+  --laranja:#e65100; --laranja-claro:#fff1e5;
+  --roxo:#6a1b9a; --roxo-claro:#f3e8f8;
+  --vermelho:#c62828; --vermelho-claro:#fdeaea;
+  --cinza:#5a6472; --borda:#dfe4ea; --fundo:#f6f8fa;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;
+  background:#fff;color:#22272e;line-height:1.65;font-size:16px}
+.wrap{max-width:880px;margin:0 auto;padding:20px 18px 80px}
+
+header.topo{background:linear-gradient(135deg,#00695c,#00897b);border-radius:16px;
+  padding:26px 24px;color:#fff;margin-bottom:22px}
+header.topo .tag{display:inline-block;background:rgba(255,255,255,.22);padding:5px 13px;
+  border-radius:20px;font-size:13px;font-weight:600;letter-spacing:.3px;margin-bottom:12px}
+header.topo h1{font-size:25px;line-height:1.28;margin-bottom:10px;font-weight:700}
+header.topo p{font-size:14.5px;opacity:.94}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:16px}
+.chip{background:rgba(255,255,255,.16);border:1px solid rgba(255,255,255,.3);
+  padding:7px 13px;border-radius:9px;font-size:13px;font-weight:500}
+
+nav.indice{background:var(--fundo);border:1px solid var(--borda);border-radius:14px;
+  padding:16px 18px;margin-bottom:26px}
+nav.indice strong{display:block;font-size:13px;text-transform:uppercase;
+  letter-spacing:.6px;color:var(--cinza);margin-bottom:10px}
+nav.indice a{display:block;color:var(--azul);text-decoration:none;padding:7px 0;
+  font-size:15px;border-bottom:1px solid #eef1f4}
+nav.indice a:last-child{border-bottom:none}
+nav.indice a:hover{text-decoration:underline}
+
+.bloco{margin-bottom:34px}
+.bloco-cab{display:flex;align-items:center;gap:12px;margin-bottom:16px;
+  padding-bottom:12px;border-bottom:3px solid var(--azul-claro)}
+.bloco-num{background:var(--azul);color:#fff;width:38px;height:38px;flex:0 0 38px;
+  border-radius:10px;display:flex;align-items:center;justify-content:center;
+  font-weight:700;font-size:17px}
+.bloco-cab h2{font-size:20px;font-weight:700;line-height:1.3}
+h3{font-size:17px;margin:22px 0 9px;color:#1a1f26;font-weight:650}
+p{margin-bottom:13px}
+ul,ol{margin:0 0 14px 22px}
+li{margin-bottom:7px}
+
+.card{border:1px solid var(--borda);border-radius:14px;padding:20px;margin:16px 0;background:#fff}
+.destaque{border-left:5px solid var(--verde);background:var(--verde-claro);
+  border-radius:12px;padding:16px 18px;margin:16px 0}
+.destaque strong{color:var(--verde)}
+.alerta{border-left:5px solid var(--vermelho);background:var(--vermelho-claro);
+  border-radius:12px;padding:16px 18px;margin:16px 0}
+.alerta strong{color:var(--vermelho)}
+.consult{border-left:5px solid var(--laranja);background:var(--laranja-claro);
+  border-radius:12px;padding:16px 18px;margin:16px 0}
+.consult strong{color:var(--laranja)}
+.livro{border-left:5px solid var(--roxo);background:var(--roxo-claro);
+  border-radius:12px;padding:14px 18px;margin:16px 0;font-size:14.5px}
+.livro strong{color:var(--roxo)}
+
+.faixa{background:#00695c;color:#fff;border-radius:16px;padding:28px 24px;
+  margin:30px 0;text-align:center;box-shadow:0 5px 18px rgba(0,105,92,.22)}
+.faixa .l1{font-size:29px;font-weight:800;line-height:1.2;letter-spacing:-.4px;margin-bottom:12px}
+.faixa .l3{font-size:19px;font-weight:700;background:rgba(255,255,255,.16);
+  display:inline-block;padding:11px 20px;border-radius:11px;line-height:1.35}
+@media(max-width:600px){.faixa .l1{font-size:22px}.faixa .l3{font-size:15.5px}}
+
+table{width:100%;border-collapse:collapse;margin:14px 0;font-size:14.5px}
+th{background:var(--azul-claro);padding:11px 12px;text-align:left;font-weight:650;
+  border:1px solid var(--borda)}
+td{padding:11px 12px;border:1px solid var(--borda);vertical-align:top}
+.tabela-rolar{overflow-x:auto}
+.num{text-align:right;font-variant-numeric:tabular-nums}
+table.mono td,table.mono th{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:13.5px}
+.erro-cel{background:var(--vermelho-claro);color:var(--vermelho);font-weight:650}
+.ok-cel{background:var(--verde-claro)}
+
+.interativo{border:2px solid var(--azul);border-radius:16px;padding:22px;
+  margin:22px 0;background:#fbfefb}
+.interativo-cab{display:flex;align-items:center;gap:10px;margin-bottom:6px}
+.interativo-cab .selo{background:var(--azul);color:#fff;font-size:11.5px;font-weight:700;
+  padding:4px 11px;border-radius:20px;letter-spacing:.5px}
+.interativo h3{margin:8px 0 6px;font-size:17.5px}
+.interativo .instr{font-size:14.5px;color:var(--cinza);margin-bottom:16px}
+
+button{font-family:inherit;font-size:15px;font-weight:600;cursor:pointer;border:none;
+  border-radius:10px;padding:11px 20px;transition:.15s;margin:0 6px 6px 0}
+.btn{background:var(--azul);color:#fff}
+.btn:hover{background:#0d47a1}
+.btn-verde{background:var(--azul);color:#fff}
+.btn-verde:hover{background:#00564b}
+.btn-claro{background:#fff;color:var(--azul);border:2px solid var(--azul)}
+.btn-claro:hover{background:var(--azul-claro)}
+
+.opcoes{display:flex;flex-wrap:wrap;gap:9px;margin:12px 0}
+.opcao{flex:1 1 150px;min-width:130px;background:#fff;border:2px solid var(--borda);
+  border-radius:10px;padding:12px 14px;font-size:14.5px;font-weight:600;cursor:pointer;
+  text-align:center;transition:.15s}
+.opcao:hover{border-color:var(--azul);background:var(--azul-claro)}
+.opcao.certa{border-color:var(--verde);background:var(--verde-claro);color:var(--verde)}
+.opcao.errada{border-color:var(--vermelho);background:var(--vermelho-claro);color:var(--vermelho)}
+.opcao:disabled{cursor:default}
+
+.feedback{margin-top:13px;padding:14px 16px;border-radius:10px;font-size:14.5px;display:none}
+.feedback.ok{background:var(--verde-claro);border-left:4px solid var(--verde);display:block}
+.feedback.nao{background:var(--vermelho-claro);border-left:4px solid var(--vermelho);display:block}
+
+.caso{background:#fff;border:1px solid var(--borda);border-radius:10px;padding:15px 16px;
+  margin-bottom:10px;font-size:15px}
+.caso .n{font-size:12.5px;font-weight:700;color:var(--cinza);text-transform:uppercase;
+  letter-spacing:.6px;margin-bottom:6px}
+
+.controles{display:flex;flex-wrap:wrap;gap:16px;margin:14px 0;align-items:flex-end}
+.campo{flex:1 1 170px;min-width:150px}
+.campo label{display:block;font-size:13px;font-weight:650;color:var(--cinza);
+  margin-bottom:6px;text-transform:uppercase;letter-spacing:.4px}
+.campo input,.campo select{width:100%;padding:11px 12px;border:2px solid var(--borda);
+  border-radius:9px;font-size:15px;font-family:inherit;background:#fff}
+.campo input:focus,.campo select:focus{outline:none;border-color:var(--azul)}
+textarea{width:100%;padding:12px;border:2px solid var(--borda);border-radius:10px;
+  font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:14px;min-height:120px;
+  resize:vertical;background:#fff}
+textarea:focus{outline:none;border-color:var(--azul)}
+
+.saida{display:grid;grid-template-columns:repeat(auto-fit,minmax(128px,1fr));gap:11px;margin-top:16px}
+.metrica{background:#fff;border:1px solid var(--borda);border-radius:11px;padding:14px 12px;text-align:center}
+.metrica .rot{font-size:11.5px;text-transform:uppercase;letter-spacing:.6px;color:var(--cinza);
+  font-weight:650;margin-bottom:5px}
+.metrica .val{font-size:21px;font-weight:700;color:var(--azul)}
+
+.placar{background:var(--azul-claro);border-radius:11px;padding:14px 16px;margin-top:14px;
+  font-size:15px;font-weight:600;color:var(--azul);text-align:center}
+
+.checklist{list-style:none;margin-left:0}
+.checklist li{display:flex;gap:11px;align-items:flex-start;padding:11px 0;border-bottom:1px solid #eef1f4}
+.checklist input[type=checkbox]{width:19px;height:19px;margin-top:3px;accent-color:var(--verde);flex:0 0 19px}
+
+.abas{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px}
+.aba{background:#fff;border:2px solid var(--borda);border-radius:10px;padding:10px 18px;
+  font-size:14.5px;font-weight:650;cursor:pointer}
+.aba.ativa{background:var(--azul);color:#fff;border-color:var(--azul)}
+
+
+/* representacao de planilha */
+.xl{border:1px solid #b9c0c9;border-radius:9px;overflow:hidden;margin:16px 0;background:#fff;
+  font-family:ui-monospace,SFMono-Regular,Menlo,monospace}
+.xl-bar{display:flex;align-items:center;gap:8px;background:#f6f8fa;
+  border-bottom:1px solid #d5dbe2;padding:8px 10px;font-size:13px}
+.xl-ref{background:#fff;border:1px solid #c6cdd5;border-radius:5px;padding:4px 10px;
+  min-width:56px;text-align:center;font-weight:700;color:#22272e}
+.xl-fx{color:#9aa4b0;font-style:italic;font-weight:700;padding:0 2px}
+.xl-form{flex:1;background:#fff;border:1px solid #c6cdd5;border-radius:5px;padding:4px 10px;
+  overflow-x:auto;white-space:nowrap;color:#107c41;font-weight:650}
+.xl-rolar{overflow-x:auto}
+table.xl-grid{border-collapse:collapse;width:100%;margin:0;font-size:13px}
+table.xl-grid th,table.xl-grid td{border:1px solid #d5dbe2;padding:7px 10px;background:#fff;
+  white-space:nowrap;font-weight:400;text-align:left;vertical-align:middle}
+table.xl-grid th.col,table.xl-grid th.lin{background:#eef1f4;color:#5a6472;text-align:center;
+  font-weight:700;font-size:11.5px}
+table.xl-grid th.lin{width:36px}
+table.xl-grid td.cab{font-weight:700;background:#f6f8fa}
+table.xl-grid td.sel{outline:2.5px solid #107c41;outline-offset:-2px;background:#f0f9f4;font-weight:700}
+table.xl-grid td.err{background:#fdeaea;color:#c62828;font-weight:650}
+table.xl-grid td.n{text-align:right}
+.xl-nota{font-size:13.5px;color:var(--cinza);text-align:center;margin:-8px 0 18px}
+.xl-nota.ruim{color:var(--vermelho);font-weight:650}
+.xl-nota.bom{color:var(--verde);font-weight:650}
+
+footer.rodape{margin-top:44px;padding-top:20px;border-top:2px solid var(--borda);
+  font-size:13.5px;color:var(--cinza);text-align:center}
+
+@media(max-width:600px){
+  .wrap{padding:14px 13px 60px}
+  header.topo h1{font-size:21px}
+  .bloco-cab h2{font-size:18px}
+  .opcao{flex:1 1 100%}
+}
+@media print{
+  body{font-size:11.5pt}
+  header.topo,.faixa{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  nav.indice,button,.opcoes,.abas{display:none}
+  .interativo,.bloco{page-break-inside:avoid}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="topo">
+  <span class="tag">SEMANA 2 &nbsp;|&nbsp; SEGUNDA 17 A SÁBADO 22 DE AGOSTO DE 2026</span>
+  <h1>Tipos de dados, variáveis e a planilha que funciona</h1>
+  <p>Modelagem e Experimentação em Biologia, FACAB-CAC-158, 60h, Turma 01, 2026.2<br>
+  Prof. Dr. Ernandes Sobreira Oliveira Junior, UNEMAT, Campus de Cáceres</p>
+  <div class="chips">
+    <span class="chip">2h de leitura, de segunda a sexta</span>
+    <span class="chip">2h de prática, de segunda a sexta</span>
+    <span class="chip">Questionário fecha sexta, 23h59</span>
+  </div>
+</header>
+
+<nav class="indice">
+  <strong>Roteiro da semana</strong>
+  <a href="#p1">1. O que a Semana 1 deixou em aberto</a>
+  <a href="#p2">2. Variável, observação e valor</a>
+  <a href="#p3">3. Os quatro tipos de variável</a>
+  <a href="#p4">4. O que cada tipo permite calcular</a>
+  <a href="#p5">5. Papéis da variável: resposta, fator, covariável e confundidora</a>
+  <a href="#p6">6. Variáveis naturais e experimentais</a>
+  <a href="#p7">7. A planilha que funciona</a>
+  <a href="#p8">8. Zero, vazio e limite de detecção</a>
+  <a href="#a1">Atividade 1: classificar variáveis</a>
+  <a href="#a2">Atividade 2: essa medida de resumo é legítima?</a>
+  <a href="#a3">Atividade 3: conserte a planilha</a>
+  <a href="#a4">Atividade 4: formato largo e formato longo</a>
+  <a href="#a5">Atividade 5: auditor de coluna</a>
+  <a href="#a6">Atividade 6: dicionário de dados do seu grupo</a>
+  <a href="#fecho">Autoavaliação e checklist</a>
+</nav>
+
+<!-- =============== LEITURA =============== -->
+
+<div class="bloco" id="p1">
+  <div class="bloco-cab"><div class="bloco-num">1</div>
+  <h2>O que a Semana 1 deixou em aberto</h2></div>
+
+  <p>Na semana passada você calculou média, mediana, moda e desvio padrão. Tudo funcionou, porque todos os exemplos eram números de altura e de turbidez.</p>
+
+  <p>Agora responda: qual é a média entre marrom, branco, marrom e branco?</p>
+
+  <p>Não existe. A pergunta não tem sentido. E a planilha não vai avisar você disso. Se você codificar marrom como 1 e branco como 2, o Excel calcula alegremente uma média de 1,5 e devolve um número que não significa absolutamente nada.</p>
+
+<p>Veja o que acontece na tela. Esta é a aparência de uma planilha no Excel, com as letras das colunas em cima e os números das linhas na lateral. A célula selecionada é a C7, e o que aparece na barra de fórmulas, no alto, é a conta que está sendo feita ali dentro.</p>
+
+<div class="xl">
+  <div class="xl-bar"><span class="xl-ref">C7</span><span class="xl-fx">fx</span><span class="xl-form">=MÉDIA(C2:C5)</span></div>
+  <div class="xl-rolar">
+  <table class="xl-grid">
+    <tr><th class="col"></th><th class="col">A</th><th class="col">B</th><th class="col">C</th></tr>
+    <tr><th class="lin">1</th><td class="cab">ovo</td><td class="cab">cor</td><td class="cab">cor_codigo</td></tr>
+    <tr><th class="lin">2</th><td class="n">1</td><td>marrom</td><td class="n">1</td></tr>
+    <tr><th class="lin">3</th><td class="n">2</td><td>branco</td><td class="n">2</td></tr>
+    <tr><th class="lin">4</th><td class="n">3</td><td>marrom</td><td class="n">1</td></tr>
+    <tr><th class="lin">5</th><td class="n">4</td><td>branco</td><td class="n">2</td></tr>
+    <tr><th class="lin">6</th><td></td><td></td><td></td></tr>
+    <tr><th class="lin">7</th><td></td><td class="cab">média</td><td class="sel n">1,5</td></tr>
+  </table>
+  </div>
+</div>
+<p class="xl-nota ruim">O Excel devolveu 1,5 sem reclamar. Não existe meia cor de casca.</p>
+
+  <div class="alerta">
+    <strong>A planilha nunca recusa uma conta.</strong> Ela não sabe se a coluna é altura em centímetros ou código de granja. Quem precisa saber é você. O tipo da variável é o que determina quais contas são legítimas, e essa decisão é tomada antes de qualquer análise.
+  </div>
+
+  <p>Esta semana é sobre isso: reconhecer o que você está medindo, dar nome correto a cada coisa e organizar a planilha de um jeito que não sabote a análise mais tarde. É a semana menos glamourosa da disciplina e a que mais evita retrabalho.</p>
+
+  <div class="livro">
+    <strong>No livro.</strong> Modelagem e Experimentação em Biologia, um guia prático, Editora UNEMAT, 2025. Localize no sumário a parte sobre tipos de dados e variáveis em ciências biológicas.
+  </div>
+</div>
+
+<div class="bloco" id="p2">
+  <div class="bloco-cab"><div class="bloco-num">2</div>
+  <h2>Variável, observação e valor</h2></div>
+
+  <p>Três palavras que você vai usar o semestre inteiro, e que precisam ficar separadas na sua cabeça.</p>
+
+  <ul>
+    <li><strong>Variável</strong> é a característica que você mede. Altura, cor da casca, temperatura, número de indivíduos.</li>
+    <li><strong>Observação</strong> é cada unidade sobre a qual você mediu. Uma planta, um ovo, um ponto de coleta, uma armadilha.</li>
+    <li><strong>Valor</strong> é o que ficou registrado no encontro entre uma variável e uma observação. O 14,2 que está na célula.</li>
+  </ul>
+
+  <p>Chama-se variável justamente porque ela varia entre as observações. Uma característica que não varia não é variável, é constante, e constante não entra em análise estatística. Se todas as suas amostras foram coletadas na mesma temperatura, temperatura não é variável do seu estudo, é condição fixa.</p>
+
+  <div class="destaque">
+    <strong>Teste rápido antes de criar uma coluna.</strong> Pergunte se aquele valor pode ser diferente entre duas observações. Se puder, é variável e merece coluna. Se não puder, é condição do estudo e vai para o texto do método, não para a planilha.
+  </div>
+</div>
+
+<div class="bloco" id="p3">
+  <div class="bloco-cab"><div class="bloco-num">3</div>
+  <h2>Os quatro tipos de variável</h2></div>
+
+  <p>A primeira divisão separa o que é número do que não é. Cada lado se divide em dois, e dá quatro tipos.</p>
+
+  <h3>Qualitativas, também chamadas categóricas</h3>
+  <ul>
+    <li><strong>Nominal.</strong> Categorias sem ordem natural. Cor da casca do ovo, espécie, tipo de solo, granja de origem, tipo de cobertura do terreno. Marrom não é maior nem menor que branco, é só diferente.</li>
+    <li><strong>Ordinal.</strong> Categorias com ordem, mas sem distância definida entre elas. Estágio de decomposição classificado em baixo, médio e alto. Nível de impacto classificado em nulo, leve, moderado e severo. Você sabe que moderado está entre leve e severo, mas não sabe se a distância de leve para moderado é igual à de moderado para severo.</li>
+  </ul>
+
+  <h3>Quantitativas, também chamadas numéricas</h3>
+  <ul>
+    <li><strong>Discreta.</strong> Contagem, resultado de contar unidades inteiras. Número de folhas, número de indivíduos na armadilha, número de sementes germinadas. Não existe 3,7 indivíduos.</li>
+    <li><strong>Contínua.</strong> Medida, resultado de medir em uma escala que admite frações. Altura, massa, temperatura, turbidez, vazão, concentração. Entre 14,2 e 14,3 sempre cabe outro valor, o limite é a precisão do instrumento.</li>
+  </ul>
+
+  <div class="consult">
+    <strong>Por que essa distinção importa no laudo.</strong> Contagem e medida se comportam de forma diferente e pedem modelos diferentes. Número de indivíduos por armadilha costuma seguir distribuição de Poisson e frequentemente não atende aos pressupostos dos testes que você vai aprender nas semanas 7 e 8. É por isso que existem os Modelos Lineares Generalizados, tema da semana 15. Reconhecer que a variável é contagem, e não medida, é o primeiro passo para não escolher o teste errado.
+  </div>
+
+  <h3>O caso ambíguo que sempre aparece</h3>
+  <p>Proporção e porcentagem. A proporção de sementes germinadas por placa parece contínua, porque assume valores como 0,65. Mas ela nasce de uma contagem, 13 germinadas em 20, e é limitada entre 0 e 1. Isso muda o tratamento estatístico correto. Guarde essa ressalva, ela volta na semana 15.</p>
+</div>
+
+<div class="bloco" id="p4">
+  <div class="bloco-cab"><div class="bloco-num">4</div>
+  <h2>O que cada tipo permite calcular</h2></div>
+
+  <p>Esta tabela é o resumo prático da semana. Vale imprimir e deixar do lado do computador.</p>
+
+  <div class="tabela-rolar">
+  <table>
+    <tr>
+      <th>Tipo</th><th>Moda</th><th>Mediana</th><th>Média</th><th>Desvio padrão</th><th>Exemplo</th>
+    </tr>
+    <tr>
+      <td><strong>Nominal</strong></td>
+      <td class="ok-cel">Sim</td><td class="erro-cel">Não</td><td class="erro-cel">Não</td><td class="erro-cel">Não</td>
+      <td>Cor da casca do ovo</td>
+    </tr>
+    <tr>
+      <td><strong>Ordinal</strong></td>
+      <td class="ok-cel">Sim</td><td class="ok-cel">Sim</td><td class="erro-cel">Não</td><td class="erro-cel">Não</td>
+      <td>Nível de impacto</td>
+    </tr>
+    <tr>
+      <td><strong>Discreta</strong></td>
+      <td class="ok-cel">Sim</td><td class="ok-cel">Sim</td><td class="ok-cel">Sim</td><td class="ok-cel">Sim</td>
+      <td>Número de indivíduos</td>
+    </tr>
+    <tr>
+      <td><strong>Contínua</strong></td>
+      <td class="ok-cel">Sim</td><td class="ok-cel">Sim</td><td class="ok-cel">Sim</td><td class="ok-cel">Sim</td>
+      <td>Altura em centímetros</td>
+    </tr>
+  </table>
+  </div>
+
+  <p>Repare no caso ordinal. A média de uma variável ordinal é tecnicamente indefensável, porque exigiria que as distâncias entre as categorias fossem iguais, e ninguém garante isso. Ainda assim, ela aparece em relatórios o tempo todo. Saber que aquilo é frágil já coloca você à frente de boa parte do mercado.</p>
+
+  <p>E sobre a média de contagem: ela é válida, mas o resultado pode ser um número impossível. Média de 2,7 indivíduos por armadilha é uma estatística correta, mesmo que ninguém nunca vá encontrar 2,7 bichos em uma armadilha. A média é uma propriedade do conjunto, não de uma observação.</p>
+</div>
+
+<div class="faixa">
+  <div class="l1">A PLANILHA NÃO SABE O QUE VOCÊ MEDIU</div>
+  <div class="l3">ELA CALCULA QUALQUER COISA QUE VOCÊ PEDIR.<br>QUEM DECIDE O QUE FAZ SENTIDO É VOCÊ.</div>
+</div>
+
+<div class="bloco" id="p5">
+  <div class="bloco-cab"><div class="bloco-num">5</div>
+  <h2>Papéis da variável: resposta, fator, covariável e confundidora</h2></div>
+
+  <p>Além do tipo, cada variável tem um papel dentro da sua pergunta. A mesma variável pode mudar de papel de um estudo para outro.</p>
+
+  <div class="tabela-rolar">
+  <table>
+    <tr><th>Papel</th><th>O que é</th><th>Exemplo no experimento da cebolinha</th></tr>
+    <tr><td><strong>Resposta</strong></td>
+      <td>O que você quer explicar. Também chamada de variável dependente</td>
+      <td>Altura da planta</td></tr>
+    <tr><td><strong>Fator</strong></td>
+      <td>O que você manipulou ou selecionou, geralmente categórico. Também chamado de variável independente ou preditora</td>
+      <td>Tipo de solo</td></tr>
+    <tr><td><strong>Covariável</strong></td>
+      <td>Variável contínua medida junto, que influencia a resposta e precisa ser levada em conta</td>
+      <td>Dias desde o plantio</td></tr>
+    <tr><td><strong>Confundidora</strong></td>
+      <td>Variável que afeta a resposta e está associada ao fator sem que você tenha percebido</td>
+      <td>Posição na varanda, se todos os vasos de areia ficaram no sol</td></tr>
+  </table>
+  </div>
+
+  <div class="alerta">
+    <strong>A confundidora é a que estraga trabalhos.</strong> Ela não aparece na planilha, porque ninguém a mediu. Se todos os vasos de um tratamento ficaram na parte mais ensolarada, o efeito do solo e o efeito da luz viram uma coisa só, e nenhuma análise consegue separá-los depois. A defesa contra isso é aleatorizar, tema da Semana 3. Por enquanto, guarde o nome.
+  </div>
+
+  <p>Um detalhe que resolve muita confusão: <strong>covariável não é o mesmo que fator.</strong> O fator costuma ser categórico e é o que você quer testar. A covariável é contínua e é o que você quer descontar. Na semana 11 você vai usar exatamente essa distinção para rodar ANCOVA.</p>
+</div>
+
+<div class="bloco" id="p6">
+  <div class="bloco-cab"><div class="bloco-num">6</div>
+  <h2>Variáveis naturais e experimentais</h2></div>
+
+  <p>A ementa da disciplina insiste nessa separação, e ela tem consequência prática direta.</p>
+
+  <ul>
+    <li><strong>Variável experimental</strong> é aquela cujo valor <strong>você definiu</strong>. Você escolheu que teria três tipos de solo e sorteou qual vaso recebeu qual. Você controlou.</li>
+    <li><strong>Variável natural</strong> é aquela cujo valor <strong>o mundo definiu</strong> e você apenas registrou. A temperatura que fez naquele dia, a granja de onde veio o ovo, o tipo de cobertura que já existia naquele terreno.</li>
+  </ul>
+
+  <p>A diferença muda o que você pode afirmar no final. Quando você manipulou o fator e sorteou a aplicação, pode falar em causa. Quando apenas observou o que já estava lá, pode falar em associação, e apenas isso.</p>
+
+  <div class="consult">
+    <strong>Onde isso aparece em consultoria.</strong> Praticamente todo monitoramento ambiental trabalha com variáveis naturais, porque ninguém sorteia qual trecho de rio recebe o efluente. Por isso um laudo raramente pode afirmar causa a partir só do monitoramento. Escrever que o empreendimento causou a alteração, quando o desenho só permite dizer que a alteração está associada ao trecho, é um dos erros técnicos mais comuns e mais contestáveis em processos de licenciamento.
+  </div>
+</div>
+
+<div class="bloco" id="p7">
+  <div class="bloco-cab"><div class="bloco-num">7</div>
+  <h2>A planilha que funciona</h2></div>
+
+  <p>Existe um formato de planilha que qualquer software estatístico do mundo lê sem reclamar. Ele tem três regras.</p>
+
+  <ol>
+    <li><strong>Uma linha por observação.</strong> Cada linha é uma unidade amostral, e nada mais.</li>
+    <li><strong>Uma coluna por variável.</strong> Cada coluna guarda um único tipo de informação.</li>
+    <li><strong>Uma célula por valor.</strong> Nada de dois números na mesma célula, nada de anotação junto do valor.</li>
+  </ol>
+
+  <h3>O que nunca pode entrar na planilha de dados brutos</h3>
+  <ul>
+    <li>Células mescladas. Elas destroem a estrutura de linhas e colunas e nenhum software consegue ler.</li>
+    <li>Cor como informação. Se você pintou de amarelo as amostras suspeitas, essa informação não existe para o computador. Crie uma coluna chamada observacao.</li>
+    <li>Título, logotipo ou linha em branco acima do cabeçalho. A primeira linha tem que ser o nome das colunas.</li>
+    <li>Unidade dentro da célula. Escreva 14,2 e coloque a unidade no nome da coluna, como altura_cm.</li>
+    <li>Totais, médias ou fórmulas no meio dos dados. Análise fica em outra aba.</li>
+    <li>Acento, espaço e caractere especial no nome das colunas. Use altura_cm, e não Altura (cm).</li>
+  </ul>
+
+  <h3>Como isso fica na tela</h3>
+  <p>Esta é a planilha do experimento da cebolinha organizada do jeito certo. Repare que a linha 1 é o cabeçalho, cada linha seguinte é um vaso, cada coluna guarda uma única informação, e as anotações têm coluna própria.</p>
+
+  <div class="xl">
+    <div class="xl-bar"><span class="xl-ref">C3</span><span class="xl-fx">fx</span><span class="xl-form">13,8</span></div>
+    <div class="xl-rolar">
+    <table class="xl-grid">
+      <tr><th class="col"></th><th class="col">A</th><th class="col">B</th><th class="col">C</th><th class="col">D</th><th class="col">E</th></tr>
+      <tr><th class="lin">1</th><td class="cab">vaso</td><td class="cab">solo</td><td class="cab">altura_cm</td><td class="cab">n_folhas</td><td class="cab">observacao</td></tr>
+      <tr><th class="lin">2</th><td class="n">1</td><td>horta</td><td class="n">14,2</td><td class="n">5</td><td></td></tr>
+      <tr><th class="lin">3</th><td class="n">2</td><td>horta</td><td class="sel n">13,8</td><td class="n">4</td><td>medida duvidosa</td></tr>
+      <tr><th class="lin">4</th><td class="n">3</td><td>areia</td><td class="n">9,1</td><td class="n">0</td><td></td></tr>
+      <tr><th class="lin">5</th><td class="n">4</td><td>areia</td><td></td><td class="n">0</td><td>vaso caiu</td></tr>
+      <tr><th class="lin">6</th><td class="n">5</td><td>jardim</td><td class="n">12,5</td><td class="n">4</td><td></td></tr>
+    </table>
+    </div>
+  </div>
+  <p class="xl-nota bom">Uma linha por vaso, uma coluna por variável, unidade no nome da coluna e nenhuma conta no meio dos dados.</p>
+
+  <div class="destaque">
+    <strong>Regra de ouro.</strong> A aba de dados brutos é sagrada e nunca é editada depois de fechada a coleta. Toda análise, todo gráfico e toda correção acontecem em outra aba, apontando para essa. Quem edita o dado bruto perde a capacidade de refazer a análise e de provar o que mediu.
+  </div>
+</div>
+
+<div class="bloco" id="p8">
+  <div class="bloco-cab"><div class="bloco-num">8</div>
+  <h2>Zero, vazio e limite de detecção</h2></div>
+
+  <p>Três situações que parecem iguais na planilha e significam coisas opostas.</p>
+
+  <div class="tabela-rolar">
+  <table>
+    <tr><th>Situação</th><th>Significado</th><th>Como registrar</th></tr>
+    <tr><td><strong>Zero</strong></td>
+      <td>Você mediu e o resultado foi zero. A armadilha estava vazia</td>
+      <td>Escreva 0</td></tr>
+    <tr><td><strong>Ausente</strong></td>
+      <td>Você não mediu. A armadilha foi levada por um animal</td>
+      <td>Deixe a célula vazia, ou escreva NA, nunca 0</td></tr>
+    <tr><td><strong>Abaixo do limite</strong></td>
+      <td>Você mediu e o laboratório não conseguiu quantificar</td>
+      <td>Registre como menor que o limite, em coluna própria com o valor do limite</td></tr>
+  </table>
+  </div>
+
+  <div class="alerta">
+    <strong>Trocar ausente por zero é falsificação de dado.</strong> Pode não ser intencional, mas o efeito é o mesmo: você inventou uma observação que não existiu e puxou a média para baixo. Célula vazia é uma informação legítima e honesta. Zero digitado no lugar dela não é.
+  </div>
+
+  <p>Na tela, a diferença entre as três situações fica assim. Repare que a célula C5 está de fato vazia, e não com zero:</p>
+
+  <div class="xl">
+    <div class="xl-bar"><span class="xl-ref">C5</span><span class="xl-fx">fx</span><span class="xl-form"></span></div>
+    <div class="xl-rolar">
+    <table class="xl-grid">
+      <tr><th class="col"></th><th class="col">A</th><th class="col">B</th><th class="col">C</th><th class="col">D</th><th class="col">E</th></tr>
+      <tr><th class="lin">1</th><td class="cab">armadilha</td><td class="cab">cobertura</td><td class="cab">n_individuos</td><td class="cab">conc_mgL</td><td class="cab">abaixo_lq</td></tr>
+      <tr><th class="lin">2</th><td class="n">1</td><td>gramado</td><td class="n">7</td><td class="n">0,12</td><td>nao</td></tr>
+      <tr><th class="lin">3</th><td class="n">2</td><td>gramado</td><td class="n">0</td><td class="n">0,05</td><td>sim</td></tr>
+      <tr><th class="lin">4</th><td class="n">3</td><td>serapilheira</td><td class="n">12</td><td class="n">0,31</td><td>nao</td></tr>
+      <tr><th class="lin">5</th><td class="n">4</td><td>serapilheira</td><td class="sel"></td><td class="n">0,28</td><td>nao</td></tr>
+    </table>
+    </div>
+  </div>
+  <p class="xl-nota">Linha 3: contou e não achou nada, então zero. Linha 5: a armadilha sumiu, então célula vazia. Coluna E: registra que aquele 0,05 é na verdade um valor abaixo do limite de quantificação.</p>
+
+  <p>O caso do limite de detecção é típico de análise de água e volta na semana 6. Quando o laudo diz que a concentração ficou abaixo de 0,05, o valor real está em algum lugar entre zero e 0,05, e ninguém sabe onde. Substituir isso por zero, ou pelo próprio 0,05, ou pela metade do limite, são decisões diferentes que levam a resultados diferentes. O mínimo é registrar a informação de forma que essa decisão possa ser tomada depois, e declarada no relatório.</p>
+</div>
+
+<!-- =============== ATIVIDADES =============== -->
+
+<div class="bloco" id="a1">
+  <div class="interativo">
+    <div class="interativo-cab"><span class="selo">ATIVIDADE 1</span></div>
+    <h3>Classificar variáveis</h3>
+    <p class="instr">Para cada variável, escolha o tipo. Todas saíram dos dez experimentos disponíveis para o trabalho do semestre.</p>
+    <div id="quizTipos"></div>
+    <div class="placar" id="placarTipos">Respondidas: 0 de 8</div>
+  </div>
+</div>
+
+<div class="bloco" id="a2">
+  <div class="interativo">
+    <div class="interativo-cab"><span class="selo">ATIVIDADE 2</span></div>
+    <h3>Essa medida de resumo é legítima?</h3>
+    <p class="instr">Cada situação apresenta uma variável e uma estatística calculada sobre ela. Decida se a conta faz sentido.</p>
+    <div id="quizResumo"></div>
+    <div class="placar" id="placarResumo">Respondidas: 0 de 6</div>
+  </div>
+</div>
+
+<div class="bloco" id="a3">
+  <div class="interativo">
+    <div class="interativo-cab"><span class="selo">ATIVIDADE 3</span></div>
+    <h3>Conserte a planilha</h3>
+    <p class="instr">A planilha abaixo é um exemplo didático, criado com os erros mais comuns que aparecem em trabalhos de campo. Marque todos os problemas que você encontrar e confira depois.</p>
+
+    <div class="xl">
+      <div class="xl-bar"><span class="xl-ref">A1</span><span class="xl-fx">fx</span><span class="xl-form">DADOS DO EXPERIMENTO DE CEBOLINHA, GRUPO 3</span></div>
+      <div class="xl-rolar">
+      <table class="xl-grid">
+        <tr><th class="col"></th><th class="col">A</th><th class="col">B</th><th class="col">C</th><th class="col">D</th><th class="col">E</th></tr>
+        <tr><th class="lin">1</th><td class="sel" colspan="5">DADOS DO EXPERIMENTO DE CEBOLINHA, GRUPO 3</td></tr>
+        <tr><th class="lin">2</th><td class="cab">Vaso</td><td class="cab">Solo</td><td class="cab">Altura</td><td class="cab">Folhas</td><td class="cab"></td></tr>
+        <tr><th class="lin">3</th><td class="n">1</td><td rowspan="2" style="vertical-align:middle;text-align:center">Horta</td><td>14,2 cm</td><td class="n">5</td><td></td></tr>
+        <tr><th class="lin">4</th><td class="n">2</td><td>13,8 cm</td><td class="n">4</td><td>medida duvidosa</td></tr>
+        <tr><th class="lin">5</th><td class="n">3</td><td>Areia</td><td>9,1 cm</td><td class="n">0</td><td></td></tr>
+        <tr><th class="lin">6</th><td class="n">4</td><td>Areia</td><td></td><td class="n">0</td><td>vaso caiu</td></tr>
+        <tr><th class="lin">7</th><td class="n">5</td><td>Jardim</td><td>12,5 cm</td><td class="n">4</td><td></td></tr>
+        <tr><th class="lin">8</th><td class="cab">MÉDIA</td><td></td><td class="cab">12,4 cm</td><td class="cab">3,25</td><td></td></tr>
+      </table>
+      </div>
+    </div>
+    <p class="xl-nota">Repare na célula B3, esticada por cima das linhas 3 e 4. Isso é uma célula mesclada. E na coluna E, que não tem nome na linha de cabeçalho.</p>
+
+    <p style="font-size:15px;font-weight:650;margin-top:14px">Marque os problemas que você identificou:</p>
+    <ul class="checklist" id="listaErros"></ul>
+    <button class="btn-verde" onclick="conferirErros()">Conferir</button>
+    <div class="feedback" id="fbErros"></div>
+  </div>
+</div>
+
+<div class="bloco" id="a4">
+  <div class="interativo">
+    <div class="interativo-cab"><span class="selo">ATIVIDADE 4</span></div>
+    <h3>Formato largo e formato longo</h3>
+    <p class="instr">Os mesmos dados, exemplo didático, organizados de duas maneiras. Alterne entre elas e veja a diferença. Os softwares estatísticos, incluindo o PAST 4, trabalham melhor com o formato longo.</p>
+
+    <div class="abas">
+      <button class="aba ativa" id="abaLargo" onclick="trocarFormato('largo')">Formato largo</button>
+      <button class="aba" id="abaLongo" onclick="trocarFormato('longo')">Formato longo</button>
+    </div>
+
+    <div id="tabelaFormato"></div>
+    <div class="feedback ok" id="fbFormato"></div>
+  </div>
+</div>
+
+<div class="bloco" id="a5">
+  <div class="interativo">
+    <div class="interativo-cab"><span class="selo">ATIVIDADE 5</span></div>
+    <h3>Auditor de coluna</h3>
+    <p class="instr">Cole uma coluna da sua planilha, um valor por linha. O auditor aponta o que impediria essa coluna de ser analisada. Rode isso antes de entregar qualquer dado, sempre. O cálculo acontece no seu navegador e nada é enviado para lugar nenhuma.</p>
+    <textarea id="colunaAuditar" placeholder="Cole assim, um valor por linha:&#10;14,2&#10;13,8&#10;9,1&#10;&#10;12,5 cm&#10;n/a&#10;12.5"></textarea>
+    <div style="margin-top:12px">
+      <button class="btn" onclick="auditar()">Auditar coluna</button>
+      <button class="btn-claro" onclick="document.getElementById('colunaAuditar').value='';document.getElementById('resAuditoria').innerHTML=''">Limpar</button>
+    </div>
+    <div id="resAuditoria"></div>
+  </div>
+</div>
+
+<div class="bloco" id="a6">
+  <div class="interativo">
+    <div class="interativo-cab"><span class="selo">ATIVIDADE 6</span></div>
+    <h3>Dicionário de dados do seu grupo</h3>
+    <p class="instr">Todo conjunto de dados sério vem acompanhado de um dicionário, que explica o que cada coluna significa. Monte o do seu experimento. Ele é entregue junto do relatório em outubro.</p>
+
+    <div class="controles">
+      <div class="campo">
+        <label>Nome da coluna</label>
+        <input type="text" id="dcNome" placeholder="altura_cm">
+      </div>
+      <div class="campo">
+        <label>Tipo</label>
+        <select id="dcTipo">
+          <option>Nominal</option><option>Ordinal</option>
+          <option>Discreta</option><option selected>Contínua</option>
+        </select>
+      </div>
+      <div class="campo">
+        <label>Papel</label>
+        <select id="dcPapel">
+          <option selected>Resposta</option><option>Fator</option>
+          <option>Covariável</option><option>Identificação</option>
+        </select>
+      </div>
+      <div class="campo">
+        <label>Unidade ou categorias</label>
+        <input type="text" id="dcUni" placeholder="centímetros">
+      </div>
+    </div>
+    <button class="btn-verde" onclick="addDic()">Adicionar coluna</button>
+    <button class="btn-claro" onclick="limparDic()">Limpar tudo</button>
+    <div id="tabelaDic"></div>
+    <div class="feedback" id="fbDic"></div>
+  </div>
+</div>
+
+<!-- =============== FECHO =============== -->
+
+<div class="bloco" id="fecho">
+  <div class="bloco-cab"><div class="bloco-num">9</div>
+  <h2>Autoavaliação e checklist</h2></div>
+
+  <div class="interativo">
+    <div class="interativo-cab"><span class="selo">AUTOAVALIAÇÃO</span></div>
+    <h3>Seis perguntas antes do questionário</h3>
+    <p class="instr">Não valem nota. Servem para você medir se está pronto.</p>
+    <div id="quizFinal"></div>
+    <div class="placar" id="placarFinal">Respondidas: 0 de 6</div>
+  </div>
+
+  <div class="card">
+    <h3>Prática obrigatória na planilha</h3>
+    <p>Monte, no Excel ou no Google Planilhas, a planilha modelo do experimento do seu grupo, ainda sem dados. Ela precisa ter:</p>
+    <ul>
+      <li>Primeira linha com os nomes das colunas, sem acento, sem espaço e sem parênteses.</li>
+      <li>Uma coluna de identificação da unidade amostral.</li>
+      <li>Uma coluna para cada fator, com as categorias já escritas exatamente como serão digitadas.</li>
+      <li>Uma coluna para a covariável contínua.</li>
+      <li>Uma coluna para cada variável resposta, com a unidade no nome.</li>
+      <li>Uma coluna de observações, para anotar imprevistos sem sujar as colunas de dados.</li>
+      <li>Uma segunda aba chamada dicionario, com o que você montou na Atividade 6.</li>
+    </ul>
+    <p>Depois de preenchida, é assim que a conferência aparece na tela. A célula selecionada mostra o resultado, e a barra de fórmulas mostra de onde ele veio:</p>
+
+    <div class="xl">
+      <div class="xl-bar"><span class="xl-ref">C8</span><span class="xl-fx">fx</span><span class="xl-form">=DESVPAD.A(C2:C6)</span></div>
+      <div class="xl-rolar">
+      <table class="xl-grid">
+        <tr><th class="col"></th><th class="col">A</th><th class="col">B</th><th class="col">C</th></tr>
+        <tr><th class="lin">1</th><td class="cab">vaso</td><td class="cab">solo</td><td class="cab">altura_cm</td></tr>
+        <tr><th class="lin">2</th><td class="n">1</td><td>horta</td><td class="n">14,2</td></tr>
+        <tr><th class="lin">3</th><td class="n">2</td><td>horta</td><td class="n">13,8</td></tr>
+        <tr><th class="lin">4</th><td class="n">3</td><td>areia</td><td class="n">9,1</td></tr>
+        <tr><th class="lin">5</th><td class="n">4</td><td>areia</td><td class="n">8,7</td></tr>
+        <tr><th class="lin">6</th><td class="n">5</td><td>jardim</td><td class="n">12,5</td></tr>
+        <tr><th class="lin">7</th><td></td><td class="cab">média</td><td class="n">11,66</td></tr>
+        <tr><th class="lin">8</th><td></td><td class="cab">desvio padrão</td><td class="sel n">2,54</td></tr>
+      </table>
+      </div>
+    </div>
+    <p class="xl-nota">As linhas 7 e 8 estão em outra aba na planilha do seu grupo. Aqui elas aparecem juntas apenas para você ver a fórmula funcionando.</p>
+
+    <p>Funções úteis para conferir a planilha depois de preenchida:</p>
+    <div class="tabela-rolar">
+    <table>
+      <tr><th>Para que serve</th><th>Excel em português</th><th>Google Planilhas</th></tr>
+      <tr><td>Contar quantas células têm número</td><td>=CONT.NÚM(intervalo)</td><td>=COUNT(intervalo)</td></tr>
+      <tr><td>Contar quantas células estão vazias</td><td>=CONTAR.VAZIO(intervalo)</td><td>=COUNTBLANK(intervalo)</td></tr>
+      <tr><td>Listar as categorias distintas de um fator</td><td>=ÚNICO(intervalo)</td><td>=UNIQUE(intervalo)</td></tr>
+      <tr><td>Contar quantas vezes cada categoria aparece</td><td>=CONT.SE(intervalo;critério)</td><td>=COUNTIF(intervalo;critério)</td></tr>
+      <tr><td>Achar valores fora de faixa esperada</td><td>=MÍNIMO(intervalo) e =MÁXIMO(intervalo)</td><td>=MIN(intervalo) e =MAX(intervalo)</td></tr>
+    </table>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>Checklist da semana</h3>
+    <ul class="checklist">
+      <li><input type="checkbox"><span>Li os oito pontos do bloco de leitura</span></li>
+      <li><input type="checkbox"><span>Completei as seis atividades</span></li>
+      <li><input type="checkbox"><span>Sei classificar qualquer variável nos quatro tipos</span></li>
+      <li><input type="checkbox"><span>Sei dizer qual é a resposta, o fator e a covariável do meu experimento</span></li>
+      <li><input type="checkbox"><span>Montei a planilha modelo do meu grupo, com as duas abas</span></li>
+      <li><input type="checkbox"><span>Montei o dicionário de dados do meu experimento</span></li>
+      <li><input type="checkbox"><span>Consultei a seção correspondente no livro da disciplina</span></li>
+      <li><input type="checkbox"><span>Respondi o questionário antes de sexta às 23h59</span></li>
+    </ul>
+  </div>
+
+  <div class="consult">
+    <strong>Para fechar a semana.</strong> A planilha modelo que você montou agora é a mesma que vai receber os dados do experimento nas próximas semanas e a mesma que será entregue em anexo no relatório de outubro. Vale gastar tempo nela agora, porque planilha malfeita custa muito mais caro depois, quando já existem duzentas linhas preenchidas.
+  </div>
+</div>
+
+<footer class="rodape">
+  Modelagem e Experimentação em Biologia, FACAB-CAC-158, 60h, 2026.2<br>
+  UNEMAT, Campus de Cáceres, Faculdade de Ciências Agrárias e Biológicas<br>
+  Semana de segunda a sábado. Material de estudo autônomo.
+</footer>
+
+</div>
+
+<script>
+/* ---------- ATIVIDADE 1 ---------- */
+const tipos=[
+ {v:"Cor da casca do ovo, branca ou marrom",r:"Nominal",
+  j:"São categorias sem ordem natural. Marrom não é maior nem menor que branca. Só a moda faz sentido aqui."},
+ {v:"Altura da cebolinha, em centímetros",r:"Contínua",
+  j:"Resultado de medir em escala que admite frações. Entre 14,2 e 14,3 sempre cabe outro valor."},
+ {v:"Número de sementes germinadas na placa",r:"Discreta",
+  j:"Resultado de contar unidades inteiras. Não existe 13,5 sementes germinadas."},
+ {v:"Nível de compactação do solo, classificado em baixo, médio e alto",r:"Ordinal",
+  j:"Há ordem entre as categorias, mas a distância entre elas não é definida. Não se sabe se de baixo para médio é o mesmo salto que de médio para alto."},
+ {v:"Turbidez da água, em unidades nefelométricas",r:"Contínua",
+  j:"Medida em escala contínua, limitada apenas pela precisão do equipamento."},
+ {v:"Tipo de cobertura do terreno, asfalto, grama, laje ou sombra de árvore",r:"Nominal",
+  j:"Categorias sem ordem. Não faz sentido dizer que laje é maior que grama."},
+ {v:"Número de indivíduos capturados por armadilha",r:"Discreta",
+  j:"Contagem de unidades inteiras. É o tipo de dado que costuma exigir Modelos Lineares Generalizados, tema da semana 15."},
+ {v:"Massa do ovo, em gramas",r:"Contínua",
+  j:"Medida contínua. A precisão depende da balança, mas a variável em si admite qualquer valor intermediário."}
+];
+let respTipos=0;
+(function(){
+  const c=document.getElementById('quizTipos');
+  tipos.forEach((t,i)=>{
+    const d=document.createElement('div');d.className='caso';
+    d.innerHTML=`<div class="n">Variável ${i+1}</div><p style="margin-bottom:10px"><strong>${t.v}</strong></p>
+      <div class="opcoes">
+        <button class="opcao" onclick="respT(${i},'Nominal',this)">Nominal</button>
+        <button class="opcao" onclick="respT(${i},'Ordinal',this)">Ordinal</button>
+        <button class="opcao" onclick="respT(${i},'Discreta',this)">Discreta</button>
+        <button class="opcao" onclick="respT(${i},'Contínua',this)">Contínua</button>
+      </div>
+      <div class="feedback" id="fbt${i}"></div>`;
+    c.appendChild(d);
+  });
+})();
+function respT(i,esc,btn){
+  const pai=btn.parentElement;
+  if(pai.dataset.feito)return;pai.dataset.feito='1';
+  [...pai.children].forEach(b=>b.disabled=true);
+  const fb=document.getElementById('fbt'+i),certo=tipos[i].r;
+  if(esc===certo){btn.classList.add('certa');fb.className='feedback ok';
+    fb.innerHTML='<strong>Correto.</strong> '+tipos[i].j;}
+  else{btn.classList.add('errada');
+    [...pai.children].forEach(b=>{if(b.textContent===certo)b.classList.add('certa')});
+    fb.className='feedback nao';
+    fb.innerHTML='<strong>Não é isso, é '+certo+'.</strong> '+tipos[i].j;}
+  respTipos++;
+  document.getElementById('placarTipos').textContent='Respondidas: '+respTipos+' de 8';
+}
+
+/* ---------- ATIVIDADE 2 ---------- */
+const resumos=[
+ {t:"Um grupo codificou cor da casca como 1 para branca e 2 para marrom, e calculou a média, obtendo 1,4.",
+  r:"Não faz sentido",
+  j:"Cor da casca é nominal. O número 1 e o número 2 são apenas rótulos, poderiam ser 7 e 93. A média de rótulos não significa nada. O correto seria informar a frequência de cada cor, ou a moda."},
+ {t:"Um grupo calculou a média de altura de 30 plantas de cebolinha e obteve 13,7 centímetros.",
+  r:"Faz sentido",
+  j:"Altura é variável contínua. Média e desvio padrão são plenamente aplicáveis, e devem sempre vir juntos."},
+ {t:"Um levantamento calculou a média do número de indivíduos por armadilha e obteve 2,7 indivíduos.",
+  r:"Faz sentido",
+  j:"Contagem admite média, mesmo que o resultado seja um número impossível de observar. A média é propriedade do conjunto, não de uma observação individual."},
+ {t:"Um relatório classificou o impacto em nulo, leve, moderado e severo, atribuiu 1, 2, 3 e 4, e calculou a média, obtendo 2,6.",
+  r:"Não faz sentido",
+  j:"Impacto assim classificado é ordinal. A média exigiria que a distância entre nulo e leve fosse igual à distância entre moderado e severo, o que ninguém garante. A mediana seria defensável, a média não."},
+ {t:"Um trabalho informou que a moda do tipo de cobertura amostrada foi gramado.",
+  r:"Faz sentido",
+  j:"Tipo de cobertura é nominal, e a moda é exatamente a medida apropriada. Ela indica a categoria mais frequente."},
+ {t:"Um estudo calculou o desvio padrão da granja de origem dos ovos, codificada como 1, 2 e 3.",
+  r:"Não faz sentido",
+  j:"Granja é variável nominal. Dispersão de rótulos não tem interpretação. O que se pode informar é quantos ovos vieram de cada granja."}
+];
+let respResumo=0;
+(function(){
+  const c=document.getElementById('quizResumo');
+  resumos.forEach((s,i)=>{
+    const d=document.createElement('div');d.className='caso';
+    d.innerHTML=`<div class="n">Situação ${i+1}</div><p style="margin-bottom:10px">${s.t}</p>
+      <div class="opcoes">
+        <button class="opcao" onclick="respR(${i},'Faz sentido',this)">Faz sentido</button>
+        <button class="opcao" onclick="respR(${i},'Não faz sentido',this)">Não faz sentido</button>
+      </div>
+      <div class="feedback" id="fbr${i}"></div>`;
+    c.appendChild(d);
+  });
+})();
+function respR(i,esc,btn){
+  const pai=btn.parentElement;
+  if(pai.dataset.feito)return;pai.dataset.feito='1';
+  [...pai.children].forEach(b=>b.disabled=true);
+  const fb=document.getElementById('fbr'+i),certo=resumos[i].r;
+  if(esc===certo){btn.classList.add('certa');fb.className='feedback ok';
+    fb.innerHTML='<strong>Correto.</strong> '+resumos[i].j;}
+  else{btn.classList.add('errada');
+    [...pai.children].forEach(b=>{if(b.textContent===certo)b.classList.add('certa')});
+    fb.className='feedback nao';fb.innerHTML='<strong>Não é isso.</strong> '+resumos[i].j;}
+  respResumo++;
+  document.getElementById('placarResumo').textContent='Respondidas: '+respResumo+' de 6';
+}
+
+/* ---------- ATIVIDADE 3 ---------- */
+const erros=[
+ {t:"Título ocupando a primeira linha, antes do cabeçalho",e:true,
+  j:"A primeira linha precisa ser o nome das colunas. Qualquer coisa acima disso quebra a leitura automática."},
+ {t:"Célula mesclada na coluna Solo",e:true,
+  j:"Mesclagem destrói a estrutura de linhas e colunas. Cada linha precisa ter o seu próprio valor de solo, mesmo repetido."},
+ {t:"Unidade escrita dentro da célula, como 14,2 cm",e:true,
+  j:"O cm dentro da célula transforma o valor em texto e impede qualquer cálculo. A unidade vai no nome da coluna, altura_cm."},
+ {t:"Coluna de observações sem nome no cabeçalho",e:true,
+  j:"Coluna sem nome é ignorada ou lida como vazia por muitos programas. Toda coluna precisa de cabeçalho."},
+ {t:"Linha de MÉDIA no fim da tabela de dados brutos",e:true,
+  j:"Resultado calculado misturado ao dado bruto. Qualquer software vai ler essa linha como se fosse mais uma observação. Análise fica em outra aba."},
+ {t:"Altura vazia no vaso 4, com anotação de que o vaso caiu",e:false,
+  j:"Isso está certo. O vaso caiu, a medida não existiu, e a célula vazia registra isso com honestidade. Colocar zero ali seria inventar uma planta de altura zero."},
+ {t:"Número de folhas igual a zero no vaso 3",e:false,
+  j:"Isso está certo. O zero aqui é uma medição real: a planta existia e não tinha folhas. Zero medido e célula vazia são coisas diferentes."},
+ {t:"Nomes de colunas com maiúscula, como Altura e Folhas",e:true,
+  j:"Erro leve, mas erro. O padrão seguro é minúscula, sem acento e sem espaço, como altura_cm e n_folhas. Evita problema ao exportar para outros programas."}
+];
+(function(){
+  const l=document.getElementById('listaErros');
+  erros.forEach((e,i)=>{
+    const li=document.createElement('li');
+    li.innerHTML=`<input type="checkbox" id="er${i}"><span>${e.t}</span>`;
+    l.appendChild(li);
+  });
+})();
+function conferirErros(){
+  let acertos=0,total=0,texto='';
+  erros.forEach((e,i)=>{
+    const marcado=document.getElementById('er'+i).checked;
+    if(e.e)total++;
+    if(marcado===e.e)acertos++;
+    if(e.e&&marcado)texto+='<p style="margin:8px 0"><strong>Certo, é problema.</strong> '+e.t+'. '+e.j+'</p>';
+    if(e.e&&!marcado)texto+='<p style="margin:8px 0"><strong>Passou batido.</strong> '+e.t+'. '+e.j+'</p>';
+    if(!e.e&&marcado)texto+='<p style="margin:8px 0"><strong>Esse não é problema.</strong> '+e.t+'. '+e.j+'</p>';
+  });
+  const fb=document.getElementById('fbErros');
+  fb.className=acertos===erros.length?'feedback ok':'feedback nao';
+  fb.innerHTML='<strong>Você acertou '+acertos+' das '+erros.length+' avaliações. A planilha tem '+total+' problemas reais.</strong>'+texto;
+}
+
+/* ---------- ATIVIDADE 4 ---------- */
+function trocarFormato(f){
+  document.getElementById('abaLargo').classList.toggle('ativa',f==='largo');
+  document.getElementById('abaLongo').classList.toggle('ativa',f==='longo');
+  const t=document.getElementById('tabelaFormato'),fb=document.getElementById('fbFormato');
+  if(f==='largo'){
+    t.innerHTML=`<div class="xl">
+      <div class="xl-bar"><span class="xl-ref">B1</span><span class="xl-fx">fx</span><span class="xl-form">horta</span></div>
+      <div class="xl-rolar"><table class="xl-grid">
+      <tr><th class="col"></th><th class="col">A</th><th class="col">B</th><th class="col">C</th><th class="col">D</th></tr>
+      <tr><th class="lin">1</th><td class="cab">bloco</td><td class="sel cab">horta</td><td class="cab">areia</td><td class="cab">jardim</td></tr>
+      <tr><th class="lin">2</th><td class="n">1</td><td class="n">14,2</td><td class="n">9,1</td><td class="n">12,5</td></tr>
+      <tr><th class="lin">3</th><td class="n">2</td><td class="n">13,8</td><td class="n">8,7</td><td class="n">12,9</td></tr>
+      <tr><th class="lin">4</th><td class="n">3</td><td class="n">15,1</td><td class="n">9,6</td><td class="n">11,8</td></tr>
+      </table></div></div>
+      <p class="xl-nota ruim">O tipo de solo virou nome de coluna. Ele não existe como dado dentro da tabela.</p>`;
+    fb.innerHTML='<strong>Formato largo.</strong> Cada tipo de solo virou uma coluna. É confortável de olhar e péssimo de analisar, porque o nome da variável, o tipo de solo, ficou escondido no cabeçalho em vez de estar dentro de uma coluna. Se amanhã entrar um quarto solo, a estrutura da tabela muda inteira. Use apenas para apresentar resultado, nunca para guardar dado bruto.';
+  }else{
+    t.innerHTML=`<div class="xl">
+      <div class="xl-bar"><span class="xl-ref">B2</span><span class="xl-fx">fx</span><span class="xl-form">horta</span></div>
+      <div class="xl-rolar"><table class="xl-grid">
+      <tr><th class="col"></th><th class="col">A</th><th class="col">B</th><th class="col">C</th></tr>
+      <tr><th class="lin">1</th><td class="cab">bloco</td><td class="cab">solo</td><td class="cab">altura_cm</td></tr>
+      <tr><th class="lin">2</th><td class="n">1</td><td class="sel">horta</td><td class="n">14,2</td></tr>
+      <tr><th class="lin">3</th><td class="n">2</td><td>horta</td><td class="n">13,8</td></tr>
+      <tr><th class="lin">4</th><td class="n">3</td><td>horta</td><td class="n">15,1</td></tr>
+      <tr><th class="lin">5</th><td class="n">1</td><td>areia</td><td class="n">9,1</td></tr>
+      <tr><th class="lin">6</th><td class="n">2</td><td>areia</td><td class="n">8,7</td></tr>
+      <tr><th class="lin">7</th><td class="n">3</td><td>areia</td><td class="n">9,6</td></tr>
+      <tr><th class="lin">8</th><td class="n">1</td><td>jardim</td><td class="n">12,5</td></tr>
+      <tr><th class="lin">9</th><td class="n">2</td><td>jardim</td><td class="n">12,9</td></tr>
+      <tr><th class="lin">10</th><td class="n">3</td><td>jardim</td><td class="n">11,8</td></tr>
+      </table></div></div>
+      <p class="xl-nota bom">Agora o tipo de solo é um dado dentro da coluna B, e cada linha é uma observação.</p>`;
+    fb.innerHTML='<strong>Formato longo, o correto para guardar e analisar.</strong> Uma linha por observação e uma coluna por variável. O tipo de solo agora é um dado dentro da tabela, e não um rótulo de cabeçalho. Se entrar um quarto solo, você apenas acrescenta linhas e nada mais muda. É neste formato que o PAST 4 e qualquer software estatístico esperam receber os seus dados.';
+  }
+  fb.className='feedback ok';
+}
+trocarFormato('largo');
+
+/* ---------- ATIVIDADE 5 ---------- */
+function auditar(){
+  const bruto=document.getElementById('colunaAuditar').value;
+  const linhas=bruto.split(/\n/);
+  const alvo=document.getElementById('resAuditoria');
+  if(bruto.trim()===''){alvo.innerHTML='<div class="feedback nao">Cole alguma coisa na caixa acima.</div>';return;}
+  let vazias=0,texto=[],numeros=[],virgula=0,ponto=0,espaco=0;
+  linhas.forEach((l,i)=>{
+    const s=l.trim();
+    if(s===''){vazias++;return;}
+    if(/^-?\d+,\d+$/.test(s))virgula++;
+    if(/^-?\d+\.\d+$/.test(s))ponto++;
+    if(/\s/.test(s))espaco++;
+    const n=Number(s.replace(',','.'));
+    if(isNaN(n))texto.push({linha:i+1,valor:s});
+    else numeros.push(n);
+  });
+  let alertas='';
+  if(texto.length)alertas+='<p style="margin:8px 0"><strong>Valores que não são número:</strong> '+
+    texto.map(t=>'linha '+t.linha+', "'+t.valor+'"').join('; ')+
+    '. Enquanto isso estiver na coluna, nenhuma função de cálculo vai funcionar. Unidade, sinal de menor que e anotação precisam sair para outra coluna.</p>';
+  if(vazias)alertas+='<p style="margin:8px 0"><strong>'+vazias+' linha(s) vazia(s).</strong> Isso pode estar certo, se a medição realmente não existiu, ou pode ser digitação esquecida. Confira uma por uma e nunca preencha com zero por comodidade.</p>';
+  if(virgula&&ponto)alertas+='<p style="margin:8px 0"><strong>Separador decimal misturado.</strong> Há '+virgula+' valor(es) com vírgula e '+ponto+' com ponto. A planilha vai ler um dos dois grupos como texto. Padronize tudo em um formato só.</p>';
+  if(espaco)alertas+='<p style="margin:8px 0"><strong>'+espaco+' valor(es) com espaço.</strong> Espaço invisível no fim da célula é a causa número um de valores que parecem número e não são.</p>';
+  let stats='';
+  if(numeros.length>1){
+    const n=numeros.length;
+    const media=numeros.reduce((a,b)=>a+b,0)/n;
+    const dp=Math.sqrt(numeros.reduce((a,b)=>a+(b-media)**2,0)/(n-1));
+    const suspeitos=numeros.filter(v=>Math.abs(v-media)>3*dp);
+    stats=`<div class="saida">
+      <div class="metrica"><div class="rot">Linhas lidas</div><div class="val">${linhas.length}</div></div>
+      <div class="metrica"><div class="rot">Números válidos</div><div class="val">${n}</div></div>
+      <div class="metrica"><div class="rot">Não numéricos</div><div class="val">${texto.length}</div></div>
+      <div class="metrica"><div class="rot">Vazios</div><div class="val">${vazias}</div></div>
+      <div class="metrica"><div class="rot">Mínimo</div><div class="val">${Math.min(...numeros).toFixed(2)}</div></div>
+      <div class="metrica"><div class="rot">Máximo</div><div class="val">${Math.max(...numeros).toFixed(2)}</div></div>
+    </div>`;
+    if(suspeitos.length)alertas+='<p style="margin:8px 0"><strong>Valor(es) muito distante(s) do conjunto:</strong> '+
+      suspeitos.map(v=>v.toFixed(2)).join(', ')+
+      '. Estão a mais de três desvios padrão da média. Isso não significa que estejam errados, mas significa que precisam ser conferidos na caderneta de campo antes de qualquer análise. Vírgula digitada no lugar errado aparece exatamente assim.</p>';
+  }
+  const limpo=alertas==='';
+  alvo.innerHTML=stats+'<div class="feedback '+(limpo?'ok':'nao')+'">'+
+    (limpo?'<strong>Coluna limpa.</strong> Todos os valores foram lidos como número, sem vazios e sem mistura de separador. Essa coluna está pronta para análise.'
+    :'<strong>Problemas encontrados nesta coluna.</strong>'+alertas)+'</div>';
+}
+
+/* ---------- ATIVIDADE 6 ---------- */
+let dic=[];
+function addDic(){
+  const nome=document.getElementById('dcNome').value.trim();
+  const tipo=document.getElementById('dcTipo').value;
+  const papel=document.getElementById('dcPapel').value;
+  const uni=document.getElementById('dcUni').value.trim();
+  const fb=document.getElementById('fbDic');
+  if(!nome){fb.className='feedback nao';fb.innerHTML='Escreva o nome da coluna.';return;}
+  let aviso='';
+  if(/[A-ZÁÉÍÓÚÂÊÔÃÕÇ]/.test(nome))aviso+=' O nome tem letra maiúscula ou acento, o que costuma dar problema ao exportar. Prefira tudo minúsculo e sem acento.';
+  if(/\s/.test(nome))aviso+=' O nome tem espaço. Troque por sublinhado, como altura_cm.';
+  if((tipo==='Nominal'||tipo==='Ordinal')&&papel==='Resposta')
+    aviso+=' Resposta categórica exige modelos específicos, os Modelos Lineares Generalizados da semana 15, e não a ANOVA das semanas 8 e 9. Confirme se é isso mesmo que o seu grupo quer.';
+  if(papel==='Covariável'&&(tipo==='Nominal'||tipo==='Ordinal'))
+    aviso+=' Covariável precisa ser contínua. Se essa variável é categórica, o papel dela é fator, não covariável.';
+  dic.push({nome,tipo,papel,uni:uni||'não informado'});
+  document.getElementById('dcNome').value='';document.getElementById('dcUni').value='';
+  renderDic();
+  fb.className=aviso?'feedback nao':'feedback ok';
+  fb.innerHTML=aviso?'<strong>Coluna adicionada, com ressalvas.</strong>'+aviso
+    :'<strong>Coluna adicionada.</strong> Nome no padrão seguro, tipo e papel coerentes entre si.';
+}
+function renderDic(){
+  const t=document.getElementById('tabelaDic');
+  if(!dic.length){t.innerHTML='';return;}
+  let l=dic.map((d,i)=>`<tr><td>${d.nome}</td><td>${d.tipo}</td><td>${d.papel}</td><td>${d.uni}</td>
+    <td><button class="btn-claro" style="padding:5px 12px;font-size:13px" onclick="remDic(${i})">remover</button></td></tr>`).join('');
+  t.innerHTML=`<div class="tabela-rolar"><table style="margin-top:16px">
+    <tr><th>Coluna</th><th>Tipo</th><th>Papel</th><th>Unidade ou categorias</th><th></th></tr>${l}</table></div>
+    <p style="font-size:14px;color:var(--cinza);margin-top:10px">Copie esta tabela para a aba dicionario da sua planilha.</p>`;
+}
+function remDic(i){dic.splice(i,1);renderDic();}
+function limparDic(){dic=[];renderDic();document.getElementById('fbDic').style.display='none';}
+
+/* ---------- AUTOAVALIACAO ---------- */
+const perguntas=[
+ {p:"Um grupo codificou tipo de solo como 1, 2 e 3 e calculou a média, obtendo 2,1. O que se pode dizer?",
+  o:["O resultado indica que o solo predominante é o de número 2",
+     "O cálculo não tem significado, porque tipo de solo é variável nominal e os números são apenas rótulos",
+     "O cálculo está certo, mas o desvio padrão também deveria ser informado",
+     "O resultado indica que os solos são equivalentes entre si"],
+  c:1,
+  j:"Rótulos numéricos não carregam magnitude. Poderiam ser 7, 40 e 91 que a classificação seria a mesma. Para nominal, informa-se frequência de cada categoria ou a moda."},
+ {p:"Qual é a diferença entre variável discreta e contínua?",
+  o:["Discreta vem de contagem de unidades inteiras, contínua vem de medida em escala que admite frações",
+     "Discreta tem poucos valores possíveis, contínua tem muitos",
+     "Discreta é sempre categórica, contínua é sempre numérica",
+     "Discreta não admite média, contínua admite"],
+  c:0,
+  j:"O critério é a origem do valor. Contar produz discreta, medir produz contínua. Número de folhas é discreta mesmo que vá de 0 a 200; altura é contínua mesmo que só varie entre 12 e 15."},
+ {p:"A armadilha do vaso 4 foi levada por um animal e a medição não aconteceu. O que registrar?",
+  o:["Zero, porque nada foi coletado",
+     "A média das outras armadilhas, para não perder a linha",
+     "Célula vazia ou NA, com anotação em coluna de observações",
+     "O menor valor observado no experimento"],
+  c:2,
+  j:"Zero significa que você mediu e encontrou nada. Ausente significa que você não mediu. Trocar um pelo outro inventa uma observação e distorce a média e o desvio padrão."},
+ {p:"Por que o formato longo é preferível ao formato largo para guardar dados brutos?",
+  o:["Porque ocupa menos espaço no arquivo",
+     "Porque cada variável fica em uma coluna própria, e acrescentar um novo nível não muda a estrutura da tabela",
+     "Porque é o único formato que o Excel aceita",
+     "Porque permite mesclar células com segurança"],
+  c:1,
+  j:"No formato largo o nome do nível fica escondido no cabeçalho. No longo ele vira dado dentro de uma coluna, o que é exatamente o que os softwares estatísticos esperam receber."},
+ {p:"Qual é a diferença entre fator e covariável?",
+  o:["Fator é medido, covariável é calculada",
+     "Fator vem antes na planilha, covariável vem depois",
+     "Fator costuma ser categórico e é o que se quer testar, covariável é contínua e é o que se quer descontar",
+     "Não há diferença, são sinônimos"],
+  c:2,
+  j:"Essa distinção é o que permite rodar ANCOVA na semana 11. Confundir os dois leva a escolher o modelo errado."},
+ {p:"Um monitoramento registra a qualidade da água a montante e a jusante de um lançamento, sem sorteio de trechos. Que tipo de afirmação o desenho sustenta?",
+  o:["Afirmação de causa, porque há um controle a montante",
+     "Afirmação de associação, porque as variáveis são naturais e não foram manipuladas",
+     "Nenhuma afirmação, porque falta análise laboratorial",
+     "Afirmação de causa, desde que a diferença seja estatisticamente significativa"],
+  c:1,
+  j:"Sem manipulação e sem sorteio, o que se observa é associação. Escrever causa nesse contexto é um dos erros técnicos mais contestáveis em processos de licenciamento."}
+];
+let respFinal=0;
+(function(){
+  const c=document.getElementById('quizFinal');
+  perguntas.forEach((q,i)=>{
+    const d=document.createElement('div');d.className='caso';
+    const botoes=q.o.map((op,j)=>
+      `<button class="opcao" style="flex:1 1 100%;text-align:left" onclick="respF(${i},${j},this)">${op}</button>`).join('');
+    d.innerHTML=`<div class="n">Questão ${i+1}</div><p style="margin-bottom:10px"><strong>${q.p}</strong></p>
+      <div class="opcoes" style="flex-direction:column">${botoes}</div>
+      <div class="feedback" id="fbq${i}"></div>`;
+    c.appendChild(d);
+  });
+})();
+function respF(i,j,btn){
+  const pai=btn.parentElement;
+  if(pai.dataset.feito)return;pai.dataset.feito='1';
+  [...pai.children].forEach(b=>b.disabled=true);
+  const fb=document.getElementById('fbq'+i);
+  if(j===perguntas[i].c){btn.classList.add('certa');fb.className='feedback ok';
+    fb.innerHTML='<strong>Correto.</strong> '+perguntas[i].j;}
+  else{btn.classList.add('errada');pai.children[perguntas[i].c].classList.add('certa');
+    fb.className='feedback nao';fb.innerHTML='<strong>Não é isso.</strong> '+perguntas[i].j;}
+  respFinal++;
+  document.getElementById('placarFinal').textContent='Respondidas: '+respFinal+' de 6';
+}
+</script>
+</body>
+</html>

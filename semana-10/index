@@ -1,0 +1,1011 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Semana 10: Regressão linear</title>
+<style>
+:root{
+  --azul:#1565c0; --azul-claro:#e3f0fc;
+  --verde:#2e7d32; --verde-claro:#e6f4e7;
+  --teal:#00695c; --teal-claro:#e0f2f1;
+  --roxo:#6a1b9a; --roxo-claro:#f3e8f8;
+  --laranja:#e65100; --laranja-claro:#fff1e5;
+  --vermelho:#c62828; --vermelho-claro:#fdeaea;
+  --cinza:#5a6472; --borda:#dfe4ea; --fundo:#f6f8fa;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;
+  background:#fff;color:#22272e;line-height:1.65;font-size:16px}
+.wrap{max-width:880px;margin:0 auto;padding:20px 18px 80px}
+
+header.topo{background:linear-gradient(135deg,#0d47a1,#1e88e5);border-radius:16px;
+  padding:26px 24px;color:#fff;margin-bottom:22px}
+header.topo .tag{display:inline-block;background:rgba(255,255,255,.22);padding:5px 13px;
+  border-radius:20px;font-size:13px;font-weight:600;letter-spacing:.3px;margin-bottom:12px}
+header.topo h1{font-size:25px;line-height:1.28;margin-bottom:10px;font-weight:700}
+header.topo p{font-size:14.5px;opacity:.94}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:16px}
+.chip{background:rgba(255,255,255,.16);border:1px solid rgba(255,255,255,.3);
+  padding:7px 13px;border-radius:9px;font-size:13px;font-weight:500}
+
+nav.indice{background:var(--fundo);border:1px solid var(--borda);border-radius:14px;
+  padding:16px 18px;margin-bottom:26px}
+nav.indice strong{display:block;font-size:13px;text-transform:uppercase;
+  letter-spacing:.6px;color:var(--cinza);margin-bottom:10px}
+nav.indice a{display:block;color:var(--azul);text-decoration:none;padding:7px 0;
+  font-size:15px;border-bottom:1px solid #eef1f4}
+nav.indice a:last-child{border-bottom:none}
+nav.indice a:hover{text-decoration:underline}
+
+.bloco{margin-bottom:34px}
+.bloco-cab{display:flex;align-items:center;gap:12px;margin-bottom:16px;
+  padding-bottom:12px;border-bottom:3px solid var(--azul-claro)}
+.bloco-num{background:var(--azul);color:#fff;width:38px;height:38px;flex:0 0 38px;
+  border-radius:10px;display:flex;align-items:center;justify-content:center;
+  font-weight:700;font-size:17px}
+.bloco-cab h2{font-size:20px;font-weight:700;line-height:1.3}
+h3{font-size:17px;margin:22px 0 9px;color:#1a1f26;font-weight:650}
+p{margin-bottom:13px}
+ul,ol{margin:0 0 14px 22px}
+li{margin-bottom:7px}
+
+.card{border:1px solid var(--borda);border-radius:14px;padding:20px;margin:16px 0;background:#fff}
+.destaque{border-left:5px solid var(--verde);background:var(--verde-claro);
+  border-radius:12px;padding:16px 18px;margin:16px 0}
+.destaque strong{color:var(--verde)}
+.alerta{border-left:5px solid var(--vermelho);background:var(--vermelho-claro);
+  border-radius:12px;padding:16px 18px;margin:16px 0}
+.alerta strong{color:var(--vermelho)}
+.consult{border-left:5px solid var(--laranja);background:var(--laranja-claro);
+  border-radius:12px;padding:16px 18px;margin:16px 0}
+.consult strong{color:var(--laranja)}
+.livro{border-left:5px solid var(--roxo);background:var(--roxo-claro);
+  border-radius:12px;padding:14px 18px;margin:16px 0;font-size:14.5px}
+.livro strong{color:var(--roxo)}
+
+.faixa{background:#0d47a1;color:#fff;border-radius:16px;padding:28px 24px;
+  margin:30px 0;text-align:center;box-shadow:0 5px 18px rgba(13,71,161,.22)}
+.faixa .l1{font-size:28px;font-weight:800;line-height:1.2;letter-spacing:-.4px;margin-bottom:12px}
+.faixa .l3{font-size:18.5px;font-weight:700;background:rgba(255,255,255,.16);
+  display:inline-block;padding:11px 20px;border-radius:11px;line-height:1.4}
+@media(max-width:600px){.faixa .l1{font-size:21px}.faixa .l3{font-size:15px}}
+
+table{width:100%;border-collapse:collapse;margin:14px 0;font-size:14.5px}
+th{background:var(--azul-claro);padding:11px 12px;text-align:left;font-weight:650;
+  border:1px solid var(--borda)}
+td{padding:11px 12px;border:1px solid var(--borda);vertical-align:top}
+.tabela-rolar{overflow-x:auto}
+.num{text-align:right;font-variant-numeric:tabular-nums}
+.cel-erro{background:var(--vermelho-claro);color:var(--vermelho);font-weight:650}
+.cel-ok{background:var(--verde-claro);color:var(--verde);font-weight:650}
+
+.xl{border:1px solid #b9c0c9;border-radius:9px;overflow:hidden;margin:16px 0;background:#fff;
+  font-family:ui-monospace,SFMono-Regular,Menlo,monospace}
+.xl-bar{display:flex;align-items:center;gap:8px;background:#f6f8fa;
+  border-bottom:1px solid #d5dbe2;padding:8px 10px;font-size:13px}
+.xl-ref{background:#fff;border:1px solid #c6cdd5;border-radius:5px;padding:4px 10px;
+  min-width:56px;text-align:center;font-weight:700;color:#22272e}
+.xl-fx{color:#9aa4b0;font-style:italic;font-weight:700;padding:0 2px}
+.xl-form{flex:1;background:#fff;border:1px solid #c6cdd5;border-radius:5px;padding:4px 10px;
+  overflow-x:auto;white-space:nowrap;color:#107c41;font-weight:650}
+.xl-rolar{overflow-x:auto}
+table.xl-grid{border-collapse:collapse;width:100%;margin:0;font-size:13px}
+table.xl-grid th,table.xl-grid td{border:1px solid #d5dbe2;padding:7px 10px;background:#fff;
+  white-space:nowrap;font-weight:400;text-align:left;vertical-align:middle}
+table.xl-grid th.col,table.xl-grid th.lin{background:#eef1f4;color:#5a6472;text-align:center;
+  font-weight:700;font-size:11.5px}
+table.xl-grid th.lin{width:36px}
+table.xl-grid td.cab{font-weight:700;background:#f6f8fa}
+table.xl-grid td.sel{outline:2.5px solid #107c41;outline-offset:-2px;background:#f0f9f4;font-weight:700}
+table.xl-grid td.n{text-align:right}
+.xl-nota{font-size:13.5px;color:var(--cinza);text-align:center;margin:-8px 0 18px}
+
+.interativo{border:2px solid var(--azul);border-radius:16px;padding:22px;
+  margin:22px 0;background:#fbfdff}
+.interativo-cab{display:flex;align-items:center;gap:10px;margin-bottom:6px}
+.interativo-cab .selo{background:var(--azul);color:#fff;font-size:11.5px;font-weight:700;
+  padding:4px 11px;border-radius:20px;letter-spacing:.5px}
+.interativo h3{margin:8px 0 6px;font-size:17.5px}
+.interativo .instr{font-size:14.5px;color:var(--cinza);margin-bottom:16px}
+
+button{font-family:inherit;font-size:15px;font-weight:600;cursor:pointer;border:none;
+  border-radius:10px;padding:11px 20px;transition:.15s;margin:0 6px 6px 0}
+.btn{background:var(--azul);color:#fff}
+.btn:hover{background:#0d47a1}
+.btn-verde{background:var(--azul);color:#fff}
+.btn-verde:hover{background:#0d47a1}
+.btn-claro{background:#fff;color:var(--azul);border:2px solid var(--azul)}
+.btn-claro:hover{background:var(--azul-claro)}
+
+.opcoes{display:flex;flex-wrap:wrap;gap:9px;margin:12px 0}
+.opcao{flex:1 1 150px;min-width:130px;background:#fff;border:2px solid var(--borda);
+  border-radius:10px;padding:12px 14px;font-size:14.5px;font-weight:600;cursor:pointer;
+  text-align:center;transition:.15s}
+.opcao:hover{border-color:var(--azul);background:var(--azul-claro)}
+.opcao.certa{border-color:var(--verde);background:var(--verde-claro);color:var(--verde)}
+.opcao.errada{border-color:var(--vermelho);background:var(--vermelho-claro);color:var(--vermelho)}
+.opcao:disabled{cursor:default}
+
+.feedback{margin-top:13px;padding:14px 16px;border-radius:10px;font-size:14.5px;display:none}
+.feedback.ok{background:var(--verde-claro);border-left:4px solid var(--verde);display:block}
+.feedback.nao{background:var(--vermelho-claro);border-left:4px solid var(--vermelho);display:block}
+
+.caso{background:#fff;border:1px solid var(--borda);border-radius:10px;padding:15px 16px;
+  margin-bottom:10px;font-size:15px}
+.caso .n{font-size:12.5px;font-weight:700;color:var(--cinza);text-transform:uppercase;
+  letter-spacing:.6px;margin-bottom:6px}
+
+.controles{display:flex;flex-wrap:wrap;gap:16px;margin:14px 0;align-items:flex-end}
+.campo{flex:1 1 170px;min-width:150px}
+.campo label{display:block;font-size:13px;font-weight:650;color:var(--cinza);
+  margin-bottom:6px;text-transform:uppercase;letter-spacing:.4px}
+.campo input,.campo select{width:100%;padding:11px 12px;border:2px solid var(--borda);
+  border-radius:9px;font-size:15px;font-family:inherit;background:#fff}
+.campo input:focus{outline:none;border-color:var(--azul)}
+input[type=range]{width:100%;accent-color:var(--azul)}
+textarea{width:100%;padding:12px;border:2px solid var(--borda);border-radius:10px;
+  font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:14px;min-height:110px;
+  resize:vertical;background:#fff}
+textarea:focus{outline:none;border-color:var(--azul)}
+
+.saida{display:grid;grid-template-columns:repeat(auto-fit,minmax(128px,1fr));gap:11px;margin-top:16px}
+.metrica{background:#fff;border:1px solid var(--borda);border-radius:11px;padding:14px 12px;text-align:center}
+.metrica .rot{font-size:11.5px;text-transform:uppercase;letter-spacing:.6px;color:var(--cinza);
+  font-weight:650;margin-bottom:5px}
+.metrica .val{font-size:21px;font-weight:700;color:var(--azul)}
+.metrica.grande .val{font-size:26px}
+
+canvas{width:100%;height:auto;display:block;background:#fff;border:1px solid var(--borda);
+  border-radius:11px;margin-top:14px}
+.dois-graficos{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+@media(max-width:640px){.dois-graficos{grid-template-columns:1fr}}
+.legenda-grafico{display:flex;flex-wrap:wrap;gap:16px;justify-content:center;margin-top:10px;
+  font-size:13.5px;color:var(--cinza)}
+.legenda-grafico span{display:flex;align-items:center;gap:6px}
+.legenda-grafico i{width:14px;height:12px;border-radius:3px;display:inline-block}
+
+.arvore{background:#fff;border:1px solid var(--borda);border-radius:12px;padding:20px;margin-top:14px}
+.arvore .pergunta{font-size:16.5px;font-weight:650;margin-bottom:14px}
+.trilha{font-size:13px;color:var(--cinza);margin-bottom:12px}
+.trilha span{background:var(--azul-claro);color:var(--azul);padding:3px 9px;
+  border-radius:14px;margin-right:6px;display:inline-block;margin-bottom:5px;font-weight:650}
+.resultado{background:var(--azul-claro);border-left:5px solid var(--azul);
+  border-radius:10px;padding:16px 18px;font-size:15px}
+.resultado h4{color:var(--azul);font-size:18px;margin-bottom:8px}
+
+.placar{background:var(--azul-claro);border-radius:11px;padding:14px 16px;margin-top:14px;
+  font-size:15px;font-weight:600;color:var(--azul);text-align:center}
+
+.checklist{list-style:none;margin-left:0}
+.checklist li{display:flex;gap:11px;align-items:flex-start;padding:11px 0;border-bottom:1px solid #eef1f4}
+.checklist input[type=checkbox]{width:19px;height:19px;margin-top:3px;accent-color:var(--azul);flex:0 0 19px}
+
+footer.rodape{margin-top:44px;padding-top:20px;border-top:2px solid var(--borda);
+  font-size:13.5px;color:var(--cinza);text-align:center}
+
+@media(max-width:600px){
+  .wrap{padding:14px 13px 60px}
+  header.topo h1{font-size:21px}
+  .bloco-cab h2{font-size:18px}
+  .opcao{flex:1 1 100%}
+}
+@media print{
+  body{font-size:11.5pt}
+  header.topo,.faixa{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  nav.indice,button,.opcoes{display:none}
+  .interativo,.bloco{page-break-inside:avoid}
+}
+
+.dois-textos{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+@media(max-width:600px){.dois-textos{grid-template-columns:1fr}}
+table.conting input{width:78px;padding:8px;border:2px solid var(--borda);border-radius:7px;
+  text-align:right;font-family:inherit;font-size:14.5px}
+table.conting input:focus{outline:none;border-color:var(--azul)}
+
+.tres-textos{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px}
+table.anova td.destaq{background:#e3f0fc;font-weight:700}
+.matriz td{text-align:center;font-size:13.5px}
+.matriz td.dif{background:#e6f4e7;color:#2e7d32;font-weight:700}
+.matriz td.igual{background:#f6f8fa;color:#5a6472}
+
+.grade-celulas{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px}
+.grade-celulas textarea{min-height:104px}
+.rot-celula{font-size:12.5px;font-weight:700;color:var(--cinza);text-transform:uppercase;
+  letter-spacing:.4px;margin-bottom:6px}
+
+.quatro-graf{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:14px}
+.mini-rot{font-size:13.5px;font-weight:700;color:var(--azul);text-align:center;margin-top:6px}
+</style></head>
+<body>
+<div class="wrap">
+
+<header class="topo">
+  <span class="tag">SEMANA 10 &nbsp;|&nbsp; SEGUNDA 12 A SÁBADO 17 DE OUTUBRO DE 2026</span>
+  <h1>Regressão linear</h1>
+  <p>Modelagem e Experimentação em Biologia, FACAB-CAC-158, 60h, Turma 01, 2026.2<br>
+  Prof. Dr. Ernandes Sobreira Oliveira Junior, UNEMAT, Campus de Cáceres</p>
+  <div class="chips">
+    <span class="chip">2h de leitura, de segunda a sexta</span>
+    <span class="chip">2h de prática, de segunda a sexta</span>
+    <span class="chip">Questionário fecha sexta, 23h59</span>
+  </div>
+</header>
+
+<nav class="indice">
+  <strong>Roteiro da semana</strong>
+  <a href="#p1">1. De comparar grupos a relacionar variáveis</a>
+  <a href="#p2">2. O diagrama de dispersão vem primeiro</a>
+  <a href="#p3">3. Correlação</a>
+  <a href="#p4">4. Correlação não é causa</a>
+  <a href="#p5">5. A reta da regressão</a>
+  <a href="#p6">6. R quadrado</a>
+  <a href="#p7">7. Resíduos, o diagnóstico que quase ninguém faz</a>
+  <a href="#p8">8. Extrapolação e relato</a>
+  <a href="#a1">Atividade 1: calculadora de regressão</a>
+  <a href="#a2">Atividade 2: o quarteto de Anscombe</a>
+  <a href="#a3">Atividade 3: o que r realmente mede</a>
+  <a href="#a4">Atividade 4: correlação, causa e armadilhas</a>
+  <a href="#fecho">Autoavaliação e checklist</a>
+</nav>
+
+<div class="bloco" id="p1">
+  <div class="bloco-cab"><div class="bloco-num">1</div>
+  <h2>De comparar grupos a relacionar variáveis</h2></div>
+
+  <p>Nas três semanas anteriores a pergunta era sempre a mesma: os grupos diferem? Solo de horta contra arenoso, quente contra fresco, granja A contra B.</p>
+
+  <p>Existe outra pergunta, igualmente frequente em biologia, que nenhum daqueles testes responde: <strong>quando uma variável contínua muda, o que acontece com a outra?</strong></p>
+
+  <div class="tabela-rolar">
+  <table>
+    <tr><th>Experimento do semestre</th><th>Pergunta de relação</th></tr>
+    <tr><td>Cebolinha</td><td>A altura cresce com os dias desde o plantio, e a que taxa?</td></tr>
+    <tr><td>Ovos</td><td>A massa acompanha o comprimento do ovo?</td></tr>
+    <tr><td>Evaporação</td><td>O volume perdido por dia depende da temperatura do ar?</td></tr>
+    <tr><td>Infiltração</td><td>A velocidade de infiltração cai com a compactação?</td></tr>
+    <tr><td>Germinação</td><td>A proporção germinada diminui com a concentração de sal?</td></tr>
+  </table>
+  </div>
+
+  <p>Repare que a resposta desejada não é apenas sim ou não. Você quer <strong>o quanto</strong>: quantos centímetros por dia, quantos gramas por milímetro, quantos mililitros por grau. Um número com unidade, que possa entrar em uma decisão técnica.</p>
+
+  <div class="livro">
+    <strong>No livro.</strong> Modelagem e Experimentação em Biologia, um guia prático, Editora UNEMAT, 2025. Localize no sumário a parte sobre regressão linear e suas interpretações.
+  </div>
+</div>
+
+<div class="bloco" id="p2">
+  <div class="bloco-cab"><div class="bloco-num">2</div>
+  <h2>O diagrama de dispersão vem primeiro</h2></div>
+
+  <p>Antes de qualquer coeficiente, faça o gráfico. Cada unidade amostral vira um ponto, com o valor de uma variável no eixo horizontal e o da outra no vertical.</p>
+
+  <p>Existe uma convenção que importa: no eixo horizontal vai a variável <strong>preditora</strong>, aquela que você manipulou ou que age como causa possível. No vertical vai a <strong>resposta</strong>. Dias no eixo horizontal, altura no vertical. Concentração no horizontal, germinação no vertical.</p>
+
+  <div class="destaque">
+    <strong>Esta regra não é preciosismo, e a Semana 6 já avisou.</strong> A correlação e a regressão medem exclusivamente o quanto a relação se aproxima de uma reta. Uma relação forte e curva produz coeficiente baixo. O número dirá que não há relação e o gráfico mostrará que há. Sem o diagrama de dispersão, você não tem como saber em qual dos dois casos está.
+  </div>
+</div>
+
+<div class="bloco" id="p3">
+  <div class="bloco-cab"><div class="bloco-num">3</div>
+  <h2>Correlação</h2></div>
+
+  <p>O <strong>coeficiente de correlação de Pearson</strong>, representado por r, mede a força e a direção da associação linear entre duas variáveis contínuas.</p>
+
+  <div class="tabela-rolar">
+  <table>
+    <tr><th>Valor de r</th><th>Leitura</th></tr>
+    <tr><td>Perto de 1</td><td>Associação linear positiva forte. Quando uma sobe, a outra sobe</td></tr>
+    <tr><td>Perto de 0</td><td>Sem associação linear. Pode haver associação curva</td></tr>
+    <tr><td>Perto de menos 1</td><td>Associação linear negativa forte. Quando uma sobe, a outra desce</td></tr>
+  </table>
+  </div>
+
+  <p>Duas propriedades importantes. O r <strong>não tem unidade</strong>, então o mesmo valor descreve altura em centímetros ou em metros. E ele é <strong>simétrico</strong>: a correlação entre massa e comprimento é a mesma que entre comprimento e massa, o que já sinaliza que ele não diz nada sobre quem causa o quê.</p>
+
+  <div class="alerta">
+    <strong>Quando os dados não atendem aos pressupostos.</strong> A correlação de Pearson exige a mesma normalidade da Semana 6 e é bastante sensível a valores extremos. A alternativa é a <strong>correlação de Spearman</strong>, que trabalha com a ordem dos valores e detecta qualquer relação que seja sempre crescente ou sempre decrescente, mesmo que curva. Ambas estão no PAST 4.
+  </div>
+</div>
+
+<div class="bloco" id="p4">
+  <div class="bloco-cab"><div class="bloco-num">4</div>
+  <h2>Correlação não é causa</h2></div>
+
+  <p>A frase é gasta de tanto ser repetida e continua sendo violada em relatórios técnicos toda semana. Vale entender <strong>por que</strong> ela é verdadeira, e não apenas decorá-la.</p>
+
+  <p>Quando duas variáveis andam juntas, existem quatro explicações possíveis, e o coeficiente de correlação não distingue nenhuma delas:</p>
+
+  <ol>
+    <li><strong>A causa B.</strong> A concentração de sal reduz a germinação.</li>
+    <li><strong>B causa A.</strong> A relação está invertida em relação ao que você supôs.</li>
+    <li><strong>Uma terceira variável causa as duas.</strong> É a variável confundidora da Semana 3, agora em contexto de relação. Turbidez e concentração de nutrientes sobem juntas porque a chuva aumenta as duas.</li>
+    <li><strong>Acaso.</strong> Com muitas variáveis medidas, algumas se correlacionam sem qualquer ligação real. É o erro tipo I da Semana 4 aplicado a correlações.</li>
+  </ol>
+
+  <div class="consult">
+    <strong>Onde isso vira problema jurídico.</strong> Um laudo que encontra correlação entre a operação de um empreendimento e a alteração de um parâmetro está descrevendo associação. Escrever que o empreendimento causou a alteração exige mais: exige que o desenho tenha controlado as outras explicações possíveis, o que em monitoramento raramente acontece, como ficou dito na Semana 2 sobre variáveis naturais. Essa distinção é frequentemente o ponto central de contestação de um estudo ambiental.
+  </div>
+</div>
+
+<div class="bloco" id="p5">
+  <div class="bloco-cab"><div class="bloco-num">5</div>
+  <h2>A reta da regressão</h2></div>
+
+  <p>A correlação diz o quanto os pontos se alinham. A <strong>regressão</strong> vai além e descreve a reta que melhor os representa, com uma equação que permite prever.</p>
+
+  <div class="destaque" style="text-align:center;font-size:17px">
+    <strong>resposta = intercepto + inclinação vezes preditora</strong>
+  </div>
+
+  <p>Dois números descrevem a reta, e os dois têm leitura biológica direta:</p>
+
+  <ul>
+    <li><strong>Inclinação.</strong> O quanto a resposta muda quando a preditora aumenta em uma unidade. É o número que interessa. Uma inclinação de 0,42 centímetro por dia significa que a cebolinha cresce 0,42 centímetro a cada dia.</li>
+    <li><strong>Intercepto.</strong> O valor previsto da resposta quando a preditora é zero. Às vezes tem sentido, às vezes não. Altura no dia zero faz sentido. Massa de um ovo de comprimento zero não faz.</li>
+  </ul>
+
+  <h3>Como a reta é escolhida</h3>
+  <p>Existem infinitas retas possíveis. O método dos <strong>mínimos quadrados</strong> escolhe aquela que torna a soma dos quadrados das distâncias verticais entre os pontos e a reta a menor possível.</p>
+
+  <p>Repare que é a mesma ideia da Semana 1: elevar desvios ao quadrado e somar. Distâncias verticais, porque o que se quer é errar o mínimo possível ao prever a resposta.</p>
+
+  <div class="alerta">
+    <strong>O teste da inclinação.</strong> A regressão devolve um valor de p, e a hipótese nula dele é que a inclinação verdadeira é zero, ou seja, que a preditora não tem efeito. Rejeitar essa nula significa que existe relação. Repare que esse valor de p é exatamente o mesmo do teste de correlação, porque as duas coisas testam a mesma pergunta por caminhos diferentes.
+  </div>
+</div>
+
+<div class="bloco" id="p6">
+  <div class="bloco-cab"><div class="bloco-num">6</div>
+  <h2>R quadrado</h2></div>
+
+  <p>O <strong>coeficiente de determinação</strong>, R quadrado, é o quadrado do r de Pearson, e responde: <strong>que proporção da variação da resposta é explicada pela preditora?</strong></p>
+
+  <p>Um R quadrado de 0,73 significa que 73 por cento da variação na altura é explicada pelos dias de crescimento, e 27 por cento vêm de outras fontes.</p>
+
+  <p>É o mesmo tipo de medida do eta quadrado da Semana 8, e por um bom motivo: <strong>ANOVA e regressão são o mesmo modelo</strong>, com preditora categórica em um caso e contínua no outro. A soma de quadrados se reparte em explicada e residual nos dois.</p>
+
+  <div class="alerta">
+    <strong>R quadrado alto não garante que o modelo esteja certo.</strong> A Atividade 2 traz quatro conjuntos com R quadrado idêntico e realidades completamente diferentes, um deles com relação curva e outro dominado por um único ponto. R quadrado alto com resíduos torcidos é modelo errado com boa aparência.
+  </div>
+</div>
+
+<div class="faixa">
+  <div class="l1">A RETA PASSA POR QUALQUER NUVEM DE PONTOS</div>
+  <div class="l3">SÃO OS RESÍDUOS QUE DIZEM<br>SE ELA DEVERIA TER PASSADO.</div>
+</div>
+
+<div class="bloco" id="p7">
+  <div class="bloco-cab"><div class="bloco-num">7</div>
+  <h2>Resíduos, o diagnóstico que quase ninguém faz</h2></div>
+
+  <p><strong>Resíduo</strong> é a distância vertical entre o ponto observado e a reta prevista. Cada observação tem o seu.</p>
+
+  <p>O gráfico de resíduos coloca os valores previstos no eixo horizontal e os resíduos no vertical. Se o modelo estiver adequado, os pontos devem estar espalhados em torno do zero <strong>sem nenhum padrão</strong>, como uma nuvem sem forma.</p>
+
+  <div class="tabela-rolar">
+  <table>
+    <tr><th>Padrão nos resíduos</th><th>O que indica</th><th>Conduta</th></tr>
+    <tr><td>Nuvem sem forma em torno do zero</td><td class="cel-ok">Modelo adequado</td><td>Prossiga</td></tr>
+    <tr><td>Curva em formato de U ou de U invertido</td><td class="cel-erro">A relação real é curva</td><td>Transforme ou use modelo não linear</td></tr>
+    <tr><td>Funil, resíduos abrindo para a direita</td><td class="cel-erro">Heterocedasticidade</td><td>Transforme, geralmente com logaritmo</td></tr>
+    <tr><td>Um ponto muito afastado dos demais</td><td class="cel-erro">Observação influente</td><td>Confira na caderneta antes de qualquer decisão</td></tr>
+  </table>
+  </div>
+
+  <div class="destaque">
+    <strong>É aqui que a Semana 6 se paga.</strong> Os pressupostos da regressão, normalidade e homocedasticidade, são verificados nos resíduos, e não nas variáveis originais. Um gráfico de resíduos leva quinze segundos para fazer e é o que separa uma análise defensável de um número copiado da tela.
+  </div>
+</div>
+
+<div class="bloco" id="p8">
+  <div class="bloco-cab"><div class="bloco-num">8</div>
+  <h2>Extrapolação e relato</h2></div>
+
+  <p>A reta vale apenas dentro da faixa de valores que você observou. Usar a equação fora dessa faixa chama-se <strong>extrapolação</strong>, e é uma das formas mais fáceis de escrever uma bobagem com aparência técnica.</p>
+
+  <p>Se você mediu a cebolinha do dia 1 ao dia 30 e obteve crescimento de 0,42 centímetro por dia, a equação prevê 168 centímetros no dia 400. Nenhuma cebolinha faz isso. A reta descreve o trecho observado, e nada garante que a relação continue reta depois dele.</p>
+
+  <div class="destaque">
+    <strong>Modelo de frase completa.</strong> A altura aumentou com o tempo de cultivo, regressão linear, inclinação de 0,42 centímetro por dia, intervalo de confiança de 95 por cento de 0,36 a 0,48, intercepto de 3,1 centímetros, R quadrado igual a 0,87, F igual a 187,4 com 1 e 28 graus de liberdade, valor de p menor que 0,001. A relação foi avaliada entre o primeiro e o trigésimo dia, e a equação não deve ser aplicada fora desse intervalo.
+  </div>
+
+  <p>Repare no que está sendo informado além do valor de p: a inclinação com unidade, a incerteza dela, a proporção explicada e a faixa de validade. Sem esses quatro, o leitor não consegue usar o resultado para nada.</p>
+</div>
+
+<div class="bloco" id="a1">
+  <div class="interativo">
+    <div class="interativo-cab"><span class="selo">ATIVIDADE 1</span></div>
+    <h3>Calculadora de regressão</h3>
+    <p class="instr">Cole os pares de valores, um por linha, com a preditora e a resposta separadas por vírgula ou tabulação. A calculadora devolve a equação, os coeficientes, o diagnóstico dos resíduos e os dois gráficos. Tudo é calculado no seu navegador.</p>
+
+    <div class="controles">
+      <div class="campo"><label>Nome da preditora, eixo horizontal</label><input type="text" id="nomeX" value="dias"></div>
+      <div class="campo"><label>Nome da resposta, eixo vertical</label><input type="text" id="nomeY" value="altura_cm"></div>
+    </div>
+    <textarea id="dadosXY" placeholder="Cole assim, um par por linha:&#10;5; 5,2&#10;10; 7,4&#10;15; 9,1"></textarea>
+    <div style="margin-top:12px">
+      <button class="btn-verde" onclick="regressao()">Calcular</button>
+      <button class="btn-claro" onclick="exemploReg()">Usar dados de exemplo</button>
+    </div>
+    <div id="saidaReg"></div>
+  </div>
+</div>
+
+<div class="bloco" id="a2">
+  <div class="interativo">
+    <div class="interativo-cab"><span class="selo">ATIVIDADE 2</span></div>
+    <h3>O quarteto de Anscombe</h3>
+    <p class="instr">Quatro conjuntos de dados publicados por Francis Anscombe em 1973, no artigo Graphs in Statistical Analysis, da revista The American Statistician. Não são dados inventados nem simulados. Olhe primeiro a tabela de estatísticas e depois os gráficos.</p>
+
+    <div id="tabAnscombe"></div>
+    <button class="btn-verde" onclick="mostrarAnscombe()">Desenhar os quatro gráficos</button>
+    <div id="grafAnscombe"></div>
+    <div class="feedback" id="fbAnscombe"></div>
+  </div>
+</div>
+
+<div class="bloco" id="a3">
+  <div class="interativo">
+    <div class="interativo-cab"><span class="selo">ATIVIDADE 3</span></div>
+    <h3>O que r realmente mede</h3>
+    <p class="instr">Escolha a forma da relação e a dispersão. Observe o que acontece com o coeficiente de correlação. Valores simulados, apenas para treino.</p>
+
+    <div class="controles">
+      <div class="campo"><label>Forma da relação</label>
+        <select id="forma" onchange="verR()">
+          <option value="reta">Reta crescente</option>
+          <option value="retaneg">Reta decrescente</option>
+          <option value="curva">Curva com patamar</option>
+          <option value="uinv">Curva com ótimo no meio</option>
+          <option value="nada">Nenhuma relação</option>
+          <option value="outlier">Reta com um ponto extremo</option>
+        </select></div>
+      <div class="campo"><label>Dispersão: <span id="rdLab">3</span></label>
+        <input type="range" id="rd" min="1" max="20" value="3"></div>
+    </div>
+    <button class="btn-verde" onclick="verR()">Sortear de novo</button>
+
+    <div class="saida">
+      <div class="metrica grande"><div class="rot">r de Pearson</div><div class="val" id="rPear">-</div></div>
+      <div class="metrica"><div class="rot">R quadrado</div><div class="val" id="rR2">-</div></div>
+      <div class="metrica"><div class="rot">r de Spearman</div><div class="val" id="rSpear">-</div></div>
+      <div class="metrica"><div class="rot">Valor de p</div><div class="val" id="rP">-</div></div>
+    </div>
+    <canvas id="grafR" width="820" height="330"></canvas>
+    <div class="legenda-grafico">
+      <span><i style="background:#1565c0;border-radius:50%;width:12px;height:12px"></i> Observações</span>
+      <span><i style="background:#c62828;height:4px"></i> Reta ajustada</span>
+    </div>
+    <div class="feedback" id="fbR"></div>
+  </div>
+</div>
+
+<div class="bloco" id="a4">
+  <div class="interativo">
+    <div class="interativo-cab"><span class="selo">ATIVIDADE 4</span></div>
+    <h3>Correlação, causa e armadilhas</h3>
+    <p class="instr">Cada situação traz uma conclusão tirada de uma análise de relação. Julgue.</p>
+    <div id="quizCausa"></div>
+    <div class="placar" id="placarCausa">Respondidas: 0 de 7</div>
+  </div>
+</div>
+
+<div class="bloco" id="fecho">
+  <div class="bloco-cab"><div class="bloco-num">9</div>
+  <h2>Autoavaliação e checklist</h2></div>
+
+  <div class="interativo">
+    <div class="interativo-cab"><span class="selo">AUTOAVALIAÇÃO</span></div>
+    <h3>Seis perguntas antes do questionário</h3>
+    <p class="instr">Não valem nota. Servem para você medir se está pronto.</p>
+    <div id="quizFinal"></div>
+    <div class="placar" id="placarFinal">Respondidas: 0 de 6</div>
+  </div>
+
+  <div class="card">
+    <h3>Prática obrigatória, planilha e PAST 4</h3>
+    <ol>
+      <li>Escolha do seu experimento uma variável contínua preditora e uma resposta contínua. Todo grupo tem pelo menos um par, porque a covariável foi exigida desde a Semana 3.</li>
+      <li>Faça o diagrama de dispersão antes de calcular qualquer coisa.</li>
+      <li>Calcule a inclinação, o intercepto e o R quadrado com as funções da planilha.</li>
+      <li>Crie a coluna de valores previstos e a coluna de resíduos, e faça o gráfico de resíduos contra previstos.</li>
+      <li>No PAST 4, use Statistics, Linear, e compare os coeficientes.</li>
+      <li>Escreva a frase de relato da seção 8, incluindo a faixa de validade da equação.</li>
+    </ol>
+
+    <div class="xl">
+      <div class="xl-bar"><span class="xl-ref">D2</span><span class="xl-fx">fx</span><span class="xl-form">=B2-C2</span></div>
+      <div class="xl-rolar">
+      <table class="xl-grid">
+        <tr><th class="col"></th><th class="col">A</th><th class="col">B</th><th class="col">C</th><th class="col">D</th></tr>
+        <tr><th class="lin">1</th><td class="cab">dias</td><td class="cab">altura_cm</td><td class="cab">previsto</td><td class="cab">residuo</td></tr>
+        <tr><th class="lin">2</th><td class="n">5</td><td class="n">5,2</td><td class="n">5,20</td><td class="sel n">0,00</td></tr>
+        <tr><th class="lin">3</th><td class="n">10</td><td class="n">7,4</td><td class="n">7,30</td><td class="n">0,10</td></tr>
+        <tr><th class="lin">4</th><td class="n">15</td><td class="n">9,1</td><td class="n">9,40</td><td class="n">-0,30</td></tr>
+        <tr><th class="lin">5</th><td class="n">20</td><td class="n">11,8</td><td class="n">11,50</td><td class="n">0,30</td></tr>
+      </table>
+      </div>
+    </div>
+    <p class="xl-nota">A coluna C usa a equação da reta, com =$G$1+$G$2*A2. A coluna D é o resíduo, e é ela que vai no eixo vertical do gráfico de diagnóstico.</p>
+
+    <div class="tabela-rolar">
+    <table>
+      <tr><th>Para que serve</th><th>Excel em português</th><th>Google Planilhas</th></tr>
+      <tr><td>Inclinação da reta</td><td>=INCLINAÇÃO(y;x)</td><td>=SLOPE(y;x)</td></tr>
+      <tr><td>Intercepto</td><td>=INTERCEPÇÃO(y;x)</td><td>=INTERCEPT(y;x)</td></tr>
+      <tr><td>Correlação de Pearson</td><td>=CORREL(y;x)</td><td>=CORREL(y;x)</td></tr>
+      <tr><td>R quadrado</td><td>=RQUAD(y;x)</td><td>=RSQ(y;x)</td></tr>
+      <tr><td>Valor previsto pela reta</td><td>=PREVISÃO.LINEAR(x;y_conhecidos;x_conhecidos)</td><td>=FORECAST(x;y;x)</td></tr>
+      <tr><td>Saída completa da regressão</td><td>Dados, Análise de Dados, Regressão</td><td>=LINEST(y;x;VERDADEIRO;VERDADEIRO)</td></tr>
+    </table>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>Checklist da semana</h3>
+    <ul class="checklist">
+      <li><input type="checkbox"><span>Li os oito pontos do bloco de leitura</span></li>
+      <li><input type="checkbox"><span>Completei as quatro atividades</span></li>
+      <li><input type="checkbox"><span>Sei interpretar a inclinação com unidade</span></li>
+      <li><input type="checkbox"><span>Sei explicar as quatro razões pelas quais correlação não é causa</span></li>
+      <li><input type="checkbox"><span>Sei ler um gráfico de resíduos</span></li>
+      <li><input type="checkbox"><span>Fiz o diagrama de dispersão e o gráfico de resíduos do meu experimento</span></li>
+      <li><input type="checkbox"><span>Rodei a regressão na planilha e no PAST 4</span></li>
+      <li><input type="checkbox"><span>Respondi o questionário antes de sexta às 23h59</span></li>
+    </ul>
+  </div>
+
+  <div class="consult">
+    <strong>Para fechar a semana.</strong> Faltam duas semanas para a entrega do relatório. Na semana que vem entra a ANCOVA, que junta o que você aprendeu hoje com a ANOVA das semanas 8 e 9, e é o que permite comparar grupos descontando o efeito de uma covariável. Vários dos experimentos do semestre precisam exatamente disso, com destaque para o de ovos e o de rendimento de suco. Chegue lá com a regressão bem entendida.
+  </div>
+</div>
+
+<footer class="rodape">
+  Modelagem e Experimentação em Biologia, FACAB-CAC-158, 60h, 2026.2<br>
+  UNEMAT, Campus de Cáceres, Faculdade de Ciências Agrárias e Biológicas<br>
+  Semana de segunda a sábado. Material de estudo autônomo.
+</footer>
+
+</div>
+<script>
+function normalR(m,s){
+  let u=0,v=0;
+  while(u===0)u=Math.random();
+  while(v===0)v=Math.random();
+  return m+s*Math.sqrt(-2*Math.log(u))*Math.cos(2*Math.PI*v);
+}
+function media(a){return a.reduce(function(x,y){return x+y;},0)/a.length;}
+function logGama(x){
+  const c=[76.18009172947146,-86.50532032941677,24.01409824083091,
+           -1.231739572450155,0.1208650973866179e-2,-0.5395239384953e-5];
+  let y=x,tmp=x+5.5;
+  tmp-=(x+0.5)*Math.log(tmp);
+  let ser=1.000000000190015;
+  for(let j=0;j<6;j++)ser+=c[j]/++y;
+  return -tmp+Math.log(2.5066282746310005*ser/x);
+}
+function betacf(a,b,x){
+  const MAXIT=250,EPS=3e-14,FPMIN=1e-300;
+  let qab=a+b,qap=a+1,qam=a-1,c=1,d=1-qab*x/qap;
+  if(Math.abs(d)<FPMIN)d=FPMIN;
+  d=1/d;let h=d;
+  for(let m=1;m<=MAXIT;m++){
+    const m2=2*m;
+    let aa=m*(b-m)*x/((qam+m2)*(a+m2));
+    d=1+aa*d;if(Math.abs(d)<FPMIN)d=FPMIN;
+    c=1+aa/c;if(Math.abs(c)<FPMIN)c=FPMIN;
+    d=1/d;h*=d*c;
+    aa=-(a+m)*(qab+m)*x/((a+m2)*(qap+m2));
+    d=1+aa*d;if(Math.abs(d)<FPMIN)d=FPMIN;
+    c=1+aa/c;if(Math.abs(c)<FPMIN)c=FPMIN;
+    d=1/d;
+    const del=d*c;h*=del;
+    if(Math.abs(del-1)<EPS)break;
+  }
+  return h;
+}
+function betai(a,b,x){
+  if(x<=0)return 0;if(x>=1)return 1;
+  const bt=Math.exp(logGama(a+b)-logGama(a)-logGama(b)+a*Math.log(x)+b*Math.log(1-x));
+  return x<(a+1)/(a+b+2)?bt*betacf(a,b,x)/a:1-bt*betacf(b,a,1-x)/b;
+}
+function pT(t,gl){return betai(gl/2,0.5,gl/(gl+t*t));}
+function fmtP(p){return p<0.001?'menor que 0,001':'igual a '+p.toFixed(4).replace('.',',');}
+function fmtPc(p){return p<0.001?'&lt;0,001':p.toFixed(4).replace('.',',');}
+
+function ajuste(x,y){
+  const n=x.length,mx=media(x),my=media(y);
+  let sxy=0,sxx=0,syy=0;
+  for(let i=0;i<n;i++){sxy+=(x[i]-mx)*(y[i]-my);sxx+=(x[i]-mx)*(x[i]-mx);syy+=(y[i]-my)*(y[i]-my);}
+  const b=sxy/sxx,a=my-b*mx;
+  const r=sxy/Math.sqrt(sxx*syy);
+  const r2=r*r;
+  const prev=x.map(function(v){return a+b*v;});
+  const res=y.map(function(v,i){return v-prev[i];});
+  const sqRes=res.reduce(function(s,v){return s+v*v;},0);
+  const gl=n-2;
+  const qmRes=sqRes/gl;
+  const seB=Math.sqrt(qmRes/sxx);
+  const t=b/seB,p=pT(t,gl);
+  const F=t*t;
+  let tc=0.5;while(tc<12&&pT(tc,gl)>0.05)tc+=0.002;
+  return {n:n,a:a,b:b,r:r,r2:r2,prev:prev,res:res,gl:gl,seB:seB,t:t,p:p,F:F,
+    ic1:b-tc*seB,ic2:b+tc*seB,epRes:Math.sqrt(qmRes),
+    minX:Math.min.apply(null,x),maxX:Math.max.apply(null,x)};
+}
+function postos(v){
+  const idx=v.map(function(x,i){return [x,i];}).sort(function(p,q){return p[0]-q[0];});
+  const r=new Array(v.length);
+  let i=0;
+  while(i<idx.length){
+    let j=i;
+    while(j+1<idx.length&&idx[j+1][0]===idx[i][0])j++;
+    const m=(i+j)/2+1;
+    for(let k=i;k<=j;k++)r[idx[k][1]]=m;
+    i=j+1;
+  }
+  return r;
+}
+function correl(x,y){
+  const mx=media(x),my=media(y);
+  let sxy=0,sxx=0,syy=0;
+  for(let i=0;i<x.length;i++){sxy+=(x[i]-mx)*(y[i]-my);sxx+=(x[i]-mx)*(x[i]-mx);syy+=(y[i]-my)*(y[i]-my);}
+  return sxy/Math.sqrt(sxx*syy);
+}
+function dispersao(id,x,y,a,b,corPonto,rotX,rotY,semReta){
+  const cv=document.getElementById(id),ctx=cv.getContext('2d');
+  const W=cv.width,H=cv.height,mE=54,mD=22,mT=20,mB=48;
+  ctx.clearRect(0,0,W,H);ctx.fillStyle='#fff';ctx.fillRect(0,0,W,H);
+  const xlo=Math.min.apply(null,x),xhi=Math.max.apply(null,x);
+  const ylo=Math.min.apply(null,y),yhi=Math.max.apply(null,y);
+  const padx=(xhi-xlo)*0.1||1,pady=(yhi-ylo)*0.12||1;
+  const X0=xlo-padx,X1=xhi+padx,Y0=ylo-pady,Y1=yhi+pady;
+  const px=function(v){return mE+((v-X0)/(X1-X0))*(W-mE-mD);};
+  const py=function(v){return H-mB-((v-Y0)/(Y1-Y0))*(H-mT-mB);};
+  ctx.strokeStyle='#eef1f4';ctx.lineWidth=1;
+  for(let i=0;i<=4;i++){const yy=mT+i*(H-mT-mB)/4;
+    ctx.beginPath();ctx.moveTo(mE,yy);ctx.lineTo(W-mD,yy);ctx.stroke();}
+  if(!semReta){
+    ctx.strokeStyle='#c62828';ctx.lineWidth=3;
+    ctx.beginPath();ctx.moveTo(px(X0),py(a+b*X0));ctx.lineTo(px(X1),py(a+b*X1));ctx.stroke();
+  }
+  for(let i=0;i<x.length;i++){
+    ctx.fillStyle=corPonto;
+    ctx.beginPath();ctx.arc(px(x[i]),py(y[i]),6.5,0,2*Math.PI);ctx.fill();
+    ctx.strokeStyle='#fff';ctx.lineWidth=1.6;ctx.stroke();
+  }
+  ctx.strokeStyle='#95a1b0';ctx.lineWidth=1.6;
+  ctx.beginPath();ctx.moveTo(mE,mT);ctx.lineTo(mE,H-mB);ctx.lineTo(W-mD,H-mB);ctx.stroke();
+  ctx.fillStyle='#5a6472';ctx.font='12.5px sans-serif';ctx.textAlign='center';
+  for(let i=0;i<=4;i++){const v=X0+(X1-X0)*i/4;ctx.fillText(v.toFixed(1),px(v),H-mB+20);}
+  ctx.textAlign='right';
+  for(let i=0;i<=4;i++){const v=Y1-(Y1-Y0)*i/4;ctx.fillText(v.toFixed(1),mE-8,mT+i*(H-mT-mB)/4+4);}
+  ctx.textAlign='center';ctx.font='13px sans-serif';
+  ctx.fillText(rotX,(mE+W-mD)/2,H-10);
+  ctx.save();ctx.translate(14,(mT+H-mB)/2);ctx.rotate(-Math.PI/2);
+  ctx.fillText(rotY,0,0);ctx.restore();
+}
+function grafResiduos(id,prev,res){
+  const cv=document.getElementById(id),ctx=cv.getContext('2d');
+  const W=cv.width,H=cv.height,mE=54,mD=22,mT=20,mB=48;
+  ctx.clearRect(0,0,W,H);ctx.fillStyle='#fff';ctx.fillRect(0,0,W,H);
+  const xlo=Math.min.apply(null,prev),xhi=Math.max.apply(null,prev);
+  const lim=Math.max.apply(null,res.map(Math.abs))*1.25||1;
+  const padx=(xhi-xlo)*0.1||1;
+  const X0=xlo-padx,X1=xhi+padx;
+  const px=function(v){return mE+((v-X0)/(X1-X0))*(W-mE-mD);};
+  const py=function(v){return H-mB-((v+lim)/(2*lim))*(H-mT-mB);};
+  ctx.strokeStyle='#eef1f4';ctx.lineWidth=1;
+  for(let i=0;i<=4;i++){const yy=mT+i*(H-mT-mB)/4;
+    ctx.beginPath();ctx.moveTo(mE,yy);ctx.lineTo(W-mD,yy);ctx.stroke();}
+  ctx.strokeStyle='#c62828';ctx.lineWidth=2.6;ctx.setLineDash([7,5]);
+  ctx.beginPath();ctx.moveTo(mE,py(0));ctx.lineTo(W-mD,py(0));ctx.stroke();ctx.setLineDash([]);
+  for(let i=0;i<prev.length;i++){
+    ctx.fillStyle='rgba(21,101,192,.78)';
+    ctx.beginPath();ctx.arc(px(prev[i]),py(res[i]),6.5,0,2*Math.PI);ctx.fill();
+    ctx.strokeStyle='#fff';ctx.lineWidth=1.6;ctx.stroke();
+  }
+  ctx.strokeStyle='#95a1b0';ctx.lineWidth=1.6;
+  ctx.beginPath();ctx.moveTo(mE,mT);ctx.lineTo(mE,H-mB);ctx.lineTo(W-mD,H-mB);ctx.stroke();
+  ctx.fillStyle='#5a6472';ctx.font='12.5px sans-serif';ctx.textAlign='center';
+  for(let i=0;i<=4;i++){const v=X0+(X1-X0)*i/4;ctx.fillText(v.toFixed(1),px(v),H-mB+20);}
+  ctx.textAlign='right';
+  [-lim,0,lim].forEach(function(v){ctx.fillText(v.toFixed(1),mE-8,py(v)+4);});
+  ctx.textAlign='center';ctx.font='13px sans-serif';
+  ctx.fillText('Valor previsto pela reta',(mE+W-mD)/2,H-10);
+  ctx.save();ctx.translate(14,(mT+H-mB)/2);ctx.rotate(-Math.PI/2);
+  ctx.fillText('Resíduo',0,0);ctx.restore();
+}
+
+/* ATIVIDADE 1 */
+function exemploReg(){
+  document.getElementById('dadosXY').value=
+    '5; 5,2\n8; 6,4\n10; 7,4\n12; 8,3\n15; 9,1\n18; 10,6\n20; 11,8\n23; 12,4\n25; 13,9\n28; 14,6\n30; 15,8';
+  regressao();
+}
+function regressao(){
+  const bruto=document.getElementById('dadosXY').value;
+  const x=[],y=[];
+  bruto.split(/\n/).forEach(function(l){
+    const p=l.split(/[;,\t]+/).map(function(s){return s.trim().replace(',','.');}).filter(function(s){return s!=='';});
+    if(p.length>=2){
+      const a=Number(p[0]),b=Number(p[1]);
+      if(!isNaN(a)&&!isNaN(b)){x.push(a);y.push(b);}
+    }
+  });
+  const alvo=document.getElementById('saidaReg');
+  if(x.length<4){
+    alvo.innerHTML='<div class="feedback nao">Cole pelo menos quatro pares de valores, com preditora e resposta separadas por ponto e vírgula, vírgula ou tabulação. Se os seus números usam vírgula decimal, separe as duas colunas por ponto e vírgula.</div>';return;}
+  const R=ajuste(x,y);
+  const nx=document.getElementById('nomeX').value||'preditora';
+  const ny=document.getElementById('nomeY').value||'resposta';
+  /* diagnostico grosseiro dos residuos */
+  const meta=media(R.prev);
+  let curva=0;
+  R.prev.forEach(function(p,i){curva+=(p<meta?1:-1)*R.res[i];});
+  const metade=Math.round(R.n/2);
+  const ordenado=R.prev.map(function(p,i){return [p,Math.abs(R.res[i])];}).sort(function(a,b){return a[0]-b[0];});
+  const disp1=media(ordenado.slice(0,metade).map(function(z){return z[1];}));
+  const disp2=media(ordenado.slice(metade).map(function(z){return z[1];}));
+  const razaoDisp=Math.max(disp1,disp2)/Math.min(disp1,disp2||1);
+  let diag='',classe='ok';
+  if(Math.abs(curva)/R.n>R.epRes*0.6){diag='Os resíduos mostram um padrão em curva, com os pontos do meio sistematicamente de um lado da reta e os das pontas do outro. Isso indica que a relação real não é uma reta. Tente transformar com logaritmo ou use um modelo que aceite curvatura.';classe='nao';}
+  else if(razaoDisp>2.2){diag='Os resíduos abrem em forma de funil, com dispersão bem maior em uma das pontas. Isso é heterocedasticidade, o mesmo problema da Semana 6, agora aparecendo na regressão. A transformação logarítmica da resposta costuma resolver.';classe='nao';}
+  else{diag='Os resíduos aparecem espalhados em torno do zero sem padrão evidente, que é o comportamento esperado quando o modelo é adequado.';classe='ok';}
+  alvo.innerHTML=
+    '<div class="saida">'+
+    '<div class="metrica"><div class="rot">n</div><div class="val">'+R.n+'</div></div>'+
+    '<div class="metrica grande"><div class="rot">Inclinação</div><div class="val">'+R.b.toFixed(3)+'</div></div>'+
+    '<div class="metrica"><div class="rot">Intercepto</div><div class="val">'+R.a.toFixed(2)+'</div></div>'+
+    '<div class="metrica"><div class="rot">r de Pearson</div><div class="val">'+R.r.toFixed(3)+'</div></div>'+
+    '<div class="metrica grande"><div class="rot">R quadrado</div><div class="val">'+R.r2.toFixed(3)+'</div></div>'+
+    '<div class="metrica"><div class="rot">Valor de p</div><div class="val">'+fmtPc(R.p)+'</div></div>'+
+    '</div>'+
+    '<div class="tabela-rolar"><table class="anova">'+
+    '<tr><th>Elemento</th><th class="num">Valor</th><th>Leitura</th></tr>'+
+    '<tr><td>Equação da reta</td><td class="num destaq">'+ny+' = '+R.a.toFixed(2)+' + '+R.b.toFixed(3)+' x '+nx+'</td><td>vale entre '+R.minX.toFixed(1)+' e '+R.maxX.toFixed(1)+' de '+nx+'</td></tr>'+
+    '<tr><td>Inclinação</td><td class="num">'+R.b.toFixed(3)+'</td><td>a cada uma unidade a mais de '+nx+', '+ny+' muda '+R.b.toFixed(3)+'</td></tr>'+
+    '<tr><td>IC 95% da inclinação</td><td class="num">'+R.ic1.toFixed(3)+' a '+R.ic2.toFixed(3)+'</td><td>faixa plausível para a inclinação verdadeira</td></tr>'+
+    '<tr><td>R quadrado</td><td class="num">'+R.r2.toFixed(3)+'</td><td>'+(R.r2*100).toFixed(0)+' por cento da variação de '+ny+' explicada</td></tr>'+
+    '<tr><td>F e graus de liberdade</td><td class="num">'+R.F.toFixed(2)+' com 1 e '+R.gl+'</td><td>teste de que a inclinação é zero</td></tr>'+
+    '<tr><td>Erro padrão dos resíduos</td><td class="num">'+R.epRes.toFixed(3)+'</td><td>erro típico ao prever '+ny+'</td></tr>'+
+    '</table></div>'+
+    '<div class="dois-graficos" style="margin-top:14px">'+
+    '<div><canvas id="regDisp" width="420" height="320"></canvas><div class="mini-rot">Dispersão com a reta ajustada</div></div>'+
+    '<div><canvas id="regRes" width="420" height="320"></canvas><div class="mini-rot">Resíduos contra previstos</div></div>'+
+    '</div>'+
+    '<div class="feedback '+classe+'"><strong>Diagnóstico dos resíduos.</strong> '+diag+'</div>'+
+    '<div class="feedback ok"><strong>Frase de relato pronta.</strong> '+ny+' '+(R.p<0.05?'variou com':'não apresentou relação detectável com')+' '+nx+
+    ', regressão linear, inclinação de '+R.b.toFixed(3)+', intervalo de confiança de 95 por cento de '+R.ic1.toFixed(3)+' a '+R.ic2.toFixed(3)+
+    ', intercepto de '+R.a.toFixed(2)+', R quadrado igual a '+R.r2.toFixed(2)+', F igual a '+R.F.toFixed(2)+' com 1 e '+R.gl+
+    ' graus de liberdade, valor de p '+fmtP(R.p)+'. A relação foi avaliada entre '+R.minX.toFixed(1)+' e '+R.maxX.toFixed(1)+
+    ' de '+nx+', e a equação não deve ser aplicada fora desse intervalo.</div>';
+  dispersao('regDisp',x,y,R.a,R.b,'rgba(21,101,192,.78)',nx,ny,false);
+  grafResiduos('regRes',R.prev,R.res);
+}
+exemploReg();
+
+/* ATIVIDADE 2, quarteto de Anscombe */
+const ansX=[10,8,13,9,11,14,6,4,12,7,5];
+const ansX4=[8,8,8,8,8,8,8,19,8,8,8];
+const ans=[
+ {x:ansX,y:[8.04,6.95,7.58,8.81,8.33,9.96,7.24,4.26,10.84,4.82,5.68],
+  d:'Relação linear com dispersão comum. É o único dos quatro em que a reta descreve bem o que está acontecendo.'},
+ {x:ansX,y:[9.14,8.14,8.74,8.77,9.26,8.10,6.13,3.10,9.13,7.26,4.74],
+  d:'Relação claramente curva. A reta força uma descrição errada, e o R quadrado alto não avisa nada. Os resíduos formariam um U invertido.'},
+ {x:ansX,y:[7.46,6.77,12.74,7.11,7.81,8.84,6.08,5.39,8.15,6.42,5.73],
+  d:'Alinhamento quase perfeito, com um único ponto muito fora. Esse ponto sozinho puxa a reta e distorce a inclinação. Sem ele, a relação seria bem mais forte.'},
+ {x:ansX4,y:[6.58,5.76,7.71,8.84,8.47,7.04,5.25,12.50,5.56,7.91,6.89],
+  d:'A preditora tem um único valor em dez observações, e um décimo primeiro ponto isolado. A inclinação inteira é determinada por esse ponto. Não existe informação sobre relação nenhuma aqui.'}
+];
+(function(){
+  let linhas='';
+  ans.forEach(function(c,i){
+    const R=ajuste(c.x,c.y);
+    linhas+='<tr><td>Conjunto '+(i+1)+'</td><td class="num">'+media(c.x).toFixed(2)+
+      '</td><td class="num">'+media(c.y).toFixed(2)+'</td><td class="num">'+R.b.toFixed(3)+
+      '</td><td class="num">'+R.a.toFixed(2)+'</td><td class="num">'+R.r.toFixed(3)+
+      '</td><td class="num">'+R.r2.toFixed(3)+'</td></tr>';
+  });
+  document.getElementById('tabAnscombe').innerHTML=
+    '<div class="tabela-rolar"><table><tr><th>Conjunto</th><th class="num">Média de x</th><th class="num">Média de y</th>'+
+    '<th class="num">Inclinação</th><th class="num">Intercepto</th><th class="num">r</th><th class="num">R quadrado</th></tr>'+
+    linhas+'</table></div>'+
+    '<p style="font-size:14.5px;color:var(--cinza)">Os quatro conjuntos têm praticamente as mesmas estatísticas. Se você só olhasse esta tabela, concluiria que são quatro versões da mesma coisa.</p>';
+})();
+function mostrarAnscombe(){
+  let html='<div class="quatro-graf">';
+  ans.forEach(function(c,i){
+    html+='<div><canvas id="ans'+i+'" width="380" height="300"></canvas><div class="mini-rot">Conjunto '+(i+1)+'</div></div>';
+  });
+  html+='</div>';
+  document.getElementById('grafAnscombe').innerHTML=html;
+  ans.forEach(function(c,i){
+    const R=ajuste(c.x,c.y);
+    dispersao('ans'+i,c.x,c.y,R.a,R.b,'rgba(21,101,192,.8)','x','y',false);
+  });
+  document.getElementById('fbAnscombe').className='feedback nao';
+  document.getElementById('fbAnscombe').innerHTML=
+    '<strong>Quatro realidades, uma única tabela de números.</strong><br><br>'+
+    ans.map(function(c,i){return '<strong>Conjunto '+(i+1)+'.</strong> '+c.d;}).join('<br><br>')+
+    '<br><br>Anscombe publicou isso em 1973 para provar um ponto que continua atual: '+
+    'nenhum conjunto de estatísticas resumo substitui olhar o gráfico. '+
+    'Três dos quatro conjuntos teriam a mesma frase de relato, com o mesmo R quadrado e o mesmo valor de p, e três dos quatro estariam descrevendo a realidade de forma errada.';
+}
+
+/* ATIVIDADE 3 */
+document.getElementById('rd').addEventListener('input',function(e){
+  document.getElementById('rdLab').textContent=e.target.value;verR();});
+function verR(){
+  const forma=document.getElementById('forma').value;
+  const disp=parseInt(document.getElementById('rd').value);
+  const x=[],y=[];
+  for(let i=0;i<40;i++){
+    const xi=1+Math.random()*29;
+    let yi;
+    if(forma==='reta')yi=10+1.2*xi;
+    else if(forma==='retaneg')yi=50-1.2*xi;
+    else if(forma==='curva')yi=10+28*(1-Math.exp(-xi/6));
+    else if(forma==='uinv')yi=10+2.6*xi-0.085*xi*xi;
+    else if(forma==='nada')yi=25;
+    else yi=10+1.2*xi;
+    x.push(xi);y.push(yi+normalR(0,disp));
+  }
+  if(forma==='outlier'){x.push(29.5);y.push(5);}
+  const R=ajuste(x,y);
+  const rs=correl(postos(x),postos(y));
+  document.getElementById('rPear').textContent=R.r.toFixed(3);
+  document.getElementById('rR2').textContent=R.r2.toFixed(3);
+  document.getElementById('rSpear').textContent=rs.toFixed(3);
+  document.getElementById('rP').textContent=fmtPc(R.p);
+  dispersao('grafR',x,y,R.a,R.b,'rgba(21,101,192,.75)','preditora','resposta',false);
+  const fb=document.getElementById('fbR');
+  let m='',cls='ok';
+  if(forma==='reta'||forma==='retaneg'){
+    m='<strong>Relação linear.</strong> É a situação em que o r de Pearson faz exatamente o que promete, com valor de '+R.r.toFixed(3)+
+      '. Aumente a dispersão e observe o r cair sem que a relação real mude de forma. O r mede alinhamento, não existência de relação.';}
+  else if(forma==='curva'){cls='nao';
+    m='<strong>Relação curva com patamar.</strong> Olhe o gráfico: a relação é evidente e forte, a resposta sobe rápido e depois estabiliza. E o r de Pearson deu '+R.r.toFixed(3)+
+      ', com R quadrado de '+R.r2.toFixed(3)+', números que sugerem uma relação apenas moderada. Repare que o r de Spearman, de '+rs.toFixed(3)+
+      ', ficou bem maior, porque ele detecta qualquer relação sempre crescente, mesmo curva. Este é o caso da regressão que precisa de transformação, tema da Semana 14.';}
+  else if(forma==='uinv'){cls='nao';
+    m='<strong>Curva com ótimo no meio.</strong> Este é o caso mais perigoso de todos. A relação é forte e clara no gráfico: a resposta sobe, atinge um máximo e cai. E o r de Pearson deu '+R.r.toFixed(3)+
+      ', praticamente zero, porque a parte que sobe cancela a parte que desce. O r de Spearman também falha aqui, com '+rs.toFixed(3)+
+      '. Quem calculou o coeficiente sem olhar o gráfico concluiria que não há relação nenhuma. É o padrão típico de resposta a temperatura, com um ótimo fisiológico.';}
+  else if(forma==='nada'){
+    m='<strong>Sem relação.</strong> O r ficou em '+R.r.toFixed(3)+' e o valor de p em '+fmtP(R.p)+
+      '. Sorteie algumas vezes e observe: de vez em quando aparece um r razoavelmente alto e um p abaixo de 0,05, sem que exista relação nenhuma. É o erro tipo I da Semana 4 aparecendo em correlação.';}
+  else{cls='nao';
+    m='<strong>Um único ponto extremo.</strong> Quarenta observações formam uma reta crescente e um único ponto isolado no canto oposto derruba o r para '+R.r.toFixed(3)+
+      '. Um ponto em quarenta e um. É por isso que o gráfico de dispersão vem antes do coeficiente, e é por isso que o auditor de coluna da Semana 2 sinalizava valores muito afastados. Confira sempre na caderneta de campo antes de qualquer decisão.';}
+  fb.innerHTML=m;fb.className='feedback '+cls;
+}
+verR();
+
+/* ATIVIDADE 4 */
+const casos=[
+ {t:"Encontrou-se correlação de 0,82 entre a concentração de nutrientes e a turbidez ao longo do ano. O relatório concluiu que os nutrientes aumentam a turbidez.",
+  o:["Conclusão válida, a correlação é forte","Conclusão frágil, a chuva pode estar aumentando as duas ao mesmo tempo",
+     "Conclusão válida se o valor de p for baixo","Conclusão frágil porque 0,82 é pouco"],
+  c:1,
+  j:"É a terceira explicação da seção 4: uma variável externa causando as duas. Chuva carrega sedimento e nutriente ao mesmo tempo. Sem controlar isso, só se pode afirmar associação."},
+ {t:"A regressão entre dias e altura deu inclinação de 0,42 centímetro por dia, com dados coletados do dia 1 ao 30. O relatório previu a altura no dia 200.",
+  o:["Previsão válida, a equação é linear","Extrapolação indevida, a equação vale apenas dentro da faixa observada",
+     "Previsão válida se o R quadrado for alto","Previsão válida com intervalo de confiança"],
+  c:1,
+  j:"Nada garante que a relação continue reta fora do trecho medido. Crescimento biológico satura. A faixa de validade precisa estar declarada no relato."},
+ {t:"O r de Pearson entre dose e resposta deu 0,04. O grupo concluiu que a dose não afeta a resposta, sem apresentar o gráfico.",
+  o:["Conclusão correta, r próximo de zero indica ausência de relação","Conclusão precipitada, uma relação com ótimo no meio produz r próximo de zero",
+     "Conclusão correta se o n for grande","Conclusão precipitada, deveria usar mais doses"],
+  c:1,
+  j:"Pearson mede apenas alinhamento. Uma resposta que sobe e depois cai tem as duas partes se cancelando. Sem o gráfico, é impossível distinguir ausência de relação de relação curva."},
+ {t:"Um grupo mediu doze variáveis e testou todas as correlações entre elas, relatando as três que deram p abaixo de 0,05.",
+  o:["Conduta correta, são os resultados significativos","Conduta problemática, com 66 correlações testadas alguns significativos aparecem por acaso",
+     "Conduta correta se as três forem biologicamente plausíveis","Conduta problemática porque doze variáveis é pouco"],
+  c:1,
+  j:"É o mesmo problema das comparações múltiplas da Semana 8, agora em correlação. Com 66 testes, cerca de três falsos positivos são esperados mesmo sem relação nenhuma."},
+ {t:"O gráfico de resíduos mostra os pontos abrindo em funil, com dispersão crescente. O R quadrado é 0,91 e o grupo seguiu adiante.",
+  o:["Correto, R quadrado alto valida o modelo","Incorreto, o funil indica heterocedasticidade e o modelo precisa de transformação",
+     "Correto, resíduos não precisam ser verificados em regressão","Incorreto, o R quadrado deveria ser recalculado"],
+  c:1,
+  j:"R quadrado alto com resíduos torcidos é modelo errado com boa aparência. A verificação de pressupostos da Semana 6 acontece nos resíduos, e não nas variáveis originais."},
+ {t:"A massa dos ovos correlaciona-se com o comprimento, com r igual a 0,88. O relatório afirma que o comprimento determina a massa.",
+  o:["Afirmação válida, a relação é forte","Afirmação frágil, a correlação é simétrica e não indica direção de causa",
+     "Afirmação válida porque o comprimento é medido antes","Afirmação frágil porque falta o valor de p"],
+  c:1,
+  j:"A correlação entre massa e comprimento é a mesma que entre comprimento e massa. Ambos são consequências do tamanho do ovo, e nenhum causa o outro."},
+ {t:"A regressão deu p igual a 0,003 e R quadrado de 0,09, com 300 observações. O grupo relatou a relação como forte.",
+  o:["Correto, p baixo indica relação forte","Incorreto, o R quadrado de 0,09 mostra que apenas 9 por cento da variação é explicada",
+     "Correto se a inclinação for alta","Incorreto porque 300 observações é pouco"],
+  c:1,
+  j:"Com amostra grande, relações fraquíssimas atingem significância, como ficou dito na Semana 4. Significativo não é sinônimo de importante. O R quadrado é quem descreve a força."}
+];
+let respC=0;
+(function(){
+  const c=document.getElementById('quizCausa');
+  casos.forEach(function(k,i){
+    const d=document.createElement('div');d.className='caso';
+    const bts=k.o.map(function(op,j){
+      return '<button class="opcao" style="flex:1 1 100%;text-align:left" onclick="respCa('+i+','+j+',this)">'+op+'</button>';}).join('');
+    d.innerHTML='<div class="n">Situação '+(i+1)+'</div><p style="margin-bottom:10px">'+k.t+'</p>'+
+      '<div class="opcoes" style="flex-direction:column">'+bts+'</div>'+
+      '<div class="feedback" id="fbca'+i+'"></div>';
+    c.appendChild(d);
+  });
+})();
+function respCa(i,j,btn){
+  const pai=btn.parentElement;
+  if(pai.dataset.feito)return;pai.dataset.feito='1';
+  Array.from(pai.children).forEach(function(b){b.disabled=true;});
+  const fb=document.getElementById('fbca'+i);
+  if(j===casos[i].c){btn.classList.add('certa');fb.className='feedback ok';
+    fb.innerHTML='<strong>Correto.</strong> '+casos[i].j;}
+  else{btn.classList.add('errada');pai.children[casos[i].c].classList.add('certa');
+    fb.className='feedback nao';fb.innerHTML='<strong>Não é isso.</strong> '+casos[i].j;}
+  respC++;
+  document.getElementById('placarCausa').textContent='Respondidas: '+respC+' de 7';
+}
+
+/* AUTOAVALIACAO */
+const perguntas=[
+ {p:"O que a inclinação de uma regressão informa?",
+  o:["A proporção de variação explicada","O quanto a resposta muda quando a preditora aumenta em uma unidade",
+     "A força da associação, entre menos 1 e 1","O valor da resposta quando a preditora é zero"],
+  c:1,
+  j:"É o número com unidade que permite uso técnico. Proporção explicada é o R quadrado, força é o r, e valor em zero é o intercepto."},
+ {p:"O r de Pearson deu 0,05 em um conjunto onde o gráfico mostra uma curva forte com ótimo no meio. O que isso significa?",
+  o:["Não há relação entre as variáveis","Há relação, mas ela não é linear, e Pearson só mede alinhamento",
+     "Os dados têm erro de medição","O tamanho da amostra é insuficiente"],
+  c:1,
+  j:"A parte que sobe cancela a parte que desce. É a razão pela qual o diagrama de dispersão vem sempre antes do coeficiente."},
+ {p:"Qual das quatro explicações NÃO justifica uma correlação observada entre duas variáveis?",
+  o:["A primeira causa a segunda","A segunda causa a primeira",
+     "Uma terceira variável causa as duas","A correlação prova que existe relação causal"],
+  c:3,
+  j:"A correlação é compatível com as três primeiras explicações e ainda com o acaso. Ela não distingue nenhuma delas."},
+ {p:"O que se espera de um gráfico de resíduos quando o modelo é adequado?",
+  o:["Uma reta crescente","Uma curva em U","Uma nuvem sem padrão em torno do zero","Todos os pontos sobre o zero"],
+  c:2,
+  j:"Padrões nos resíduos são sinais de problema. Curva indica relação não linear, funil indica heterocedasticidade, ponto isolado indica observação influente."},
+ {p:"Um R quadrado de 0,64 significa que",
+  o:["64 por cento das observações estão sobre a reta","64 por cento da variação da resposta é explicada pela preditora",
+     "a correlação é 0,64","o valor de p é 0,36"],
+  c:1,
+  j:"É a mesma lógica do eta quadrado da ANOVA, porque ANOVA e regressão são o mesmo modelo com preditora categórica ou contínua."},
+ {p:"Por que a equação da regressão não deve ser usada fora da faixa de valores observada?",
+  o:["Porque o programa não aceita","Porque nada garante que a relação continue linear fora do trecho medido",
+     "Porque o R quadrado muda","Porque o intercepto deixa de existir"],
+  c:1,
+  j:"Extrapolar é a forma mais fácil de escrever uma bobagem com aparência técnica. A reta descreve o trecho observado, e a faixa de validade precisa estar no relato."}
+];
+let respFinal=0;
+(function(){
+  const c=document.getElementById('quizFinal');
+  perguntas.forEach(function(q,i){
+    const d=document.createElement('div');d.className='caso';
+    const botoes=q.o.map(function(op,j){
+      return '<button class="opcao" style="flex:1 1 100%;text-align:left" onclick="respFF('+i+','+j+',this)">'+op+'</button>';}).join('');
+    d.innerHTML='<div class="n">Questão '+(i+1)+'</div><p style="margin-bottom:10px"><strong>'+q.p+'</strong></p>'+
+      '<div class="opcoes" style="flex-direction:column">'+botoes+'</div>'+
+      '<div class="feedback" id="fbq'+i+'"></div>';
+    c.appendChild(d);
+  });
+})();
+function respFF(i,j,btn){
+  const pai=btn.parentElement;
+  if(pai.dataset.feito)return;pai.dataset.feito='1';
+  Array.from(pai.children).forEach(function(b){b.disabled=true;});
+  const fb=document.getElementById('fbq'+i);
+  if(j===perguntas[i].c){btn.classList.add('certa');fb.className='feedback ok';
+    fb.innerHTML='<strong>Correto.</strong> '+perguntas[i].j;}
+  else{btn.classList.add('errada');pai.children[perguntas[i].c].classList.add('certa');
+    fb.className='feedback nao';fb.innerHTML='<strong>Não é isso.</strong> '+perguntas[i].j;}
+  respFinal++;
+  document.getElementById('placarFinal').textContent='Respondidas: '+respFinal+' de 6';
+}
+</script>
+</body>
+</html>

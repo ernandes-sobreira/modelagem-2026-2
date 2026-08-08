@@ -1,0 +1,992 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Semana 7: Testes t, F e Qui-quadrado</title>
+<style>
+:root{
+  --azul:#4527a0; --azul-claro:#ede7f6;
+  --verde:#2e7d32; --verde-claro:#e6f4e7;
+  --teal:#00695c; --teal-claro:#e0f2f1;
+  --roxo:#6a1b9a; --roxo-claro:#f3e8f8;
+  --laranja:#e65100; --laranja-claro:#fff1e5;
+  --vermelho:#c62828; --vermelho-claro:#fdeaea;
+  --cinza:#5a6472; --borda:#dfe4ea; --fundo:#f6f8fa;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;
+  background:#fff;color:#22272e;line-height:1.65;font-size:16px}
+.wrap{max-width:880px;margin:0 auto;padding:20px 18px 80px}
+
+header.topo{background:linear-gradient(135deg,#311b92,#5e35b1);border-radius:16px;
+  padding:26px 24px;color:#fff;margin-bottom:22px}
+header.topo .tag{display:inline-block;background:rgba(255,255,255,.22);padding:5px 13px;
+  border-radius:20px;font-size:13px;font-weight:600;letter-spacing:.3px;margin-bottom:12px}
+header.topo h1{font-size:25px;line-height:1.28;margin-bottom:10px;font-weight:700}
+header.topo p{font-size:14.5px;opacity:.94}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:16px}
+.chip{background:rgba(255,255,255,.16);border:1px solid rgba(255,255,255,.3);
+  padding:7px 13px;border-radius:9px;font-size:13px;font-weight:500}
+
+nav.indice{background:var(--fundo);border:1px solid var(--borda);border-radius:14px;
+  padding:16px 18px;margin-bottom:26px}
+nav.indice strong{display:block;font-size:13px;text-transform:uppercase;
+  letter-spacing:.6px;color:var(--cinza);margin-bottom:10px}
+nav.indice a{display:block;color:var(--azul);text-decoration:none;padding:7px 0;
+  font-size:15px;border-bottom:1px solid #eef1f4}
+nav.indice a:last-child{border-bottom:none}
+nav.indice a:hover{text-decoration:underline}
+
+.bloco{margin-bottom:34px}
+.bloco-cab{display:flex;align-items:center;gap:12px;margin-bottom:16px;
+  padding-bottom:12px;border-bottom:3px solid var(--azul-claro)}
+.bloco-num{background:var(--azul);color:#fff;width:38px;height:38px;flex:0 0 38px;
+  border-radius:10px;display:flex;align-items:center;justify-content:center;
+  font-weight:700;font-size:17px}
+.bloco-cab h2{font-size:20px;font-weight:700;line-height:1.3}
+h3{font-size:17px;margin:22px 0 9px;color:#1a1f26;font-weight:650}
+p{margin-bottom:13px}
+ul,ol{margin:0 0 14px 22px}
+li{margin-bottom:7px}
+
+.card{border:1px solid var(--borda);border-radius:14px;padding:20px;margin:16px 0;background:#fff}
+.destaque{border-left:5px solid var(--verde);background:var(--verde-claro);
+  border-radius:12px;padding:16px 18px;margin:16px 0}
+.destaque strong{color:var(--verde)}
+.alerta{border-left:5px solid var(--vermelho);background:var(--vermelho-claro);
+  border-radius:12px;padding:16px 18px;margin:16px 0}
+.alerta strong{color:var(--vermelho)}
+.consult{border-left:5px solid var(--laranja);background:var(--laranja-claro);
+  border-radius:12px;padding:16px 18px;margin:16px 0}
+.consult strong{color:var(--laranja)}
+.livro{border-left:5px solid var(--roxo);background:var(--roxo-claro);
+  border-radius:12px;padding:14px 18px;margin:16px 0;font-size:14.5px}
+.livro strong{color:var(--roxo)}
+
+.faixa{background:#311b92;color:#fff;border-radius:16px;padding:28px 24px;
+  margin:30px 0;text-align:center;box-shadow:0 5px 18px rgba(49,27,146,.22)}
+.faixa .l1{font-size:28px;font-weight:800;line-height:1.2;letter-spacing:-.4px;margin-bottom:12px}
+.faixa .l3{font-size:18.5px;font-weight:700;background:rgba(255,255,255,.16);
+  display:inline-block;padding:11px 20px;border-radius:11px;line-height:1.4}
+@media(max-width:600px){.faixa .l1{font-size:21px}.faixa .l3{font-size:15px}}
+
+table{width:100%;border-collapse:collapse;margin:14px 0;font-size:14.5px}
+th{background:var(--azul-claro);padding:11px 12px;text-align:left;font-weight:650;
+  border:1px solid var(--borda)}
+td{padding:11px 12px;border:1px solid var(--borda);vertical-align:top}
+.tabela-rolar{overflow-x:auto}
+.num{text-align:right;font-variant-numeric:tabular-nums}
+.cel-erro{background:var(--vermelho-claro);color:var(--vermelho);font-weight:650}
+.cel-ok{background:var(--verde-claro);color:var(--verde);font-weight:650}
+
+.xl{border:1px solid #b9c0c9;border-radius:9px;overflow:hidden;margin:16px 0;background:#fff;
+  font-family:ui-monospace,SFMono-Regular,Menlo,monospace}
+.xl-bar{display:flex;align-items:center;gap:8px;background:#f6f8fa;
+  border-bottom:1px solid #d5dbe2;padding:8px 10px;font-size:13px}
+.xl-ref{background:#fff;border:1px solid #c6cdd5;border-radius:5px;padding:4px 10px;
+  min-width:56px;text-align:center;font-weight:700;color:#22272e}
+.xl-fx{color:#9aa4b0;font-style:italic;font-weight:700;padding:0 2px}
+.xl-form{flex:1;background:#fff;border:1px solid #c6cdd5;border-radius:5px;padding:4px 10px;
+  overflow-x:auto;white-space:nowrap;color:#107c41;font-weight:650}
+.xl-rolar{overflow-x:auto}
+table.xl-grid{border-collapse:collapse;width:100%;margin:0;font-size:13px}
+table.xl-grid th,table.xl-grid td{border:1px solid #d5dbe2;padding:7px 10px;background:#fff;
+  white-space:nowrap;font-weight:400;text-align:left;vertical-align:middle}
+table.xl-grid th.col,table.xl-grid th.lin{background:#eef1f4;color:#5a6472;text-align:center;
+  font-weight:700;font-size:11.5px}
+table.xl-grid th.lin{width:36px}
+table.xl-grid td.cab{font-weight:700;background:#f6f8fa}
+table.xl-grid td.sel{outline:2.5px solid #107c41;outline-offset:-2px;background:#f0f9f4;font-weight:700}
+table.xl-grid td.n{text-align:right}
+.xl-nota{font-size:13.5px;color:var(--cinza);text-align:center;margin:-8px 0 18px}
+
+.interativo{border:2px solid var(--azul);border-radius:16px;padding:22px;
+  margin:22px 0;background:#fdfcff}
+.interativo-cab{display:flex;align-items:center;gap:10px;margin-bottom:6px}
+.interativo-cab .selo{background:var(--azul);color:#fff;font-size:11.5px;font-weight:700;
+  padding:4px 11px;border-radius:20px;letter-spacing:.5px}
+.interativo h3{margin:8px 0 6px;font-size:17.5px}
+.interativo .instr{font-size:14.5px;color:var(--cinza);margin-bottom:16px}
+
+button{font-family:inherit;font-size:15px;font-weight:600;cursor:pointer;border:none;
+  border-radius:10px;padding:11px 20px;transition:.15s;margin:0 6px 6px 0}
+.btn{background:var(--azul);color:#fff}
+.btn:hover{background:#311b92}
+.btn-verde{background:var(--azul);color:#fff}
+.btn-verde:hover{background:#311b92}
+.btn-claro{background:#fff;color:var(--azul);border:2px solid var(--azul)}
+.btn-claro:hover{background:var(--azul-claro)}
+
+.opcoes{display:flex;flex-wrap:wrap;gap:9px;margin:12px 0}
+.opcao{flex:1 1 150px;min-width:130px;background:#fff;border:2px solid var(--borda);
+  border-radius:10px;padding:12px 14px;font-size:14.5px;font-weight:600;cursor:pointer;
+  text-align:center;transition:.15s}
+.opcao:hover{border-color:var(--azul);background:var(--azul-claro)}
+.opcao.certa{border-color:var(--verde);background:var(--verde-claro);color:var(--verde)}
+.opcao.errada{border-color:var(--vermelho);background:var(--vermelho-claro);color:var(--vermelho)}
+.opcao:disabled{cursor:default}
+
+.feedback{margin-top:13px;padding:14px 16px;border-radius:10px;font-size:14.5px;display:none}
+.feedback.ok{background:var(--verde-claro);border-left:4px solid var(--verde);display:block}
+.feedback.nao{background:var(--vermelho-claro);border-left:4px solid var(--vermelho);display:block}
+
+.caso{background:#fff;border:1px solid var(--borda);border-radius:10px;padding:15px 16px;
+  margin-bottom:10px;font-size:15px}
+.caso .n{font-size:12.5px;font-weight:700;color:var(--cinza);text-transform:uppercase;
+  letter-spacing:.6px;margin-bottom:6px}
+
+.controles{display:flex;flex-wrap:wrap;gap:16px;margin:14px 0;align-items:flex-end}
+.campo{flex:1 1 170px;min-width:150px}
+.campo label{display:block;font-size:13px;font-weight:650;color:var(--cinza);
+  margin-bottom:6px;text-transform:uppercase;letter-spacing:.4px}
+.campo input,.campo select{width:100%;padding:11px 12px;border:2px solid var(--borda);
+  border-radius:9px;font-size:15px;font-family:inherit;background:#fff}
+.campo input:focus{outline:none;border-color:var(--azul)}
+input[type=range]{width:100%;accent-color:var(--azul)}
+textarea{width:100%;padding:12px;border:2px solid var(--borda);border-radius:10px;
+  font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:14px;min-height:110px;
+  resize:vertical;background:#fff}
+textarea:focus{outline:none;border-color:var(--azul)}
+
+.saida{display:grid;grid-template-columns:repeat(auto-fit,minmax(128px,1fr));gap:11px;margin-top:16px}
+.metrica{background:#fff;border:1px solid var(--borda);border-radius:11px;padding:14px 12px;text-align:center}
+.metrica .rot{font-size:11.5px;text-transform:uppercase;letter-spacing:.6px;color:var(--cinza);
+  font-weight:650;margin-bottom:5px}
+.metrica .val{font-size:21px;font-weight:700;color:var(--azul)}
+.metrica.grande .val{font-size:26px}
+
+canvas{width:100%;height:auto;display:block;background:#fff;border:1px solid var(--borda);
+  border-radius:11px;margin-top:14px}
+.dois-graficos{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+@media(max-width:640px){.dois-graficos{grid-template-columns:1fr}}
+.legenda-grafico{display:flex;flex-wrap:wrap;gap:16px;justify-content:center;margin-top:10px;
+  font-size:13.5px;color:var(--cinza)}
+.legenda-grafico span{display:flex;align-items:center;gap:6px}
+.legenda-grafico i{width:14px;height:12px;border-radius:3px;display:inline-block}
+
+.arvore{background:#fff;border:1px solid var(--borda);border-radius:12px;padding:20px;margin-top:14px}
+.arvore .pergunta{font-size:16.5px;font-weight:650;margin-bottom:14px}
+.trilha{font-size:13px;color:var(--cinza);margin-bottom:12px}
+.trilha span{background:var(--azul-claro);color:var(--azul);padding:3px 9px;
+  border-radius:14px;margin-right:6px;display:inline-block;margin-bottom:5px;font-weight:650}
+.resultado{background:var(--azul-claro);border-left:5px solid var(--azul);
+  border-radius:10px;padding:16px 18px;font-size:15px}
+.resultado h4{color:var(--azul);font-size:18px;margin-bottom:8px}
+
+.placar{background:var(--azul-claro);border-radius:11px;padding:14px 16px;margin-top:14px;
+  font-size:15px;font-weight:600;color:var(--azul);text-align:center}
+
+.checklist{list-style:none;margin-left:0}
+.checklist li{display:flex;gap:11px;align-items:flex-start;padding:11px 0;border-bottom:1px solid #eef1f4}
+.checklist input[type=checkbox]{width:19px;height:19px;margin-top:3px;accent-color:var(--azul);flex:0 0 19px}
+
+footer.rodape{margin-top:44px;padding-top:20px;border-top:2px solid var(--borda);
+  font-size:13.5px;color:var(--cinza);text-align:center}
+
+@media(max-width:600px){
+  .wrap{padding:14px 13px 60px}
+  header.topo h1{font-size:21px}
+  .bloco-cab h2{font-size:18px}
+  .opcao{flex:1 1 100%}
+}
+@media print{
+  body{font-size:11.5pt}
+  header.topo,.faixa{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  nav.indice,button,.opcoes{display:none}
+  .interativo,.bloco{page-break-inside:avoid}
+}
+
+.dois-textos{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+@media(max-width:600px){.dois-textos{grid-template-columns:1fr}}
+table.conting input{width:78px;padding:8px;border:2px solid var(--borda);border-radius:7px;
+  text-align:right;font-family:inherit;font-size:14.5px}
+table.conting input:focus{outline:none;border-color:var(--azul)}
+</style></head>
+<body>
+<div class="wrap">
+
+<header class="topo">
+  <span class="tag">SEMANA 7 &nbsp;|&nbsp; SEGUNDA 21 A SÁBADO 26 DE SETEMBRO DE 2026</span>
+  <h1>Testes t, F e Qui-quadrado</h1>
+  <p>Modelagem e Experimentação em Biologia, FACAB-CAC-158, 60h, Turma 01, 2026.2<br>
+  Prof. Dr. Ernandes Sobreira Oliveira Junior, UNEMAT, Campus de Cáceres</p>
+  <div class="chips">
+    <span class="chip">2h de leitura, de segunda a sexta</span>
+    <span class="chip">2h de prática, de segunda a sexta</span>
+    <span class="chip">Questionário fecha sexta, 23h59</span>
+  </div>
+</header>
+
+<nav class="indice">
+  <strong>Roteiro da semana</strong>
+  <a href="#p1">1. Sinal dividido por ruído</a>
+  <a href="#p2">2. Teste t para duas amostras</a>
+  <a href="#p3">3. Graus de liberdade</a>
+  <a href="#p4">4. Teste t pareado</a>
+  <a href="#p5">5. Teste F</a>
+  <a href="#p6">6. Qui-quadrado</a>
+  <a href="#p7">7. Tamanho do efeito e intervalo de confiança</a>
+  <a href="#p8">8. Como relatar um teste</a>
+  <a href="#a1">Atividade 1: calculadora de teste t</a>
+  <a href="#a2">Atividade 2: sinal, ruído e esforço</a>
+  <a href="#a3">Atividade 3: pareado contra independente</a>
+  <a href="#a4">Atividade 4: tabela de contingência</a>
+  <a href="#a5">Atividade 5: erros de relato</a>
+  <a href="#fecho">Autoavaliação e checklist</a>
+</nav>
+
+<div class="bloco" id="p1">
+  <div class="bloco-cab"><div class="bloco-num">1</div>
+  <h2>Sinal dividido por ruído</h2></div>
+
+  <p>Chegou a semana de rodar teste. E a boa notícia é que os três testes desta semana, e todos os das próximas, são variações da mesma conta.</p>
+
+  <p>Na Semana 4 você viu a nuvem de diferenças que o acaso produz sozinho. Um teste estatístico responde à pergunta: <strong>a minha diferença observada é grande, comparada com a largura daquela nuvem?</strong></p>
+
+  <p>Isso vira uma fração:</p>
+
+  <div class="destaque" style="text-align:center;font-size:18px">
+    <strong>estatística do teste = sinal dividido por ruído</strong>
+  </div>
+
+  <p>O <strong>sinal</strong> é o efeito que você quer detectar, a diferença entre as médias. O <strong>ruído</strong> é o quanto os dados variam sozinhos, calculado a partir do desvio padrão e do tamanho da amostra. É o erro padrão da Semana 3.</p>
+
+  <p>Quando essa fração dá um número grande, o sinal se destaca do ruído e o resultado é significativo. Quando dá um número pequeno, o sinal se perde no ruído.</p>
+
+  <div class="alerta">
+    <strong>Consequência prática que muita gente descobre tarde.</strong> A mesma diferença de 2 centímetros pode ser altamente significativa em um estudo e completamente irrelevante em outro. Depende do desvio padrão e depende do n. É por isso que informar apenas o valor de p não descreve o seu resultado. As Atividades 1 e 2 mostram isso acontecendo.
+  </div>
+
+  <div class="livro">
+    <strong>No livro.</strong> Modelagem e Experimentação em Biologia, um guia prático, Editora UNEMAT, 2025. Localize no sumário a parte sobre os testes estatísticos mais comuns em dados biológicos.
+  </div>
+</div>
+
+<div class="bloco" id="p2">
+  <div class="bloco-cab"><div class="bloco-num">2</div>
+  <h2>Teste t para duas amostras</h2></div>
+
+  <p>É o teste para comparar as médias de <strong>exatamente dois grupos</strong>. Três ou mais grupos exigem ANOVA, na semana que vem, por uma razão que você vai entender lá.</p>
+
+  <h3>A conta, em palavras</h3>
+  <ol>
+    <li>Calcule a diferença entre as médias dos dois grupos. Esse é o sinal.</li>
+    <li>Calcule a variabilidade combinada dos dois grupos e divida pela raiz do tamanho das amostras. Esse é o ruído.</li>
+    <li>Divida o sinal pelo ruído. O resultado é a estatística t.</li>
+    <li>Compare esse t com a distribuição t, que descreve o que aconteceria se não houvesse efeito. Isso devolve o valor de p.</li>
+  </ol>
+
+  <h3>Os pressupostos, que você já conhece</h3>
+  <ul>
+    <li><strong>Independência</strong> das observações, garantida no desenho, da Semana 3.</li>
+    <li><strong>Normalidade</strong> dentro de cada grupo, verificada com o gráfico quantil-quantil da Semana 6.</li>
+    <li><strong>Homocedasticidade</strong>, variâncias parecidas entre os grupos.</li>
+  </ul>
+
+  <div class="destaque">
+    <strong>Quando as variâncias são diferentes, existe saída.</strong> A versão do teste t de Welch não exige variâncias iguais e ajusta os graus de liberdade para compensar. Ela é tão fácil de rodar quanto a versão comum e perde muito pouco poder quando as variâncias são de fato iguais. Muitos autores recomendam usá-la por padrão. No Excel é o tipo 3 da função de teste t. No PAST 4 aparece na mesma janela do teste t comum.
+  </div>
+</div>
+
+<div class="bloco" id="p3">
+  <div class="bloco-cab"><div class="bloco-num">3</div>
+  <h2>Graus de liberdade</h2></div>
+
+  <p>Todo teste devolve um número chamado graus de liberdade, e quase ninguém sabe explicar o que ele é.</p>
+
+  <p><strong>Graus de liberdade é a quantidade de informação independente disponível para estimar a variabilidade.</strong></p>
+
+  <p>Um exemplo torna isso concreto. Se você tem cinco valores e já sabe a média deles, quantos pode escolher livremente? Quatro. O quinto está determinado, porque precisa fechar a média. A informação livre é 5 menos 1, ou seja, 4.</p>
+
+  <p>É a mesma razão pela qual, na Semana 1, o desvio padrão dividia por n menos 1 e não por n.</p>
+
+  <div class="tabela-rolar">
+  <table>
+    <tr><th>Teste</th><th>Graus de liberdade</th></tr>
+    <tr><td>Teste t para uma amostra</td><td>n menos 1</td></tr>
+    <tr><td>Teste t para duas amostras independentes</td><td>n1 mais n2 menos 2</td></tr>
+    <tr><td>Teste t pareado</td><td>número de pares menos 1</td></tr>
+    <tr><td>Qui-quadrado de independência</td><td>linhas menos 1, vezes colunas menos 1</td></tr>
+  </table>
+  </div>
+
+  <p>Poucos graus de liberdade significam estimativa imprecisa da variabilidade, e por isso a exigência para atingir significância fica mais dura. É por isso que, na Semana 3, o montador de delineamento avisava quando os graus de liberdade do resíduo ficavam baixos.</p>
+</div>
+
+<div class="bloco" id="p4">
+  <div class="bloco-cab"><div class="bloco-num">4</div>
+  <h2>Teste t pareado</h2></div>
+
+  <p>Existe uma situação em que as duas amostras não são independentes de propósito, e isso é uma vantagem.</p>
+
+  <p>Quando cada observação de um grupo tem uma parceira natural no outro grupo, os dados são <strong>pareados</strong>. Exemplos: o mesmo ponto de coleta medido antes e depois, a mesma cartela de ovos pesada por dois avaliadores, o mesmo vaso medido em duas datas.</p>
+
+  <p>Nesses casos, o teste correto não compara as duas médias. Ele calcula a <strong>diferença dentro de cada par</strong> e testa se a média dessas diferenças é zero.</p>
+
+  <div class="destaque">
+    <strong>Por que o pareamento é poderoso.</strong> Toda a variação entre indivíduos, entre pontos ou entre locais desaparece da conta, porque cada par é comparado consigo mesmo. Sobra apenas a variação relevante. O resultado é um ruído muito menor no denominador e um teste muito mais capaz de detectar efeitos pequenos. A Atividade 3 mostra o mesmo conjunto de dados analisado das duas maneiras.
+  </div>
+
+  <div class="alerta">
+    <strong>Cuidado com o inverso.</strong> Usar teste pareado em dados que não são pareados é erro grave. O pareamento precisa vir do desenho, e a ordem das linhas precisa corresponder aos pares de verdade. Parear por conveniência, só porque as duas colunas têm o mesmo número de linhas, produz um resultado sem sentido.
+  </div>
+</div>
+
+<div class="bloco" id="p5">
+  <div class="bloco-cab"><div class="bloco-num">5</div>
+  <h2>Teste F</h2></div>
+
+  <p>Enquanto o teste t compara médias, o <strong>teste F compara variâncias</strong>. Ele é a razão entre duas variâncias, e a hipótese nula é a de que elas são iguais.</p>
+
+  <p>Você já usou essa lógica sem saber, na Semana 6, quando dividiu a maior variância pela menor para verificar homocedasticidade. O teste F formaliza isso e devolve um valor de p.</p>
+
+  <div class="alerta">
+    <strong>O teste F é sensível demais à falta de normalidade.</strong> Bem mais que o teste t. Se os dados forem assimétricos, ele pode acusar diferença de variâncias que não existe. Por isso, para verificar homocedasticidade antes de uma ANOVA, o teste de Levene é preferível, porque não exige normalidade.
+  </div>
+
+  <p>O teste F tem outro papel, muito maior, que aparece na semana que vem: <strong>ele é o motor da ANOVA</strong>. Lá, em vez de comparar duas variâncias quaisquer, ele compara a variação entre grupos com a variação dentro dos grupos. Sinal e ruído de novo, agora em forma de razão de variâncias.</p>
+</div>
+
+<div class="faixa">
+  <div class="l1">TODO TESTE FAZ A MESMA PERGUNTA</div>
+  <div class="l3">O EFEITO QUE EU VI É GRANDE<br>COMPARADO AO RUÍDO QUE EU TENHO?</div>
+</div>
+
+<div class="bloco" id="p6">
+  <div class="bloco-cab"><div class="bloco-num">6</div>
+  <h2>Qui-quadrado</h2></div>
+
+  <p>Os dois testes anteriores trabalham com médias e variâncias, ou seja, com dados numéricos. O qui-quadrado trabalha com <strong>contagens em categorias</strong>, aquelas variáveis nominais da Semana 2.</p>
+
+  <p>A ideia é sempre a mesma: comparar o que você <strong>observou</strong> com o que seria <strong>esperado</strong> se a hipótese nula fosse verdadeira.</p>
+
+  <h3>Duas aplicações</h3>
+  <ul>
+    <li><strong>Aderência.</strong> Testa se as frequências observadas batem com uma proporção esperada. Em um cruzamento genético espera-se 3 para 1. Os 84 e 26 indivíduos observados são compatíveis com isso?</li>
+    <li><strong>Independência.</strong> Testa se duas variáveis categóricas estão associadas. A proporção de ovos trincados depende da granja de origem?</li>
+  </ul>
+
+  <h3>Como se calcula o esperado</h3>
+  <p>Na tabela de independência, o esperado de cada casela é o total da linha vezes o total da coluna, dividido pelo total geral. É o que aconteceria se as duas variáveis não tivessem relação nenhuma.</p>
+
+  <p>Depois, para cada casela, calcula-se a diferença entre observado e esperado, eleva-se ao quadrado e divide-se pelo esperado. A soma de tudo isso é o qui-quadrado.</p>
+
+  <div class="alerta">
+    <strong>A restrição que invalida muitos trabalhos.</strong> O qui-quadrado exige frequências <strong>esperadas</strong> razoáveis em todas as caselas. A regra prática mais usada pede que nenhuma esperada fique abaixo de 5. Repare que a exigência é sobre o esperado, e não sobre o observado, e essa confusão é frequente. Quando a regra não é atendida, a saída é agrupar categorias ou usar o teste exato de Fisher, disponível no PAST 4.
+  </div>
+</div>
+
+<div class="bloco" id="p7">
+  <div class="bloco-cab"><div class="bloco-num">7</div>
+  <h2>Tamanho do efeito e intervalo de confiança</h2></div>
+
+  <p>Na Semana 4 ficou dito que o valor de p não mede o tamanho do efeito. Agora entram as duas medidas que medem.</p>
+
+  <h3>Tamanho do efeito</h3>
+  <p>Para comparação de duas médias, a medida usual é o <strong>d de Cohen</strong>: a diferença entre as médias dividida pelo desvio padrão combinado. Ele responde quantos desvios padrão de distância existem entre os grupos, e não depende do tamanho da amostra.</p>
+
+  <div class="tabela-rolar">
+  <table>
+    <tr><th>Valor aproximado de d</th><th>Leitura convencional</th></tr>
+    <tr><td>Perto de 0,2</td><td>Efeito pequeno</td></tr>
+    <tr><td>Perto de 0,5</td><td>Efeito médio</td></tr>
+    <tr><td>Perto de 0,8 ou mais</td><td>Efeito grande</td></tr>
+  </table>
+  </div>
+
+  <p>Essas faixas são convenções, e a relevância de fato depende do contexto biológico. Um efeito pequeno em uma variável crítica pode importar muito mais do que um efeito grande em uma variável secundária.</p>
+
+  <h3>Intervalo de confiança</h3>
+  <p>É a faixa de valores plausíveis para a diferença verdadeira entre os grupos. Ele diz mais que o valor de p, porque mostra magnitude e incerteza ao mesmo tempo.</p>
+
+  <div class="consult">
+    <strong>Por que isso é decisivo em consultoria.</strong> Um intervalo de confiança de 0,2 a 0,4 unidade indica que a diferença existe e é pequena. Um intervalo de menos 5 a mais 12 indica que o estudo simplesmente não tem informação suficiente para dizer nada, embora nos dois casos o relato possa terminar com uma frase sobre significância. Analista experiente lê o intervalo antes de ler o valor de p.
+  </div>
+</div>
+
+<div class="bloco" id="p8">
+  <div class="bloco-cab"><div class="bloco-num">8</div>
+  <h2>Como relatar um teste</h2></div>
+
+  <p>Existe um padrão internacional para relatar um resultado, e ele inclui quatro elementos.</p>
+
+  <div class="destaque">
+    <strong>Modelo de frase completa.</strong> A altura das plantas diferiu entre os solos de horta e arenoso, com médias de 14,1 e 9,2 centímetros, diferença de 4,9 centímetros, intervalo de confiança de 95 por cento de 3,4 a 6,4, teste t de Welch, t igual a 7,12, graus de liberdade iguais a 7,8, valor de p menor que 0,001, d de Cohen igual a 3,2.
+  </div>
+
+  <p>Os quatro elementos são: as <strong>médias com dispersão</strong>, o <strong>tamanho do efeito com intervalo de confiança</strong>, a <strong>estatística do teste com graus de liberdade</strong> e o <strong>valor de p</strong>. Faltando qualquer um, o leitor não consegue avaliar o resultado.</p>
+
+  <h3>Três erros que aparecem sempre</h3>
+  <ul>
+    <li>Escrever apenas que a diferença foi significativa, sem número nenhum.</li>
+    <li>Escrever p igual a 0,000. Valor de p nunca é zero. Escreva p menor que 0,001.</li>
+    <li>Escrever que os grupos são iguais quando p passou de 0,05. Ausência de evidência não é evidência de ausência, como ficou dito na Semana 4.</li>
+  </ul>
+</div>
+
+<div class="bloco" id="a1">
+  <div class="interativo">
+    <div class="interativo-cab"><span class="selo">ATIVIDADE 1</span></div>
+    <h3>Calculadora de teste t</h3>
+    <p class="instr">Cole os valores de dois grupos, um por linha em cada caixa. A calculadora devolve o resultado completo, no padrão de relato da seção 8. Use com os dados do seu experimento. Tudo é calculado no seu navegador.</p>
+
+    <div class="dois-textos">
+      <div>
+        <div class="campo" style="margin-bottom:8px"><label>Nome do grupo 1</label>
+          <input type="text" id="nome1" value="horta"></div>
+        <textarea id="grupo1" placeholder="Um valor por linha"></textarea>
+      </div>
+      <div>
+        <div class="campo" style="margin-bottom:8px"><label>Nome do grupo 2</label>
+          <input type="text" id="nome2" value="areia"></div>
+        <textarea id="grupo2" placeholder="Um valor por linha"></textarea>
+      </div>
+    </div>
+    <div style="margin-top:12px">
+      <button class="btn-verde" onclick="calcularT()">Calcular</button>
+      <button class="btn-claro" onclick="exemploT()">Usar dados de exemplo</button>
+    </div>
+    <div id="saidaT"></div>
+  </div>
+</div>
+
+<div class="bloco" id="a2">
+  <div class="interativo">
+    <div class="interativo-cab"><span class="selo">ATIVIDADE 2</span></div>
+    <h3>Sinal, ruído e esforço</h3>
+    <p class="instr">A mesma diferença entre médias, em cenários diferentes. Mexa nos controles e veja o valor de p mudar sem que a diferença mude nada.</p>
+
+    <div class="controles">
+      <div class="campo"><label>Diferença entre as médias: <span id="difLab">2,0</span></label>
+        <input type="range" id="dif" min="0" max="100" value="20"></div>
+      <div class="campo"><label>Desvio padrão: <span id="sdLab">3,0</span></label>
+        <input type="range" id="sd" min="5" max="150" value="30"></div>
+      <div class="campo"><label>n por grupo: <span id="nLab">10</span></label>
+        <input type="range" id="nn" min="3" max="120" value="10"></div>
+    </div>
+
+    <div class="saida">
+      <div class="metrica"><div class="rot">Sinal</div><div class="val" id="sSinal">-</div></div>
+      <div class="metrica"><div class="rot">Ruído, erro padrão</div><div class="val" id="sRuido">-</div></div>
+      <div class="metrica"><div class="rot">Estatística t</div><div class="val" id="sT">-</div></div>
+      <div class="metrica grande"><div class="rot">Valor de p</div><div class="val" id="sP">-</div></div>
+      <div class="metrica"><div class="rot">d de Cohen</div><div class="val" id="sD">-</div></div>
+    </div>
+    <div class="feedback ok" id="fbSinal"></div>
+  </div>
+</div>
+
+<div class="bloco" id="a3">
+  <div class="interativo">
+    <div class="interativo-cab"><span class="selo">ATIVIDADE 3</span></div>
+    <h3>Pareado contra independente</h3>
+    <p class="instr">Dez pontos de coleta medidos antes e depois de uma intervenção. Valores simulados, apenas para treino. Os mesmos dados serão analisados das duas formas.</p>
+
+    <div class="controles">
+      <div class="campo"><label>Diferença real entre antes e depois: <span id="pdLab">1,5</span></label>
+        <input type="range" id="pdif" min="0" max="60" value="15"></div>
+      <div class="campo"><label>Variação entre pontos de coleta: <span id="pvLab">12</span></label>
+        <input type="range" id="pvar" min="1" max="40" value="12"></div>
+    </div>
+    <button class="btn-verde" onclick="pareado()">Gerar dados</button>
+
+    <div id="tabelaPar"></div>
+    <div class="saida">
+      <div class="metrica"><div class="rot">t independente</div><div class="val" id="tInd">-</div></div>
+      <div class="metrica grande"><div class="rot">p independente</div><div class="val" id="pInd">-</div></div>
+      <div class="metrica"><div class="rot">t pareado</div><div class="val" id="tPar">-</div></div>
+      <div class="metrica grande"><div class="rot">p pareado</div><div class="val" id="pPar">-</div></div>
+    </div>
+    <div class="feedback ok" id="fbPar"></div>
+  </div>
+</div>
+
+<div class="bloco" id="a4">
+  <div class="interativo">
+    <div class="interativo-cab"><span class="selo">ATIVIDADE 4</span></div>
+    <h3>Tabela de contingência</h3>
+    <p class="instr">Digite as contagens observadas. A calculadora monta as frequências esperadas, faz o qui-quadrado e verifica a restrição das caselas. Exemplo didático com valores hipotéticos, substitua pelos seus.</p>
+
+    <div class="tabela-rolar">
+    <table class="conting">
+      <tr><th></th><th>Granja A</th><th>Granja B</th><th>Granja C</th></tr>
+      <tr><td><strong>Trincado</strong></td>
+        <td><input type="number" id="c00" value="8" min="0" oninput="qui()"></td>
+        <td><input type="number" id="c01" value="14" min="0" oninput="qui()"></td>
+        <td><input type="number" id="c02" value="26" min="0" oninput="qui()"></td></tr>
+      <tr><td><strong>Íntegro</strong></td>
+        <td><input type="number" id="c10" value="92" min="0" oninput="qui()"></td>
+        <td><input type="number" id="c11" value="86" min="0" oninput="qui()"></td>
+        <td><input type="number" id="c12" value="74" min="0" oninput="qui()"></td></tr>
+    </table>
+    </div>
+
+    <div id="tabelaEsp"></div>
+    <div class="saida">
+      <div class="metrica"><div class="rot">Qui-quadrado</div><div class="val" id="qX">-</div></div>
+      <div class="metrica"><div class="rot">Graus de liberdade</div><div class="val" id="qGl">-</div></div>
+      <div class="metrica grande"><div class="rot">Valor de p</div><div class="val" id="qP">-</div></div>
+      <div class="metrica"><div class="rot">Menor esperada</div><div class="val" id="qMin">-</div></div>
+    </div>
+    <div class="feedback" id="fbQui"></div>
+  </div>
+</div>
+
+<div class="bloco" id="a5">
+  <div class="interativo">
+    <div class="interativo-cab"><span class="selo">ATIVIDADE 5</span></div>
+    <h3>Erros de relato</h3>
+    <p class="instr">Cada frase saiu de um relatório. Julgue se o relato está adequado.</p>
+    <div id="quizRelato"></div>
+    <div class="placar" id="placarRelato">Respondidas: 0 de 7</div>
+  </div>
+</div>
+
+<div class="bloco" id="fecho">
+  <div class="bloco-cab"><div class="bloco-num">9</div>
+  <h2>Autoavaliação e checklist</h2></div>
+
+  <div class="interativo">
+    <div class="interativo-cab"><span class="selo">AUTOAVALIAÇÃO</span></div>
+    <h3>Seis perguntas antes do questionário</h3>
+    <p class="instr">Não valem nota. Servem para você medir se está pronto.</p>
+    <div id="quizFinal"></div>
+    <div class="placar" id="placarFinal">Respondidas: 0 de 6</div>
+  </div>
+
+  <div class="card">
+    <h3>Prática obrigatória, planilha e PAST 4</h3>
+    <ol>
+      <li>Na planilha, rode o teste t entre dois grupos do seu experimento usando a função pronta.</li>
+      <li>Refaça a mesma conta manualmente, em células separadas, calculando o sinal, o ruído e a razão entre os dois. Confira se o t bate.</li>
+      <li>Calcule o d de Cohen com a fórmula da seção 7.</li>
+      <li>No PAST 4, cole os dois grupos em colunas e rode Statistics, Two-sample tests, conferindo o valor de p e o intervalo de confiança.</li>
+      <li>Escreva a frase de relato completa, no modelo da seção 8, com os quatro elementos.</li>
+    </ol>
+
+    <div class="xl">
+      <div class="xl-bar"><span class="xl-ref">E2</span><span class="xl-fx">fx</span><span class="xl-form">=TESTE.T(A2:A11;B2:B11;2;3)</span></div>
+      <div class="xl-rolar">
+      <table class="xl-grid">
+        <tr><th class="col"></th><th class="col">A</th><th class="col">B</th><th class="col">C</th><th class="col">D</th><th class="col">E</th></tr>
+        <tr><th class="lin">1</th><td class="cab">horta</td><td class="cab">areia</td><td></td><td class="cab">medida</td><td class="cab">valor</td></tr>
+        <tr><th class="lin">2</th><td class="n">14,2</td><td class="n">9,1</td><td></td><td class="cab">valor de p</td><td class="sel n">0,00004</td></tr>
+        <tr><th class="lin">3</th><td class="n">13,8</td><td class="n">8,7</td><td></td><td class="cab">diferença</td><td class="n">4,90</td></tr>
+        <tr><th class="lin">4</th><td class="n">15,1</td><td class="n">9,6</td><td></td><td class="cab">d de Cohen</td><td class="n">3,20</td></tr>
+        <tr><th class="lin">5</th><td class="n">13,5</td><td class="n">9,9</td><td></td><td></td><td></td></tr>
+      </table>
+      </div>
+    </div>
+    <p class="xl-nota">Na função de teste t, o terceiro argumento é o número de caudas e o quarto é o tipo: 1 para pareado, 2 para variâncias iguais e 3 para variâncias diferentes, que é o teste de Welch.</p>
+
+    <div class="tabela-rolar">
+    <table>
+      <tr><th>Para que serve</th><th>Excel em português</th><th>Google Planilhas</th></tr>
+      <tr><td>Teste t, devolve o valor de p</td><td>=TESTE.T(matriz1;matriz2;caudas;tipo)</td><td>=TTEST(matriz1;matriz2;caudas;tipo)</td></tr>
+      <tr><td>Teste F, compara variâncias</td><td>=TESTE.F(matriz1;matriz2)</td><td>=FTEST(matriz1;matriz2)</td></tr>
+      <tr><td>Qui-quadrado, observado contra esperado</td><td>=TESTE.QUIQUA(observado;esperado)</td><td>=CHITEST(observado;esperado)</td></tr>
+      <tr><td>Desvio padrão da amostra</td><td>=DESVPAD.A(intervalo)</td><td>=STDEV(intervalo)</td></tr>
+      <tr><td>Contagem de valores</td><td>=CONT.NÚM(intervalo)</td><td>=COUNT(intervalo)</td></tr>
+    </table>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>Checklist da semana</h3>
+    <ul class="checklist">
+      <li><input type="checkbox"><span>Li os oito pontos do bloco de leitura</span></li>
+      <li><input type="checkbox"><span>Completei as cinco atividades</span></li>
+      <li><input type="checkbox"><span>Sei explicar a fração sinal dividido por ruído</span></li>
+      <li><input type="checkbox"><span>Sei dizer o que são graus de liberdade</span></li>
+      <li><input type="checkbox"><span>Sei quando usar pareado e quando usar independente</span></li>
+      <li><input type="checkbox"><span>Sei a restrição das frequências esperadas do qui-quadrado</span></li>
+      <li><input type="checkbox"><span>Rodei um teste t nos dados do meu grupo, na planilha e no PAST 4</span></li>
+      <li><input type="checkbox"><span>Escrevi a frase de relato com os quatro elementos</span></li>
+      <li><input type="checkbox"><span>Respondi o questionário antes de sexta às 23h59</span></li>
+    </ul>
+  </div>
+
+  <div class="consult">
+    <strong>Para fechar a semana.</strong> Guarde a frase de relato que você escreveu, porque ela é o formato exato que será cobrado no relatório de outubro e na prova presencial. E guarde também a pergunta que vem na semana que vem: por que não se pode comparar três grupos rodando três testes t entre os pares? A resposta está na Semana 8 e envolve o erro tipo I da Semana 4.
+  </div>
+</div>
+
+<footer class="rodape">
+  Modelagem e Experimentação em Biologia, FACAB-CAC-158, 60h, 2026.2<br>
+  UNEMAT, Campus de Cáceres, Faculdade de Ciências Agrárias e Biológicas<br>
+  Semana de segunda a sábado. Material de estudo autônomo.
+</footer>
+
+</div>
+<script>
+function normalR(m,s){
+  let u=0,v=0;
+  while(u===0)u=Math.random();
+  while(v===0)v=Math.random();
+  return m+s*Math.sqrt(-2*Math.log(u))*Math.cos(2*Math.PI*v);
+}
+function media(a){return a.reduce((x,y)=>x+y,0)/a.length;}
+function varAm(a){const m=media(a);return a.reduce((x,y)=>x+(y-m)**2,0)/(a.length-1);}
+function dpAm(a){return Math.sqrt(varAm(a));}
+function logGama(x){
+  const c=[76.18009172947146,-86.50532032941677,24.01409824083091,
+           -1.231739572450155,0.1208650973866179e-2,-0.5395239384953e-5];
+  let y=x,tmp=x+5.5;
+  tmp-=(x+0.5)*Math.log(tmp);
+  let ser=1.000000000190015;
+  for(let j=0;j<6;j++)ser+=c[j]/++y;
+  return -tmp+Math.log(2.5066282746310005*ser/x);
+}
+function betacf(a,b,x){
+  const MAXIT=250,EPS=3e-14,FPMIN=1e-300;
+  let qab=a+b,qap=a+1,qam=a-1,c=1,d=1-qab*x/qap;
+  if(Math.abs(d)<FPMIN)d=FPMIN;
+  d=1/d;let h=d;
+  for(let m=1;m<=MAXIT;m++){
+    const m2=2*m;
+    let aa=m*(b-m)*x/((qam+m2)*(a+m2));
+    d=1+aa*d;if(Math.abs(d)<FPMIN)d=FPMIN;
+    c=1+aa/c;if(Math.abs(c)<FPMIN)c=FPMIN;
+    d=1/d;h*=d*c;
+    aa=-(a+m)*(qab+m)*x/((a+m2)*(qap+m2));
+    d=1+aa*d;if(Math.abs(d)<FPMIN)d=FPMIN;
+    c=1+aa/c;if(Math.abs(c)<FPMIN)c=FPMIN;
+    d=1/d;
+    const del=d*c;h*=del;
+    if(Math.abs(del-1)<EPS)break;
+  }
+  return h;
+}
+function betai(a,b,x){
+  if(x<=0)return 0;if(x>=1)return 1;
+  const bt=Math.exp(logGama(a+b)-logGama(a)-logGama(b)+a*Math.log(x)+b*Math.log(1-x));
+  return x<(a+1)/(a+b+2)?bt*betacf(a,b,x)/a:1-bt*betacf(b,a,1-x)/b;
+}
+function pT(t,gl){return betai(gl/2,0.5,gl/(gl+t*t));}
+function gser(a,x){
+  let ap=a,sum=1/a,del=sum;
+  for(let n=1;n<=500;n++){ap++;del*=x/ap;sum+=del;
+    if(Math.abs(del)<Math.abs(sum)*3e-14)break;}
+  return sum*Math.exp(-x+a*Math.log(x)-logGama(a));
+}
+function gcf(a,x){
+  const FPMIN=1e-300;
+  let b=x+1-a,c=1/FPMIN,d=1/b,h=d;
+  for(let i=1;i<=500;i++){
+    const an=-i*(i-a);
+    b+=2;d=an*d+b;if(Math.abs(d)<FPMIN)d=FPMIN;
+    c=b+an/c;if(Math.abs(c)<FPMIN)c=FPMIN;
+    d=1/d;const del=d*c;h*=del;
+    if(Math.abs(del-1)<3e-14)break;
+  }
+  return Math.exp(-x+a*Math.log(x)-logGama(a))*h;
+}
+function pQui(x,gl){
+  if(x<=0)return 1;
+  const a=gl/2;
+  return x<a+1?1-gser(a,x/2):gcf(a,x/2);
+}
+function fmtP(p){
+  if(p<0.001)return 'menor que 0,001';
+  return 'igual a '+p.toFixed(4).replace('.',',');
+}
+function lerCaixa(id){
+  return document.getElementById(id).value.split(/[\n,;\t ]+/)
+    .map(s=>s.trim().replace(',','.')).filter(s=>s!=='')
+    .map(Number).filter(x=>!isNaN(x));
+}
+
+function exemploT(){
+  document.getElementById('grupo1').value='14,2\n13,8\n15,1\n13,5\n14,6\n14,0\n13,9\n14,8';
+  document.getElementById('grupo2').value='9,1\n8,7\n9,6\n9,9\n8,4\n9,2\n10,1\n9,0';
+  calcularT();
+}
+function calcularT(){
+  const A=lerCaixa('grupo1'),B=lerCaixa('grupo2');
+  const n1=document.getElementById('nome1').value||'grupo 1';
+  const n2=document.getElementById('nome2').value||'grupo 2';
+  const alvo=document.getElementById('saidaT');
+  if(A.length<3||B.length<3){
+    alvo.innerHTML='<div class="feedback nao">Cole pelo menos três valores em cada grupo.</div>';return;}
+  const mA=media(A),mB=media(B),vA=varAm(A),vB=varAm(B),nA=A.length,nB=B.length;
+  const dif=mA-mB;
+  const seW=Math.sqrt(vA/nA+vB/nB);
+  const tW=dif/seW;
+  const glW=Math.pow(vA/nA+vB/nB,2)/(Math.pow(vA/nA,2)/(nA-1)+Math.pow(vB/nB,2)/(nB-1));
+  const pW=pT(tW,glW);
+  const sp2=((nA-1)*vA+(nB-1)*vB)/(nA+nB-2);
+  const seS=Math.sqrt(sp2*(1/nA+1/nB));
+  const tS=dif/seS,glS=nA+nB-2,pS=pT(tS,glS);
+  const d=dif/Math.sqrt(sp2);
+  let tc=0.5;
+  while(tc<12&&pT(tc,glW)>0.05)tc+=0.005;
+  const ic1=dif-tc*seW,ic2=dif+tc*seW;
+  const razVar=Math.max(vA,vB)/Math.min(vA,vB);
+  alvo.innerHTML=
+    '<div class="saida">'+
+      '<div class="metrica"><div class="rot">Média '+n1+'</div><div class="val">'+mA.toFixed(2)+'</div></div>'+
+      '<div class="metrica"><div class="rot">Média '+n2+'</div><div class="val">'+mB.toFixed(2)+'</div></div>'+
+      '<div class="metrica"><div class="rot">Diferença</div><div class="val">'+dif.toFixed(2)+'</div></div>'+
+      '<div class="metrica"><div class="rot">Estatística t</div><div class="val">'+tW.toFixed(2)+'</div></div>'+
+      '<div class="metrica"><div class="rot">Graus de liberdade</div><div class="val">'+glW.toFixed(1)+'</div></div>'+
+      '<div class="metrica grande"><div class="rot">Valor de p</div><div class="val">'+(pW<0.001?'&lt;0,001':pW.toFixed(4).replace('.',','))+'</div></div>'+
+      '<div class="metrica"><div class="rot">d de Cohen</div><div class="val">'+d.toFixed(2)+'</div></div>'+
+      '<div class="metrica"><div class="rot">Razão de variâncias</div><div class="val">'+razVar.toFixed(2)+'</div></div>'+
+    '</div>'+
+    '<div class="tabela-rolar"><table>'+
+      '<tr><th>Versão do teste</th><th class="num">t</th><th class="num">Graus de liberdade</th><th class="num">Valor de p</th></tr>'+
+      '<tr><td>Welch, variâncias diferentes</td><td class="num">'+tW.toFixed(3)+'</td><td class="num">'+glW.toFixed(1)+'</td><td class="num">'+fmtP(pW)+'</td></tr>'+
+      '<tr><td>Student, variâncias iguais</td><td class="num">'+tS.toFixed(3)+'</td><td class="num">'+glS+'</td><td class="num">'+fmtP(pS)+'</td></tr>'+
+    '</table></div>'+
+    '<div class="feedback '+(pW<0.05?'ok':'nao')+'">'+
+      '<strong>Frase de relato pronta.</strong> A variável diferiu entre '+n1+' e '+n2+', com médias de '+mA.toFixed(2)+' e '+mB.toFixed(2)+
+      ', diferença de '+dif.toFixed(2)+', intervalo de confiança de 95 por cento de '+ic1.toFixed(2)+' a '+ic2.toFixed(2)+
+      ', teste t de Welch, t igual a '+tW.toFixed(2)+', graus de liberdade iguais a '+glW.toFixed(1)+', valor de p '+fmtP(pW)+
+      ', d de Cohen igual a '+d.toFixed(2)+'.<br><br>'+
+      (pW<0.05?'O resultado é significativo ao nível de 5 por cento.':
+        'O resultado não atingiu significância ao nível de 5 por cento. Isso não prova que os grupos são iguais: repare na largura do intervalo de confiança, de '+ic1.toFixed(2)+' a '+ic2.toFixed(2)+', que mostra o quanto o estudo consegue ou não descartar.')+
+      (Math.abs(d)>0.8?' O d de Cohen acima de 0,8 indica efeito grande pela convenção usual.':
+        (Math.abs(d)>0.5?' O d de Cohen entre 0,5 e 0,8 indica efeito médio.':
+        ' O d de Cohen abaixo de 0,5 indica efeito pequeno, o que merece atenção na discussão mesmo com valor de p baixo.'))+
+      (razVar>3?'<br><br><strong>Atenção.</strong> A razão entre as variâncias ficou em '+razVar.toFixed(2)+', acima do limite prático de 3. Use a linha de Welch e não a de Student.':'')+
+    '</div>';
+}
+exemploT();
+
+['dif','sd','nn'].forEach(function(id){
+  document.getElementById(id).addEventListener('input',sinalRuido);});
+function sinalRuido(){
+  const dif=parseInt(document.getElementById('dif').value)/10;
+  const sd=parseInt(document.getElementById('sd').value)/10;
+  const n=parseInt(document.getElementById('nn').value);
+  document.getElementById('difLab').textContent=dif.toFixed(1).replace('.',',');
+  document.getElementById('sdLab').textContent=sd.toFixed(1).replace('.',',');
+  document.getElementById('nLab').textContent=n;
+  const se=sd*Math.sqrt(2/n);
+  const t=se>0?dif/se:0,gl=2*n-2,p=pT(t,gl),d=sd>0?dif/sd:0;
+  document.getElementById('sSinal').textContent=dif.toFixed(2);
+  document.getElementById('sRuido').textContent=se.toFixed(3);
+  document.getElementById('sT').textContent=t.toFixed(2);
+  document.getElementById('sP').textContent=p<0.001?'<0,001':p.toFixed(4).replace('.',',');
+  document.getElementById('sD').textContent=d.toFixed(2);
+  const fb=document.getElementById('fbSinal');
+  let m='<strong>A conta na sua frente.</strong> O sinal é '+dif.toFixed(2)+', o ruído é '+se.toFixed(3)+
+    ', e a razão entre os dois dá t igual a '+t.toFixed(2)+'. ';
+  m+=p<0.05?'Com p '+fmtP(p)+', o resultado é significativo. ':'Com p igual a '+p.toFixed(3).replace('.',',')+', o resultado não é significativo. ';
+  m+='<br><br><strong>Agora o ponto da atividade.</strong> Não mexa na diferença. Mexa apenas no n e observe o valor de p desabar, com o sinal exatamente igual. Depois mexa apenas no desvio padrão e veja o mesmo efeito ao contrário. O d de Cohen, que está em '+d.toFixed(2)+
+    ', é a única medida da tabela que não se move quando você mexe no n. É por isso que ele é a medida de tamanho de efeito, e o valor de p não é.';
+  fb.innerHTML=m;fb.className=p<0.05?'feedback ok':'feedback nao';
+}
+sinalRuido();
+
+document.getElementById('pdif').addEventListener('input',function(e){
+  document.getElementById('pdLab').textContent=(e.target.value/10).toFixed(1).replace('.',',');});
+document.getElementById('pvar').addEventListener('input',function(e){
+  document.getElementById('pvLab').textContent=e.target.value;});
+function pareado(){
+  const dReal=parseInt(document.getElementById('pdif').value)/10;
+  const varPontos=parseInt(document.getElementById('pvar').value);
+  const antes=[],depois=[];
+  for(let i=0;i<10;i++){
+    const base=normalR(50,varPontos);
+    antes.push(base+normalR(0,1.2));
+    depois.push(base+dReal+normalR(0,1.2));
+  }
+  let linhas='';
+  for(let i=0;i<10;i++){
+    linhas+='<tr><th class="lin">'+(i+2)+'</th><td class="n">'+(i+1)+'</td>'+
+      '<td class="n">'+antes[i].toFixed(2)+'</td><td class="n">'+depois[i].toFixed(2)+'</td>'+
+      '<td class="n">'+(depois[i]-antes[i]).toFixed(2)+'</td></tr>';
+  }
+  document.getElementById('tabelaPar').innerHTML=
+    '<div class="xl"><div class="xl-bar"><span class="xl-ref">D2</span><span class="xl-fx">fx</span>'+
+    '<span class="xl-form">=C2-B2</span></div>'+
+    '<div class="xl-rolar"><table class="xl-grid">'+
+    '<tr><th class="col"></th><th class="col">A</th><th class="col">B</th><th class="col">C</th><th class="col">D</th></tr>'+
+    '<tr><th class="lin">1</th><td class="cab">ponto</td><td class="cab">antes</td><td class="cab">depois</td><td class="cab">diferenca</td></tr>'+
+    linhas+'</table></div></div>'+
+    '<p class="xl-nota">A coluna D é o que o teste pareado analisa. Repare como ela varia pouco, mesmo com as colunas B e C variando muito.</p>';
+  const nA=10;
+  const vA=varAm(antes),vB=varAm(depois);
+  const sp2=((nA-1)*vA+(nA-1)*vB)/(2*nA-2);
+  const tI=(media(depois)-media(antes))/Math.sqrt(sp2*(2/nA));
+  const pI=pT(tI,2*nA-2);
+  const difs=antes.map(function(a,i){return depois[i]-a;});
+  const tP=media(difs)/(dpAm(difs)/Math.sqrt(nA));
+  const pP=pT(tP,nA-1);
+  document.getElementById('tInd').textContent=tI.toFixed(2);
+  document.getElementById('pInd').textContent=pI<0.001?'<0,001':pI.toFixed(4).replace('.',',');
+  document.getElementById('tPar').textContent=tP.toFixed(2);
+  document.getElementById('pPar').textContent=pP<0.001?'<0,001':pP.toFixed(4).replace('.',',');
+  const fb=document.getElementById('fbPar');
+  fb.className='feedback ok';
+  let m='<strong>Mesmos dados, dois resultados.</strong> Tratando as colunas como independentes, o t deu '+tI.toFixed(2)+
+    ' e o p '+fmtP(pI)+'. Tratando corretamente como pareado, o t deu '+tP.toFixed(2)+' e o p '+fmtP(pP)+'. ';
+  if(pI>0.05&&pP<0.05)m+='<br><br><strong>Repare no que aconteceu.</strong> O teste independente não detectou nada e o pareado detectou. O motivo está na coluna D da planilha: os pontos de coleta são muito diferentes entre si, e essa variação enorme entra no denominador do teste independente e afoga o sinal. No pareado, cada ponto é comparado consigo mesmo, a variação entre pontos desaparece da conta e sobra apenas o efeito. Ignorar o pareamento aqui teria custado a descoberta.';
+  else m+='<br><br>Aumente a variação entre pontos de coleta e reduza a diferença real. O contraste entre os dois testes fica mais dramático quando os pontos são muito diferentes entre si e o efeito é pequeno, que é justamente a situação comum em monitoramento ambiental.';
+  fb.innerHTML=m;
+}
+pareado();
+
+function qui(){
+  const o=[[0,0,0],[0,0,0]];
+  for(let i=0;i<2;i++)for(let j=0;j<3;j++)
+    o[i][j]=parseFloat(document.getElementById('c'+i+j).value)||0;
+  const totL=o.map(function(l){return l.reduce(function(a,b){return a+b;},0);});
+  const totC=[0,1,2].map(function(j){return o[0][j]+o[1][j];});
+  const N=totL[0]+totL[1];
+  if(N===0)return;
+  const e=[[0,0,0],[0,0,0]];
+  let x2=0,minE=Infinity;
+  for(let i=0;i<2;i++)for(let j=0;j<3;j++){
+    e[i][j]=totL[i]*totC[j]/N;
+    if(e[i][j]<minE)minE=e[i][j];
+    if(e[i][j]>0)x2+=Math.pow(o[i][j]-e[i][j],2)/e[i][j];
+  }
+  const gl=2;
+  const p=pQui(x2,gl);
+  document.getElementById('qX').textContent=x2.toFixed(2);
+  document.getElementById('qGl').textContent=gl;
+  document.getElementById('qP').textContent=p<0.001?'<0,001':p.toFixed(4).replace('.',',');
+  document.getElementById('qMin').textContent=minE.toFixed(1);
+  let linhas='';
+  ['Trincado','Íntegro'].forEach(function(r,i){
+    linhas+='<tr><td><strong>'+r+'</strong></td>';
+    for(let j=0;j<3;j++){
+      const contrib=e[i][j]>0?Math.pow(o[i][j]-e[i][j],2)/e[i][j]:0;
+      linhas+='<td class="num">'+o[i][j]+' observado<br>'+e[i][j].toFixed(1)+' esperado<br>'+
+        '<span style="color:'+(contrib>2?'#c62828':'#5a6472')+';font-weight:'+(contrib>2?'700':'400')+'">'+
+        'contribui '+contrib.toFixed(2)+'</span></td>';
+    }
+    linhas+='</tr>';
+  });
+  document.getElementById('tabelaEsp').innerHTML=
+    '<div class="tabela-rolar"><table>'+
+    '<tr><th></th><th>Granja A</th><th>Granja B</th><th>Granja C</th></tr>'+linhas+'</table></div>';
+  const fb=document.getElementById('fbQui');
+  let m='';
+  if(minE<5)m+='<strong>Restrição violada.</strong> A menor frequência esperada é '+minE.toFixed(1)+
+    ', abaixo de 5. Repare que a exigência é sobre a frequência esperada, e não sobre a observada, e é aí que muita gente se confunde. Nessa situação o valor de p não é confiável. Agrupe categorias ou use o teste exato de Fisher, no PAST 4. ';
+  else m+='<strong>Restrição atendida.</strong> A menor frequência esperada é '+minE.toFixed(1)+
+    ', acima de 5, então o qui-quadrado é aplicável. ';
+  m+='<br><br>Com qui-quadrado igual a '+x2.toFixed(2)+' e '+gl+' graus de liberdade, o valor de p é '+fmtP(p)+'. ';
+  m+=p<0.05?'Há evidência de associação entre a granja e a proporção de ovos trincados. Olhe as caselas destacadas em vermelho: são as que mais contribuíram para o resultado, e é sobre elas que a discussão deve falar.'
+    :'Não há evidência de associação entre a granja e a proporção de ovos trincados. Lembre que isso não prova independência, apenas que os dados não foram surpreendentes o bastante.';
+  fb.innerHTML=m;
+  fb.className=minE<5?'feedback nao':(p<0.05?'feedback ok':'feedback nao');
+}
+qui();
+
+const relatos=[
+ {t:"A diferença entre os solos foi estatisticamente significativa (p = 0,03).",
+  r:"Incompleto",
+  j:"Falta quase tudo: as médias, a magnitude da diferença, o intervalo de confiança, a estatística do teste e os graus de liberdade. O leitor não consegue avaliar se a diferença importa."},
+ {t:"A turbidez a jusante foi maior que a montante (38,4 contra 31,2 UNT; diferença de 7,2; IC 95% de 3,1 a 11,3; teste t de Welch, t = 3,64; gl = 17,2; p = 0,002; d = 1,58).",
+  r:"Adequado",
+  j:"Estão os quatro elementos: médias, magnitude com intervalo de confiança, estatística com graus de liberdade e valor de p, mais o tamanho do efeito. É o padrão a ser seguido."},
+ {t:"O teste não foi significativo (p = 0,21), portanto os dois pontos de coleta são iguais.",
+  r:"Errado",
+  j:"Ausência de evidência não é evidência de ausência, como ficou dito na Semana 4. O correto é escrever que não houve evidência de diferença, informando o intervalo de confiança, que mostra o que o estudo consegue ou não descartar."},
+ {t:"A diferença foi altamente significativa (p = 0,000).",
+  r:"Errado",
+  j:"Dois problemas. Valor de p nunca é zero, o correto é escrever menor que 0,001. E altamente significativo sugere efeito grande, o que o valor de p não mede."},
+ {t:"Aplicou-se qui-quadrado à tabela, com frequências esperadas de 2,1 e 3,4 em duas caselas, obtendo p = 0,04.",
+  r:"Errado",
+  j:"Frequências esperadas abaixo de 5 invalidam a aproximação do qui-quadrado. A saída seria agrupar categorias ou aplicar o teste exato de Fisher, e isso precisa estar declarado."},
+ {t:"Como as variâncias diferiram entre os grupos (razão de 6,8), optou-se pelo teste t de Welch (t = 2,41; gl = 11,4; p = 0,034).",
+  r:"Adequado",
+  j:"A escolha do teste está justificada pelo diagnóstico, e o relato traz estatística, graus de liberdade fracionários, que são a assinatura do Welch, e o valor de p. Faltaria apenas o tamanho do efeito para ficar completo."},
+ {t:"Os dados foram pareados por conveniência, já que as duas colunas tinham dez linhas cada.",
+  r:"Errado",
+  j:"Pareamento vem do desenho, não da coincidência de tamanho. Cada linha precisa corresponder ao mesmo ponto, indivíduo ou local nas duas colunas. Parear por conveniência produz resultado sem significado."}
+];
+let respRel=0;
+(function(){
+  const c=document.getElementById('quizRelato');
+  relatos.forEach(function(k,i){
+    const d=document.createElement('div');d.className='caso';
+    d.innerHTML='<div class="n">Frase '+(i+1)+'</div><p style="margin-bottom:10px">"'+k.t+'"</p>'+
+      '<div class="opcoes">'+
+      '<button class="opcao" onclick="respR('+i+',\'Adequado\',this)">Adequado</button>'+
+      '<button class="opcao" onclick="respR('+i+',\'Incompleto\',this)">Incompleto</button>'+
+      '<button class="opcao" onclick="respR('+i+',\'Errado\',this)">Errado</button>'+
+      '</div><div class="feedback" id="fbr'+i+'"></div>';
+    c.appendChild(d);
+  });
+})();
+function respR(i,esc,btn){
+  const pai=btn.parentElement;
+  if(pai.dataset.feito)return;pai.dataset.feito='1';
+  Array.from(pai.children).forEach(function(b){b.disabled=true;});
+  const fb=document.getElementById('fbr'+i),certo=relatos[i].r;
+  if(esc===certo){btn.classList.add('certa');fb.className='feedback ok';
+    fb.innerHTML='<strong>Correto.</strong> '+relatos[i].j;}
+  else{btn.classList.add('errada');
+    Array.from(pai.children).forEach(function(b){if(b.textContent===certo)b.classList.add('certa');});
+    fb.className='feedback nao';fb.innerHTML='<strong>Não. A classificação é '+certo.toLowerCase()+'.</strong> '+relatos[i].j;}
+  respRel++;
+  document.getElementById('placarRelato').textContent='Respondidas: '+respRel+' de 7';
+}
+
+const perguntas=[
+ {p:"O que representa a estatística t?",
+  o:["A probabilidade de a hipótese nula ser verdadeira","A razão entre o efeito observado e a variabilidade dos dados",
+     "A diferença entre as médias em unidades originais","O número de observações do estudo"],
+  c:1,
+  j:"Sinal dividido por ruído. O sinal é a diferença entre as médias, o ruído é o erro padrão, que depende do desvio padrão e do tamanho da amostra."},
+ {p:"Dois estudos encontraram a mesma diferença de 2 centímetros. O primeiro deu p igual a 0,001 e o segundo p igual a 0,4. O que explica isso?",
+  o:["Um dos dois errou a conta","Diferenças no desvio padrão e no tamanho da amostra",
+     "O primeiro usou teste pareado","O segundo violou a normalidade"],
+  c:1,
+  j:"A mesma diferença pode ser significativa ou não conforme o ruído e o esforço amostral. Por isso o valor de p sozinho não descreve o resultado."},
+ {p:"O que são graus de liberdade em um teste t de duas amostras independentes?",
+  o:["O número total de observações","A informação independente disponível para estimar a variabilidade, igual a n1 mais n2 menos 2",
+     "O número de grupos comparados","O número de caudas do teste"],
+  c:1,
+  j:"É a mesma lógica do n menos 1 do desvio padrão. Cada média estimada consome um grau de liberdade."},
+ {p:"Quando o teste t pareado é o correto?",
+  o:["Sempre que os dois grupos tiverem o mesmo número de observações",
+     "Quando cada observação de um grupo tem uma parceira natural no outro, definida pelo desenho",
+     "Quando as variâncias são diferentes","Quando os dados não são normais"],
+  c:1,
+  j:"O pareamento vem do desenho. Ele elimina a variação entre indivíduos ou pontos, o que reduz muito o ruído e aumenta a capacidade de detectar efeitos pequenos."},
+ {p:"Qual é a restrição prática mais importante do qui-quadrado?",
+  o:["As frequências observadas precisam passar de 30","As frequências esperadas não devem ficar abaixo de 5",
+     "As categorias precisam ser ordinais","O total precisa ser número par"],
+  c:1,
+  j:"A exigência é sobre o esperado, e não sobre o observado. Quando ela falha, agrupe categorias ou use o teste exato de Fisher."},
+ {p:"Por que o d de Cohen é relatado junto do valor de p?",
+  o:["Porque ele confirma o valor de p","Porque ele mede a magnitude da diferença e não depende do tamanho da amostra",
+     "Porque ele substitui o intervalo de confiança","Porque ele testa a normalidade"],
+  c:1,
+  j:"O valor de p depende do n e por isso não mede tamanho de efeito. O d expressa a diferença em desvios padrão e permanece o mesmo quando o n muda."}
+];
+let respFinal=0;
+(function(){
+  const c=document.getElementById('quizFinal');
+  perguntas.forEach(function(q,i){
+    const d=document.createElement('div');d.className='caso';
+    const botoes=q.o.map(function(op,j){
+      return '<button class="opcao" style="flex:1 1 100%;text-align:left" onclick="respFF('+i+','+j+',this)">'+op+'</button>';}).join('');
+    d.innerHTML='<div class="n">Questão '+(i+1)+'</div><p style="margin-bottom:10px"><strong>'+q.p+'</strong></p>'+
+      '<div class="opcoes" style="flex-direction:column">'+botoes+'</div>'+
+      '<div class="feedback" id="fbq'+i+'"></div>';
+    c.appendChild(d);
+  });
+})();
+function respFF(i,j,btn){
+  const pai=btn.parentElement;
+  if(pai.dataset.feito)return;pai.dataset.feito='1';
+  Array.from(pai.children).forEach(function(b){b.disabled=true;});
+  const fb=document.getElementById('fbq'+i);
+  if(j===perguntas[i].c){btn.classList.add('certa');fb.className='feedback ok';
+    fb.innerHTML='<strong>Correto.</strong> '+perguntas[i].j;}
+  else{btn.classList.add('errada');pai.children[perguntas[i].c].classList.add('certa');
+    fb.className='feedback nao';fb.innerHTML='<strong>Não é isso.</strong> '+perguntas[i].j;}
+  respFinal++;
+  document.getElementById('placarFinal').textContent='Respondidas: '+respFinal+' de 6';
+}
+</script>
+</body>
+</html>

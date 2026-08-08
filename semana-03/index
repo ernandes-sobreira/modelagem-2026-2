@@ -1,0 +1,909 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Semana 3: Desenho experimental e esforço amostral</title>
+<style>
+:root{
+  --azul:#6a1b9a; --azul-claro:#f3e8f8;
+  --verde:#2e7d32; --verde-claro:#e6f4e7;
+  --laranja:#e65100; --laranja-claro:#fff1e5;
+  --teal:#00695c; --teal-claro:#e0f2f1;
+  --vermelho:#c62828; --vermelho-claro:#fdeaea;
+  --cinza:#5a6472; --borda:#dfe4ea; --fundo:#f6f8fa;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;
+  background:#fff;color:#22272e;line-height:1.65;font-size:16px}
+.wrap{max-width:880px;margin:0 auto;padding:20px 18px 80px}
+
+header.topo{background:linear-gradient(135deg,#4a148c,#7b1fa2);border-radius:16px;
+  padding:26px 24px;color:#fff;margin-bottom:22px}
+header.topo .tag{display:inline-block;background:rgba(255,255,255,.22);padding:5px 13px;
+  border-radius:20px;font-size:13px;font-weight:600;letter-spacing:.3px;margin-bottom:12px}
+header.topo h1{font-size:25px;line-height:1.28;margin-bottom:10px;font-weight:700}
+header.topo p{font-size:14.5px;opacity:.94}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:16px}
+.chip{background:rgba(255,255,255,.16);border:1px solid rgba(255,255,255,.3);
+  padding:7px 13px;border-radius:9px;font-size:13px;font-weight:500}
+
+nav.indice{background:var(--fundo);border:1px solid var(--borda);border-radius:14px;
+  padding:16px 18px;margin-bottom:26px}
+nav.indice strong{display:block;font-size:13px;text-transform:uppercase;
+  letter-spacing:.6px;color:var(--cinza);margin-bottom:10px}
+nav.indice a{display:block;color:var(--azul);text-decoration:none;padding:7px 0;
+  font-size:15px;border-bottom:1px solid #eef1f4}
+nav.indice a:last-child{border-bottom:none}
+nav.indice a:hover{text-decoration:underline}
+
+.bloco{margin-bottom:34px}
+.bloco-cab{display:flex;align-items:center;gap:12px;margin-bottom:16px;
+  padding-bottom:12px;border-bottom:3px solid var(--azul-claro)}
+.bloco-num{background:var(--azul);color:#fff;width:38px;height:38px;flex:0 0 38px;
+  border-radius:10px;display:flex;align-items:center;justify-content:center;
+  font-weight:700;font-size:17px}
+.bloco-cab h2{font-size:20px;font-weight:700;line-height:1.3}
+h3{font-size:17px;margin:22px 0 9px;color:#1a1f26;font-weight:650}
+p{margin-bottom:13px}
+ul,ol{margin:0 0 14px 22px}
+li{margin-bottom:7px}
+
+.card{border:1px solid var(--borda);border-radius:14px;padding:20px;margin:16px 0;background:#fff}
+.destaque{border-left:5px solid var(--verde);background:var(--verde-claro);
+  border-radius:12px;padding:16px 18px;margin:16px 0}
+.destaque strong{color:var(--verde)}
+.alerta{border-left:5px solid var(--vermelho);background:var(--vermelho-claro);
+  border-radius:12px;padding:16px 18px;margin:16px 0}
+.alerta strong{color:var(--vermelho)}
+.consult{border-left:5px solid var(--laranja);background:var(--laranja-claro);
+  border-radius:12px;padding:16px 18px;margin:16px 0}
+.consult strong{color:var(--laranja)}
+.livro{border-left:5px solid var(--teal);background:var(--teal-claro);
+  border-radius:12px;padding:14px 18px;margin:16px 0;font-size:14.5px}
+.livro strong{color:var(--teal)}
+
+.faixa{background:#4a148c;color:#fff;border-radius:16px;padding:28px 24px;
+  margin:30px 0;text-align:center;box-shadow:0 5px 18px rgba(74,20,140,.22)}
+.faixa .l1{font-size:29px;font-weight:800;line-height:1.2;letter-spacing:-.4px;margin-bottom:12px}
+.faixa .l3{font-size:19px;font-weight:700;background:rgba(255,255,255,.16);
+  display:inline-block;padding:11px 20px;border-radius:11px;line-height:1.35}
+@media(max-width:600px){.faixa .l1{font-size:22px}.faixa .l3{font-size:15.5px}}
+
+table{width:100%;border-collapse:collapse;margin:14px 0;font-size:14.5px}
+th{background:var(--azul-claro);padding:11px 12px;text-align:left;font-weight:650;
+  border:1px solid var(--borda)}
+td{padding:11px 12px;border:1px solid var(--borda);vertical-align:top}
+.tabela-rolar{overflow-x:auto}
+.num{text-align:right;font-variant-numeric:tabular-nums}
+
+/* representacao de planilha */
+.xl{border:1px solid #b9c0c9;border-radius:9px;overflow:hidden;margin:16px 0;background:#fff;
+  font-family:ui-monospace,SFMono-Regular,Menlo,monospace}
+.xl-bar{display:flex;align-items:center;gap:8px;background:#f6f8fa;
+  border-bottom:1px solid #d5dbe2;padding:8px 10px;font-size:13px}
+.xl-ref{background:#fff;border:1px solid #c6cdd5;border-radius:5px;padding:4px 10px;
+  min-width:56px;text-align:center;font-weight:700;color:#22272e}
+.xl-fx{color:#9aa4b0;font-style:italic;font-weight:700;padding:0 2px}
+.xl-form{flex:1;background:#fff;border:1px solid #c6cdd5;border-radius:5px;padding:4px 10px;
+  overflow-x:auto;white-space:nowrap;color:#107c41;font-weight:650}
+.xl-rolar{overflow-x:auto}
+table.xl-grid{border-collapse:collapse;width:100%;margin:0;font-size:13px}
+table.xl-grid th,table.xl-grid td{border:1px solid #d5dbe2;padding:7px 10px;background:#fff;
+  white-space:nowrap;font-weight:400;text-align:left;vertical-align:middle}
+table.xl-grid th.col,table.xl-grid th.lin{background:#eef1f4;color:#5a6472;text-align:center;
+  font-weight:700;font-size:11.5px}
+table.xl-grid th.lin{width:36px}
+table.xl-grid td.cab{font-weight:700;background:#f6f8fa}
+table.xl-grid td.sel{outline:2.5px solid #107c41;outline-offset:-2px;background:#f0f9f4;font-weight:700}
+table.xl-grid td.n{text-align:right}
+.xl-nota{font-size:13.5px;color:var(--cinza);text-align:center;margin:-8px 0 18px}
+.xl-nota.ruim{color:var(--vermelho);font-weight:650}
+.xl-nota.bom{color:var(--verde);font-weight:650}
+
+.interativo{border:2px solid var(--azul);border-radius:16px;padding:22px;
+  margin:22px 0;background:#fdfbff}
+.interativo-cab{display:flex;align-items:center;gap:10px;margin-bottom:6px}
+.interativo-cab .selo{background:var(--azul);color:#fff;font-size:11.5px;font-weight:700;
+  padding:4px 11px;border-radius:20px;letter-spacing:.5px}
+.interativo h3{margin:8px 0 6px;font-size:17.5px}
+.interativo .instr{font-size:14.5px;color:var(--cinza);margin-bottom:16px}
+
+button{font-family:inherit;font-size:15px;font-weight:600;cursor:pointer;border:none;
+  border-radius:10px;padding:11px 20px;transition:.15s;margin:0 6px 6px 0}
+.btn{background:var(--azul);color:#fff}
+.btn:hover{background:#4a148c}
+.btn-verde{background:var(--azul);color:#fff}
+.btn-verde:hover{background:#4a148c}
+.btn-claro{background:#fff;color:var(--azul);border:2px solid var(--azul)}
+.btn-claro:hover{background:var(--azul-claro)}
+
+.opcoes{display:flex;flex-wrap:wrap;gap:9px;margin:12px 0}
+.opcao{flex:1 1 150px;min-width:130px;background:#fff;border:2px solid var(--borda);
+  border-radius:10px;padding:12px 14px;font-size:14.5px;font-weight:600;cursor:pointer;
+  text-align:center;transition:.15s}
+.opcao:hover{border-color:var(--azul);background:var(--azul-claro)}
+.opcao.certa{border-color:var(--verde);background:var(--verde-claro);color:var(--verde)}
+.opcao.errada{border-color:var(--vermelho);background:var(--vermelho-claro);color:var(--vermelho)}
+.opcao:disabled{cursor:default}
+
+.feedback{margin-top:13px;padding:14px 16px;border-radius:10px;font-size:14.5px;display:none}
+.feedback.ok{background:var(--verde-claro);border-left:4px solid var(--verde);display:block}
+.feedback.nao{background:var(--vermelho-claro);border-left:4px solid var(--vermelho);display:block}
+
+.caso{background:#fff;border:1px solid var(--borda);border-radius:10px;padding:15px 16px;
+  margin-bottom:10px;font-size:15px}
+.caso .n{font-size:12.5px;font-weight:700;color:var(--cinza);text-transform:uppercase;
+  letter-spacing:.6px;margin-bottom:6px}
+
+.controles{display:flex;flex-wrap:wrap;gap:16px;margin:14px 0;align-items:flex-end}
+.campo{flex:1 1 170px;min-width:150px}
+.campo label{display:block;font-size:13px;font-weight:650;color:var(--cinza);
+  margin-bottom:6px;text-transform:uppercase;letter-spacing:.4px}
+.campo input,.campo select{width:100%;padding:11px 12px;border:2px solid var(--borda);
+  border-radius:9px;font-size:15px;font-family:inherit;background:#fff}
+.campo input:focus,.campo select:focus{outline:none;border-color:var(--azul)}
+input[type=range]{width:100%;accent-color:var(--azul)}
+
+.saida{display:grid;grid-template-columns:repeat(auto-fit,minmax(128px,1fr));gap:11px;margin-top:16px}
+.metrica{background:#fff;border:1px solid var(--borda);border-radius:11px;padding:14px 12px;text-align:center}
+.metrica .rot{font-size:11.5px;text-transform:uppercase;letter-spacing:.6px;color:var(--cinza);
+  font-weight:650;margin-bottom:5px}
+.metrica .val{font-size:21px;font-weight:700;color:var(--azul)}
+
+canvas{width:100%;height:auto;display:block;background:#fff;border:1px solid var(--borda);
+  border-radius:11px;margin-top:14px}
+.legenda-grafico{display:flex;flex-wrap:wrap;gap:16px;justify-content:center;margin-top:10px;
+  font-size:13.5px;color:var(--cinza)}
+.legenda-grafico span{display:flex;align-items:center;gap:6px}
+.legenda-grafico i{width:14px;height:12px;border-radius:3px;display:inline-block}
+
+/* croqui da varanda */
+.varanda{border:1px solid var(--borda);border-radius:12px;padding:16px;margin-top:14px;
+  background:linear-gradient(180deg,#fff8dc 0%,#ffffff 55%,#eef1f4 100%)}
+.varanda-rot{display:flex;justify-content:space-between;font-size:12.5px;
+  color:var(--cinza);font-weight:650;margin-bottom:10px;text-transform:uppercase;letter-spacing:.5px}
+.croqui{display:grid;grid-template-columns:repeat(5,1fr);gap:9px}
+.vaso{border-radius:10px;padding:12px 6px;text-align:center;color:#fff;
+  font-size:12.5px;font-weight:700;line-height:1.25;box-shadow:0 1px 4px rgba(0,0,0,.12)}
+.abas{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px}
+.aba{background:#fff;border:2px solid var(--borda);border-radius:10px;padding:10px 18px;
+  font-size:14.5px;font-weight:650;cursor:pointer}
+.aba.ativa{background:var(--azul);color:#fff;border-color:var(--azul)}
+
+.placar{background:var(--azul-claro);border-radius:11px;padding:14px 16px;margin-top:14px;
+  font-size:15px;font-weight:600;color:var(--azul);text-align:center}
+
+.checklist{list-style:none;margin-left:0}
+.checklist li{display:flex;gap:11px;align-items:flex-start;padding:11px 0;border-bottom:1px solid #eef1f4}
+.checklist input[type=checkbox]{width:19px;height:19px;margin-top:3px;accent-color:var(--azul);flex:0 0 19px}
+
+footer.rodape{margin-top:44px;padding-top:20px;border-top:2px solid var(--borda);
+  font-size:13.5px;color:var(--cinza);text-align:center}
+
+@media(max-width:600px){
+  .wrap{padding:14px 13px 60px}
+  header.topo h1{font-size:21px}
+  .bloco-cab h2{font-size:18px}
+  .opcao{flex:1 1 100%}
+  .croqui{grid-template-columns:repeat(3,1fr)}
+}
+@media print{
+  body{font-size:11.5pt}
+  header.topo,.faixa,.varanda{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  nav.indice,button,.opcoes,.abas{display:none}
+  .interativo,.bloco{page-break-inside:avoid}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="topo">
+  <span class="tag">SEMANA 3 &nbsp;|&nbsp; SEGUNDA 24 A SÁBADO 29 DE AGOSTO DE 2026</span>
+  <h1>Desenho experimental e esforço amostral</h1>
+  <p>Modelagem e Experimentação em Biologia, FACAB-CAC-158, 60h, Turma 01, 2026.2<br>
+  Prof. Dr. Ernandes Sobreira Oliveira Junior, UNEMAT, Campus de Cáceres</p>
+  <div class="chips">
+    <span class="chip">2h de leitura, de segunda a sexta</span>
+    <span class="chip">2h de prática, de segunda a sexta</span>
+    <span class="chip">Questionário fecha sexta, 23h59</span>
+  </div>
+</header>
+
+<nav class="indice">
+  <strong>Roteiro da semana</strong>
+  <a href="#p1">1. A pergunta que muda tudo</a>
+  <a href="#p2">2. Unidade amostral, a peça que quase ninguém define</a>
+  <a href="#p3">3. Réplica verdadeira e pseudorréplica</a>
+  <a href="#p4">4. Controle</a>
+  <a href="#p5">5. Aleatorização</a>
+  <a href="#p6">6. Blocagem</a>
+  <a href="#p7">7. Confundimento, o inimigo silencioso</a>
+  <a href="#p8">8. Esforço amostral, quanto é suficiente</a>
+  <a href="#a1">Atividade 1: réplica ou pseudorréplica</a>
+  <a href="#a2">Atividade 2: sorteie o seu croqui</a>
+  <a href="#a3">Atividade 3: simulador de esforço amostral</a>
+  <a href="#a4">Atividade 4: quem causou a diferença</a>
+  <a href="#a5">Atividade 5: monte o seu delineamento</a>
+  <a href="#fecho">Autoavaliação e checklist</a>
+</nav>
+
+<!-- =============== LEITURA =============== -->
+
+<div class="bloco" id="p1">
+  <div class="bloco-cab"><div class="bloco-num">1</div>
+  <h2>A pergunta que muda tudo</h2></div>
+
+  <p>Nas duas primeiras semanas você aprendeu a resumir dados e a organizá-los. Ficou faltando a parte que vem antes de tudo isso: <strong>de onde o dado vem</strong>.</p>
+
+  <p>Imagine um relatório com análises de laboratório impecáveis, planilha organizada, médias e desvios padrão calculados corretamente. O analista do órgão ambiental devolve mesmo assim. O problema não estava em nada disso. Estava no desenho.</p>
+
+  <p>A pergunta que atravessa esta semana inteira é esta:</p>
+
+  <div class="destaque" style="text-align:center;font-size:17px">
+    <strong>O que mais, além do que eu quero medir, poderia ter produzido essa diferença?</strong>
+  </div>
+
+  <p>Desenho experimental é o conjunto de decisões tomadas <strong>antes da coleta</strong> para deixar essa lista de respostas possíveis o mais curta possível. Depois da coleta, essa lista está congelada. Nenhum teste estatístico a encurta.</p>
+
+  <div class="consult">
+    <strong>Situação real de consultoria.</strong> Uma empresa precisa mostrar que seu efluente não altera a qualidade da água do córrego. Coleta três amostras em um ponto a montante e três a jusante, no mesmo dia, na mesma hora. Encontra diferença significativa. O relatório é devolvido. Ao final desta semana você vai saber exatamente por quê e vai saber propor o desenho correto.
+  </div>
+
+  <div class="livro">
+    <strong>No livro.</strong> Modelagem e Experimentação em Biologia, um guia prático, Editora UNEMAT, 2025. Localize no sumário a parte sobre desenho experimental e esforço amostral.
+  </div>
+</div>
+
+<div class="bloco" id="p2">
+  <div class="bloco-cab"><div class="bloco-num">2</div>
+  <h2>Unidade amostral, a peça que quase ninguém define</h2></div>
+
+  <p>A <strong>unidade amostral</strong> é a menor entidade sobre a qual você aplica um tratamento de forma independente e mede a variável resposta.</p>
+
+  <p>Na Semana 2 você aprendeu que cada linha da planilha é uma observação. Agora a pergunta fica mais dura: <strong>o que exatamente merece virar uma linha?</strong></p>
+
+  <div class="tabela-rolar">
+  <table>
+    <tr><th>Estudo</th><th>Unidade amostral</th><th>O que NÃO é unidade amostral</th></tr>
+    <tr>
+      <td>Crescimento de cebolinha em três tipos de solo</td>
+      <td>O vaso, porque cada vaso recebeu um solo</td>
+      <td>Cada planta dentro do mesmo vaso</td>
+    </tr>
+    <tr>
+      <td>Temperatura de superfície em quatro coberturas</td>
+      <td>Cada ponto independente de cada cobertura</td>
+      <td>Cada uma das dez leituras feitas no mesmo ponto</td>
+    </tr>
+    <tr>
+      <td>Turbidez de quatro fontes de água</td>
+      <td>Cada garrafa coletada de forma independente</td>
+      <td>Cada uma das três leituras feitas na mesma garrafa</td>
+    </tr>
+    <tr>
+      <td>Germinação sob concentrações de sal</td>
+      <td>A placa, porque cada placa recebeu uma concentração</td>
+      <td>Cada semente dentro da mesma placa</td>
+    </tr>
+  </table>
+  </div>
+
+  <div class="destaque">
+    <strong>Regra prática.</strong> Pergunte: se eu mudasse o tratamento, o que mudaria junto, de forma completa e independente? Aquilo é a unidade amostral. Medidas repetidas dentro dela são leituras, ou subamostras, e não réplicas.
+  </div>
+
+  <h3>Como isso aparece na planilha</h3>
+  <p>Quando existem subamostras, elas são resumidas antes da análise. Cada unidade amostral entra com um valor só, geralmente a média das suas leituras.</p>
+
+  <div class="xl">
+    <div class="xl-bar"><span class="xl-ref">E2</span><span class="xl-fx">fx</span><span class="xl-form">=MÉDIA(B2:D2)</span></div>
+    <div class="xl-rolar">
+    <table class="xl-grid">
+      <tr><th class="col"></th><th class="col">A</th><th class="col">B</th><th class="col">C</th><th class="col">D</th><th class="col">E</th></tr>
+      <tr><th class="lin">1</th><td class="cab">vaso</td><td class="cab">planta_1</td><td class="cab">planta_2</td><td class="cab">planta_3</td><td class="cab">altura_media_cm</td></tr>
+      <tr><th class="lin">2</th><td class="n">1</td><td class="n">14,2</td><td class="n">13,9</td><td class="n">14,6</td><td class="sel n">14,23</td></tr>
+      <tr><th class="lin">3</th><td class="n">2</td><td class="n">13,8</td><td class="n">14,1</td><td class="n">13,5</td><td class="n">13,80</td></tr>
+      <tr><th class="lin">4</th><td class="n">3</td><td class="n">15,1</td><td class="n">14,8</td><td class="n">15,4</td><td class="n">15,10</td></tr>
+    </table>
+    </div>
+  </div>
+  <p class="xl-nota">As colunas B, C e D são leituras dentro do mesmo vaso. Quem entra na análise é a coluna E, uma linha por vaso.</p>
+
+  <p>Errar isso infla artificialmente o número de observações. Você acha que tem 30 dados e na verdade tem 10. O teste não sabe disso e devolve um valor de p pequeno que não significa nada.</p>
+</div>
+
+<div class="bloco" id="p3">
+  <div class="bloco-cab"><div class="bloco-num">3</div>
+  <h2>Réplica verdadeira e pseudorréplica</h2></div>
+
+  <p><strong>Réplica verdadeira</strong> é a repetição independente da aplicação do tratamento. Duas réplicas verdadeiras do solo arenoso são dois vasos diferentes que receberam solo arenoso de forma independente.</p>
+
+  <p><strong>Pseudorréplica</strong> é tratar como réplica aquilo que não é independente. Aparece de três formas:</p>
+
+  <ol>
+    <li><strong>Pseudorréplica simples.</strong> Um único vaso com solo arenoso, dez plantas dentro, e as dez contadas como dez réplicas. Só houve uma aplicação do tratamento.</li>
+    <li><strong>Pseudorréplica sacrificial.</strong> Existem réplicas verdadeiras, mas as subamostras são jogadas todas juntas na análise, ignorando a estrutura. É o erro de analisar as colunas B, C e D da planilha acima em vez da coluna E.</li>
+    <li><strong>Pseudorréplica temporal.</strong> Medidas repetidas no tempo, no mesmo local, tratadas como observações independentes.</li>
+  </ol>
+
+  <div class="alerta">
+    <strong>O caso do efluente, resolvido.</strong> Três amostras a montante e três a jusante, no mesmo ponto e na mesma hora, são pseudorréplicas. Há um único ponto de cada lado. A diferença pode ser do efluente, mas também pode ser de qualquer característica daquele trecho do córrego. O desenho não separa as duas coisas. A solução envolve vários pontos independentes de cada lado, ou várias datas, e de preferência as duas coisas.
+  </div>
+</div>
+
+<div class="bloco" id="p4">
+  <div class="bloco-cab"><div class="bloco-num">4</div>
+  <h2>Controle</h2></div>
+
+  <p>O grupo controle é a referência sem o tratamento de interesse, mantido em todas as demais condições iguais. Sem ele você observa um resultado e não tem com o que compará-lo.</p>
+
+  <p>Um erro comum é confundir controle com ausência total de manipulação. Se você regou os vasos tratados e não regou o controle, o controle deixou de ser controle, porque agora existem duas diferenças em vez de uma.</p>
+
+  <div class="consult">
+    <strong>Em consultoria o controle tem nome.</strong> Chama-se ponto de referência, ou área controle, e é onde mora a maior parte das discussões técnicas de um licenciamento. Escolher um ponto de referência que já sofre outro impacto, ou que fica em um trecho geologicamente diferente, invalida a comparação inteira, mesmo que a coleta e o laboratório tenham sido perfeitos.
+  </div>
+</div>
+
+<div class="bloco" id="p5">
+  <div class="bloco-cab"><div class="bloco-num">5</div>
+  <h2>Aleatorização</h2></div>
+
+  <p>Aleatorizar é sortear qual unidade recebe qual tratamento e onde ela fica. Isso distribui ao acaso as diferenças que você não controlou e nem sequer conhece.</p>
+
+  <p>Não confunda com bagunça. Aleatorizar é um procedimento formal e registrado. Você sorteia, anota o resultado e segue o sorteio, mesmo quando ele produz um arranjo que parece feio.</p>
+
+  <h3>Como sortear na planilha</h3>
+  <p>A forma mais simples usa uma coluna de números aleatórios e uma ordenação. Você cria a coluna com a função de número aleatório, ordena a planilha por ela e distribui os tratamentos na ordem que sair.</p>
+
+  <div class="xl">
+    <div class="xl-bar"><span class="xl-ref">B2</span><span class="xl-fx">fx</span><span class="xl-form">=ALEATÓRIO()</span></div>
+    <div class="xl-rolar">
+    <table class="xl-grid">
+      <tr><th class="col"></th><th class="col">A</th><th class="col">B</th><th class="col">C</th></tr>
+      <tr><th class="lin">1</th><td class="cab">vaso</td><td class="cab">sorteio</td><td class="cab">solo</td></tr>
+      <tr><th class="lin">2</th><td class="n">1</td><td class="sel n">0,8412</td><td>areia</td></tr>
+      <tr><th class="lin">3</th><td class="n">2</td><td class="n">0,1937</td><td>horta</td></tr>
+      <tr><th class="lin">4</th><td class="n">3</td><td class="n">0,6508</td><td>jardim</td></tr>
+      <tr><th class="lin">5</th><td class="n">4</td><td class="n">0,2264</td><td>horta</td></tr>
+      <tr><th class="lin">6</th><td class="n">5</td><td class="n">0,9773</td><td>areia</td></tr>
+    </table>
+    </div>
+  </div>
+  <p class="xl-nota">No Excel a função é =ALEATÓRIO(). No Google Planilhas é =RAND(). Depois de sortear, copie a coluna e cole como valor, senão os números mudam sozinhos a cada alteração da planilha.</p>
+
+  <div class="alerta">
+    <strong>Cuidado com essa armadilha.</strong> A função de número aleatório recalcula sozinha toda vez que a planilha muda. Se você não colar como valor, o sorteio que você registrou hoje será outro amanhã, e o seu croqui deixa de corresponder ao que está no campo.
+  </div>
+</div>
+
+<div class="bloco" id="p6">
+  <div class="bloco-cab"><div class="bloco-num">6</div>
+  <h2>Blocagem</h2></div>
+
+  <p>Às vezes existe uma fonte de variação que você conhece, não consegue eliminar e não quer que atrapalhe. A varanda tem uma faixa que pega mais sol. O terreno tem uma parte mais úmida. As coletas foram feitas em dois dias diferentes.</p>
+
+  <p><strong>Bloco</strong> é um agrupamento de unidades parecidas entre si. A regra é simples: <strong>todos os tratamentos aparecem dentro de cada bloco.</strong></p>
+
+  <div class="destaque">
+    <strong>Por que isso funciona.</strong> Se cada faixa da varanda recebe os três tipos de solo, a comparação entre solos acontece dentro de cada faixa, onde a luz é parecida. A variação causada pelo sol deixa de se misturar ao efeito do solo e passa a ser um efeito próprio, que o modelo consegue separar. É exatamente a lógica da ANOVA de duas vias, tema da semana 9.
+  </div>
+</div>
+
+<div class="faixa">
+  <div class="l1">NENHUM TESTE CONSERTA UM DESENHO RUIM</div>
+  <div class="l3">A ESTATÍSTICA NÃO REPARA NADA.<br>ELA SÓ ORGANIZA O QUE A COLETA JÁ PERMITIA DIZER.</div>
+</div>
+
+<div class="bloco" id="p7">
+  <div class="bloco-cab"><div class="bloco-num">7</div>
+  <h2>Confundimento, o inimigo silencioso</h2></div>
+
+  <p>Na Semana 2 você conheceu a variável confundidora. Agora ela ganha nome de fenômeno.</p>
+
+  <p><strong>Confundimento</strong> acontece quando duas causas possíveis andam sempre juntas, de modo que nenhuma análise consegue dizer qual delas produziu o efeito.</p>
+
+  <p>O exemplo clássico: todos os vasos de solo arenoso ficaram na parte ensolarada da varanda, e todos os de solo de horta ficaram na sombra. No fim, a cebolinha do solo de horta cresceu mais. Foi o solo ou foi a sombra? A resposta honesta é que não dá para saber, e o trabalho inteiro perdeu o valor.</p>
+
+  <div class="alerta">
+    <strong>O que torna o confundimento perigoso.</strong> Ele não aparece na planilha, porque ninguém mediu a variável escondida. Os números vão parecer perfeitos, o teste vai dar significativo, o gráfico vai ficar bonito e a conclusão vai estar errada. A única defesa é ter aleatorizado antes.
+  </div>
+</div>
+
+<div class="bloco" id="p8">
+  <div class="bloco-cab"><div class="bloco-num">8</div>
+  <h2>Esforço amostral, quanto é suficiente</h2></div>
+
+  <p><strong>Esforço amostral</strong> é o total de unidades amostrais, ou de tempo, ou de área, empregado na coleta. A pergunta prática é sempre a mesma: quantas réplicas bastam?</p>
+
+  <p>A resposta depende de três coisas:</p>
+  <ul>
+    <li><strong>Variabilidade do sistema.</strong> É o desvio padrão da Semana 1. Quanto maior, mais réplicas são necessárias.</li>
+    <li><strong>Tamanho do efeito que interessa detectar.</strong> Diferenças pequenas exigem mais réplicas do que diferenças grandes.</li>
+    <li><strong>Risco que você aceita</strong> de não detectar um efeito que existe de verdade.</li>
+  </ul>
+
+  <p>A ligação com a Semana 1 é direta. O <strong>erro padrão da média</strong> mede a precisão da sua estimativa, e ele é o desvio padrão dividido pela raiz quadrada do número de réplicas.</p>
+
+  <p>Isso tem uma consequência prática dura: como a raiz de 4 é 2, <strong>para dobrar a precisão é preciso quadruplicar o esforço.</strong> Todo dimensionamento amostral é uma negociação entre rigor e orçamento, e essa raiz quadrada é a razão de ser dessa negociação.</p>
+
+  <div class="consult">
+    <strong>Em consultoria isso vira a curva de acumulação.</strong> Em inventário de fauna você registra espécies novas rapidamente no início e cada vez mais devagar depois. Quando a curva estabiliza, o esforço é considerado suficiente. Órgãos ambientais pedem essa curva justamente para julgar se o esforço declarado sustenta a conclusão do relatório.
+  </div>
+</div>
+
+<!-- =============== ATIVIDADES =============== -->
+
+<div class="bloco" id="a1">
+  <div class="interativo">
+    <div class="interativo-cab"><span class="selo">ATIVIDADE 1</span></div>
+    <h3>Réplica verdadeira ou pseudorréplica?</h3>
+    <p class="instr">Leia cada situação e classifique. Todas saíram dos dez experimentos disponíveis para o trabalho do semestre.</p>
+    <div id="quizCasos"></div>
+    <div class="placar" id="placarCasos">Respondidas: 0 de 7</div>
+  </div>
+</div>
+
+<div class="bloco" id="a2">
+  <div class="interativo">
+    <div class="interativo-cab"><span class="selo">ATIVIDADE 2</span></div>
+    <h3>Sorteie o seu croqui</h3>
+    <p class="instr">Quinze vasos em uma varanda, com três tipos de solo e cinco réplicas cada. A parte de cima do desenho pega mais sol. Compare os dois arranjos e veja o confundimento acontecendo.</p>
+
+    <div class="abas">
+      <button class="aba ativa" id="abaAgr" onclick="croqui('agrupado')">Arranjo agrupado</button>
+      <button class="aba" id="abaSor" onclick="croqui('sorteado')">Arranjo sorteado</button>
+    </div>
+    <button class="btn-claro" onclick="croqui(modoCroqui)">Sortear de novo</button>
+
+    <div class="varanda">
+      <div class="varanda-rot"><span>Fileira de cima, mais sol</span><span>janela</span></div>
+      <div class="croqui" id="croquiGrade"></div>
+      <div class="varanda-rot" style="margin-top:10px;margin-bottom:0"><span>Fileira de baixo, mais sombra</span><span>parede</span></div>
+    </div>
+    <div class="feedback ok" id="fbCroqui"></div>
+  </div>
+</div>
+
+<div class="bloco" id="a3">
+  <div class="interativo">
+    <div class="interativo-cab"><span class="selo">ATIVIDADE 3</span></div>
+    <h3>Simulador de esforço amostral</h3>
+    <p class="instr">Escolha a variabilidade do sistema e o número de réplicas. Os dados são gerados artificialmente para treino, nenhum valor aqui é medição real.</p>
+
+    <div class="controles">
+      <div class="campo"><label>Média verdadeira</label><input type="number" id="simMedia" value="50"></div>
+      <div class="campo"><label>Desvio padrão</label><input type="number" id="simDp" value="12" min="1"></div>
+      <div class="campo"><label>Réplicas: <span id="simNlabel">5</span></label>
+        <input type="range" id="simN" min="2" max="60" value="5"></div>
+    </div>
+    <button class="btn-verde" onclick="rodarSimulacao()">Gerar simulação</button>
+
+    <div class="saida">
+      <div class="metrica"><div class="rot">Média da amostra</div><div class="val" id="outMedia">-</div></div>
+      <div class="metrica"><div class="rot">Desvio padrão</div><div class="val" id="outDp">-</div></div>
+      <div class="metrica"><div class="rot">Erro padrão</div><div class="val" id="outEp">-</div></div>
+      <div class="metrica"><div class="rot">Metade do IC 95%</div><div class="val" id="outIc">-</div></div>
+    </div>
+
+    <canvas id="graficoEp" width="820" height="360"></canvas>
+    <div class="legenda-grafico">
+      <span><i style="background:#6a1b9a;height:4px"></i> Erro padrão esperado por número de réplicas</span>
+      <span><i style="background:#e65100;height:4px"></i> Posição do seu n atual</span>
+    </div>
+    <div class="feedback ok" id="fbSim" style="display:none"></div>
+  </div>
+</div>
+
+<div class="bloco" id="a4">
+  <div class="interativo">
+    <div class="interativo-cab"><span class="selo">ATIVIDADE 4</span></div>
+    <h3>Quem causou a diferença?</h3>
+    <p class="instr">Cada situação apresenta um resultado e uma conclusão. Decida se a conclusão se sustenta ou se há confundimento.</p>
+    <div id="quizConf"></div>
+    <div class="placar" id="placarConf">Respondidas: 0 de 5</div>
+  </div>
+</div>
+
+<div class="bloco" id="a5">
+  <div class="interativo">
+    <div class="interativo-cab"><span class="selo">ATIVIDADE 5</span></div>
+    <h3>Monte o delineamento do seu grupo</h3>
+    <p class="instr">Use os parâmetros do experimento que o seu grupo escolheu. O quadro calcula o tamanho do trabalho, aponta problemas e gera a planilha modelo pronta para copiar.</p>
+
+    <div class="controles">
+      <div class="campo"><label>Níveis do fator 1</label><input type="number" id="dNiv1" value="3" min="1" max="12"></div>
+      <div class="campo"><label>Níveis do fator 2</label><input type="number" id="dNiv2" value="2" min="1" max="12"></div>
+      <div class="campo"><label>Réplicas por combinação</label><input type="number" id="dRep" value="5" min="1" max="50"></div>
+      <div class="campo"><label>Leituras por unidade</label><input type="number" id="dLeit" value="1" min="1" max="20"></div>
+    </div>
+    <button class="btn-verde" onclick="montarDelineamento()">Calcular delineamento</button>
+
+    <div class="saida">
+      <div class="metrica"><div class="rot">Combinações</div><div class="val" id="dComb">-</div></div>
+      <div class="metrica"><div class="rot">Unidades amostrais</div><div class="val" id="dTotal">-</div></div>
+      <div class="metrica"><div class="rot">Leituras totais</div><div class="val" id="dLeituras">-</div></div>
+      <div class="metrica"><div class="rot">Graus de liberdade do resíduo</div><div class="val" id="dGl">-</div></div>
+    </div>
+    <div class="feedback" id="fbDel"></div>
+    <div id="planilhaModelo"></div>
+  </div>
+</div>
+
+<!-- =============== FECHO =============== -->
+
+<div class="bloco" id="fecho">
+  <div class="bloco-cab"><div class="bloco-num">9</div>
+  <h2>Autoavaliação e checklist</h2></div>
+
+  <div class="interativo">
+    <div class="interativo-cab"><span class="selo">AUTOAVALIAÇÃO</span></div>
+    <h3>Seis perguntas antes do questionário</h3>
+    <p class="instr">Não valem nota. Servem para você medir se está pronto.</p>
+    <div id="quizFinal"></div>
+    <div class="placar" id="placarFinal">Respondidas: 0 de 6</div>
+  </div>
+
+  <div class="card">
+    <h3>Prática obrigatória, entrega do protocolo</h3>
+    <p>Esta é a semana em que o experimento do seu grupo sai do papel. Prepare um documento de uma página com:</p>
+    <ol>
+      <li>Pergunta e hipótese, com predição explícita do que vocês esperam encontrar.</li>
+      <li>Qual é a unidade amostral, dita com todas as letras.</li>
+      <li>Fatores e níveis, e qual é a covariável contínua.</li>
+      <li>Número de réplicas por combinação, com o mínimo de cinco.</li>
+      <li>Croqui da disposição, com o sorteio já feito e colado como valor.</li>
+      <li>O que poderia confundir o resultado e como vocês vão evitar.</li>
+      <li>Cronograma de coleta até o fim de outubro.</li>
+    </ol>
+    <p>A planilha modelo gerada na Atividade 5 vai em anexo, já com a estrutura de colunas definida na Semana 2.</p>
+  </div>
+
+  <div class="card">
+    <h3>Checklist da semana</h3>
+    <ul class="checklist">
+      <li><input type="checkbox"><span>Li os oito pontos do bloco de leitura</span></li>
+      <li><input type="checkbox"><span>Completei as cinco atividades</span></li>
+      <li><input type="checkbox"><span>Sei dizer qual é a unidade amostral do meu experimento</span></li>
+      <li><input type="checkbox"><span>Sei explicar a diferença entre réplica verdadeira e pseudorréplica</span></li>
+      <li><input type="checkbox"><span>Fiz o sorteio na planilha e colei como valor</span></li>
+      <li><input type="checkbox"><span>Desenhei o croqui com a disposição sorteada</span></li>
+      <li><input type="checkbox"><span>Listei o que poderia confundir o meu resultado</span></li>
+      <li><input type="checkbox"><span>Entreguei o protocolo do experimento</span></li>
+      <li><input type="checkbox"><span>Respondi o questionário antes de sexta às 23h59</span></li>
+    </ul>
+  </div>
+
+  <div class="consult">
+    <strong>Para fechar a semana.</strong> A partir daqui a coleta começa e não dá mais para voltar atrás. Um erro de desenho descoberto em outubro custa o semestre inteiro do grupo, porque não existe conserto depois. Vale gastar esta semana discutindo o protocolo até que todos do grupo saibam responder, sem hesitar, qual é a unidade amostral e o que foi sorteado.
+  </div>
+</div>
+
+<footer class="rodape">
+  Modelagem e Experimentação em Biologia, FACAB-CAC-158, 60h, 2026.2<br>
+  UNEMAT, Campus de Cáceres, Faculdade de Ciências Agrárias e Biológicas<br>
+  Semana de segunda a sábado. Material de estudo autônomo.
+</footer>
+
+</div>
+
+<script>
+/* ---------- ATIVIDADE 1 ---------- */
+const casos=[
+ {t:"Um grupo plantou cebolinha em três vasos, um com solo de horta, um com areia e um com terra de jardim. Mediu a altura de 10 plantas de cada vaso e analisou como 30 observações.",
+  r:"Pseudorréplica",
+  j:"Cada tratamento foi aplicado uma única vez, a um único vaso. As 10 plantas dentro do mesmo vaso não são independentes. O n verdadeiro é 1 por tratamento."},
+ {t:"Outro grupo montou 5 vasos com solo de horta, 5 com areia e 5 com terra de jardim, sorteando a posição de cada vaso na varanda, e usou a altura média das plantas de cada vaso.",
+  r:"Réplica verdadeira",
+  j:"O tratamento foi aplicado de forma independente a 5 vasos por solo, a posição foi sorteada e a subamostragem foi resumida por vaso. O n é 5 por tratamento."},
+ {t:"Um estudo mediu a temperatura do asfalto com 20 leituras seguidas no mesmo ponto e comparou com 20 leituras seguidas no mesmo ponto de gramado.",
+  r:"Pseudorréplica",
+  j:"Simples e temporal ao mesmo tempo. Há um ponto de cada cobertura. As 20 leituras medem a precisão do termômetro, não a variação entre locais de asfalto."},
+ {t:"Uma equipe coletou água em 6 pontos independentes a montante e 6 a jusante de um lançamento, ao longo de 3 datas diferentes.",
+  r:"Réplica verdadeira",
+  j:"Múltiplos pontos independentes de cada lado e repetição no tempo. O desenho permite separar o efeito do lançamento da variação entre trechos e entre datas."},
+ {t:"Um grupo comparou ovos de duas granjas. Comprou uma cartela de cada e pesou os 12 ovos de cada cartela, analisando como 24 observações independentes.",
+  r:"Pseudorréplica",
+  j:"Ovos da mesma cartela vêm do mesmo lote, provavelmente do mesmo dia e do mesmo galpão. A unidade independente é o lote, não o ovo. Seriam necessárias várias cartelas por granja."},
+ {t:"Para testar germinação, um grupo preparou 5 placas independentes por concentração de sal, com 20 sementes por placa, e usou a proporção germinada em cada placa como observação.",
+  r:"Réplica verdadeira",
+  j:"A placa é a unidade amostral e há 5 réplicas verdadeiras por concentração. Usar a proporção por placa, e não cada semente, é o tratamento correto da subamostragem."},
+ {t:"Um grupo mediu a taxa de infiltração em 4 pontos de gramado e 4 de solo compactado, mas fez os 4 pontos de gramado todos no mesmo canteiro, um ao lado do outro.",
+  r:"Pseudorréplica",
+  j:"Quatro pontos colados no mesmo canteiro compartilham o mesmo solo, a mesma compactação e o mesmo histórico de irrigação. São subamostras de um canteiro, não réplicas independentes de gramado."}
+];
+let respCasos=0;
+(function(){
+  const c=document.getElementById('quizCasos');
+  casos.forEach((k,i)=>{
+    const d=document.createElement('div');d.className='caso';
+    d.innerHTML=`<div class="n">Situação ${i+1}</div><p style="margin-bottom:10px">${k.t}</p>
+      <div class="opcoes">
+        <button class="opcao" onclick="respCaso(${i},'Réplica verdadeira',this)">Réplica verdadeira</button>
+        <button class="opcao" onclick="respCaso(${i},'Pseudorréplica',this)">Pseudorréplica</button>
+      </div>
+      <div class="feedback" id="fbc${i}"></div>`;
+    c.appendChild(d);
+  });
+})();
+function respCaso(i,esc,btn){
+  const pai=btn.parentElement;
+  if(pai.dataset.feito)return;pai.dataset.feito='1';
+  [...pai.children].forEach(b=>b.disabled=true);
+  const fb=document.getElementById('fbc'+i),certo=casos[i].r;
+  if(esc===certo){btn.classList.add('certa');fb.className='feedback ok';
+    fb.innerHTML='<strong>Correto.</strong> '+casos[i].j;}
+  else{btn.classList.add('errada');
+    [...pai.children].forEach(b=>{if(b.textContent===certo)b.classList.add('certa')});
+    fb.className='feedback nao';fb.innerHTML='<strong>Não é isso, é '+certo+'.</strong> '+casos[i].j;}
+  respCasos++;
+  document.getElementById('placarCasos').textContent='Respondidas: '+respCasos+' de 7';
+}
+
+/* ---------- ATIVIDADE 2 ---------- */
+const solos=[{n:'horta',c:'#2e7d32'},{n:'areia',c:'#e65100'},{n:'jardim',c:'#6a1b9a'}];
+let modoCroqui='agrupado';
+function croqui(modo){
+  modoCroqui=modo;
+  document.getElementById('abaAgr').classList.toggle('ativa',modo==='agrupado');
+  document.getElementById('abaSor').classList.toggle('ativa',modo==='sorteado');
+  let lista=[];
+  if(modo==='agrupado'){
+    solos.forEach(s=>{for(let i=0;i<5;i++)lista.push(s);});
+  }else{
+    solos.forEach(s=>{for(let i=0;i<5;i++)lista.push(s);});
+    for(let i=lista.length-1;i>0;i--){
+      const j=Math.floor(Math.random()*(i+1));
+      [lista[i],lista[j]]=[lista[j],lista[i]];
+    }
+  }
+  const g=document.getElementById('croquiGrade');
+  g.innerHTML=lista.map((s,i)=>
+    `<div class="vaso" style="background:${s.c}">${i+1}<br>${s.n}</div>`).join('');
+  const fila1=lista.slice(0,5);
+  const cont={};fila1.forEach(s=>cont[s.n]=(cont[s.n]||0)+1);
+  const fb=document.getElementById('fbCroqui');
+  if(modo==='agrupado'){
+    fb.className='feedback nao';
+    fb.innerHTML='<strong>Confundimento total.</strong> Os cinco vasos de horta ficaram inteiros na fileira de cima, a que pega mais sol, e os de jardim inteiros na de baixo, na sombra. Se a horta crescer mais, ninguém saberá se foi o solo ou a luz, porque solo e luz andaram sempre juntos. Nenhum teste estatístico separa isso depois. Este arranjo parece organizado e é o pior de todos.';
+  }else{
+    const resumo=solos.map(s=>(cont[s.n]||0)+' de '+s.n).join(', ');
+    fb.className='feedback ok';
+    fb.innerHTML='<strong>Arranjo sorteado.</strong> Na fileira de cima, a mais ensolarada, caíram '+resumo+
+      '. O sorteio não garante distribuição perfeitamente igual, e não precisa garantir. O que ele garante é que qualquer desequilíbrio aconteceu por acaso, e não por uma decisão sua. É isso que permite atribuir a diferença ao solo. Aperte em sortear de novo e veja o arranjo mudar: cada sorteio é um resultado legítimo, e você segue o que saiu.';
+  }
+}
+croqui('agrupado');
+
+/* ---------- ATIVIDADE 3 ---------- */
+function normal(m,s){
+  let u=0,v=0;
+  while(u===0)u=Math.random();
+  while(v===0)v=Math.random();
+  return m+s*Math.sqrt(-2*Math.log(u))*Math.cos(2*Math.PI*v);
+}
+document.getElementById('simN').addEventListener('input',e=>{
+  document.getElementById('simNlabel').textContent=e.target.value;rodarSimulacao();});
+function rodarSimulacao(){
+  const mu=parseFloat(document.getElementById('simMedia').value);
+  const sd=parseFloat(document.getElementById('simDp').value);
+  const n=parseInt(document.getElementById('simN').value);
+  if(isNaN(mu)||isNaN(sd)||sd<=0){return;}
+  const am=[];for(let i=0;i<n;i++)am.push(normal(mu,sd));
+  const med=am.reduce((a,b)=>a+b,0)/n;
+  const dp=Math.sqrt(am.reduce((a,b)=>a+(b-med)**2,0)/(n-1));
+  const ep=dp/Math.sqrt(n);
+  document.getElementById('outMedia').textContent=med.toFixed(2);
+  document.getElementById('outDp').textContent=dp.toFixed(2);
+  document.getElementById('outEp').textContent=ep.toFixed(2);
+  document.getElementById('outIc').textContent=(1.96*ep).toFixed(2);
+  desenharEp(sd,n);
+  const fb=document.getElementById('fbSim');
+  fb.style.display='block';fb.className='feedback ok';
+  fb.innerHTML='<strong>Leia assim.</strong> Com n igual a '+n+', o erro padrão ficou em '+ep.toFixed(2)+
+    '. Para reduzir esse erro pela metade, para perto de '+(sd/Math.sqrt(n*4)).toFixed(2)+
+    ', seria preciso chegar a n igual a '+(n*4)+'. Quadruplicar o esforço para dobrar a precisão é o preço da raiz quadrada, e é a razão pela qual todo dimensionamento amostral é uma negociação entre rigor e orçamento.';
+}
+function desenharEp(sd,nAtual){
+  const cv=document.getElementById('graficoEp'),ctx=cv.getContext('2d');
+  const W=cv.width,H=cv.height,mE=62,mD=22,mT=22,mB=52;
+  ctx.clearRect(0,0,W,H);ctx.fillStyle='#fff';ctx.fillRect(0,0,W,H);
+  const nMax=60,epMax=sd/Math.sqrt(2);
+  const x=n=>mE+((n-2)/(nMax-2))*(W-mE-mD);
+  const y=v=>H-mB-(v/epMax)*(H-mT-mB);
+  ctx.strokeStyle='#eef1f4';ctx.lineWidth=1;
+  for(let i=0;i<=5;i++){const yy=mT+i*(H-mT-mB)/5;
+    ctx.beginPath();ctx.moveTo(mE,yy);ctx.lineTo(W-mD,yy);ctx.stroke();}
+  ctx.strokeStyle='#95a1b0';ctx.lineWidth=1.6;
+  ctx.beginPath();ctx.moveTo(mE,mT);ctx.lineTo(mE,H-mB);ctx.lineTo(W-mD,H-mB);ctx.stroke();
+  ctx.fillStyle='#5a6472';ctx.font='13px sans-serif';ctx.textAlign='right';
+  for(let i=0;i<=5;i++){const v=epMax*(1-i/5),yy=mT+i*(H-mT-mB)/5;
+    ctx.fillText(v.toFixed(1),mE-9,yy+4);}
+  ctx.textAlign='center';
+  [2,10,20,30,40,50,60].forEach(n=>ctx.fillText(n,x(n),H-mB+22));
+  ctx.font='13.5px sans-serif';
+  ctx.fillText('Número de réplicas (n)',(mE+W-mD)/2,H-14);
+  ctx.save();ctx.translate(17,(mT+H-mB)/2);ctx.rotate(-Math.PI/2);
+  ctx.fillText('Erro padrão da média',0,0);ctx.restore();
+  ctx.strokeStyle='#6a1b9a';ctx.lineWidth=3;ctx.beginPath();
+  for(let n=2;n<=nMax;n++){const px=x(n),py=y(sd/Math.sqrt(n));
+    n===2?ctx.moveTo(px,py):ctx.lineTo(px,py);}
+  ctx.stroke();
+  const px=x(nAtual),py=y(sd/Math.sqrt(nAtual));
+  ctx.strokeStyle='#e65100';ctx.lineWidth=2;ctx.setLineDash([5,4]);
+  ctx.beginPath();ctx.moveTo(px,H-mB);ctx.lineTo(px,py);ctx.stroke();ctx.setLineDash([]);
+  ctx.fillStyle='#e65100';ctx.beginPath();ctx.arc(px,py,7,0,2*Math.PI);ctx.fill();
+  ctx.strokeStyle='#fff';ctx.lineWidth=2.5;ctx.stroke();
+}
+rodarSimulacao();
+
+/* ---------- ATIVIDADE 4 ---------- */
+const confs=[
+ {t:"Todos os vasos de solo arenoso ficaram na parte ensolarada da varanda e os de solo de horta na sombra. A horta cresceu mais. Conclusão do grupo: o solo de horta favorece o crescimento.",
+  r:"Há confundimento",
+  j:"Solo e luz andaram sempre juntos. A diferença pode ser do solo, da luz, ou dos dois. O desenho não permite separar. A defesa seria sortear a posição dos vasos."},
+ {t:"As amostras de água a jusante foram coletadas em um dia de chuva forte e as de montante em um dia seco. A turbidez a jusante foi maior. Conclusão: o lançamento aumenta a turbidez.",
+  r:"Há confundimento",
+  j:"Data e ponto andaram juntos. Chuva aumenta turbidez por si só. Seria preciso coletar montante e jusante no mesmo dia, e repetir em várias datas."},
+ {t:"Os ovos das duas granjas foram comprados no mesmo dia, no mesmo mercado, e sorteou-se a ordem de pesagem na balança. Os ovos da granja B foram mais pesados. Conclusão: há diferença de massa entre as granjas.",
+  r:"A conclusão se sustenta",
+  j:"Mesmo dia, mesmo local de compra e ordem de pesagem sorteada. As fontes óbvias de confundimento foram controladas. A ressalva que resta é o número de lotes por granja, que é questão de réplica, não de confundimento."},
+ {t:"As placas de germinação com maior concentração de sal foram colocadas mais perto da janela porque não cabiam na bancada. As sementes germinaram menos nessas placas. Conclusão: o sal reduz a germinação.",
+  r:"Há confundimento",
+  j:"Concentração e posição andaram juntas. Perto da janela há mais luz e mais variação de temperatura, que afetam germinação. O sorteio da posição das placas resolveria."},
+ {t:"As armadilhas foram distribuídas por sorteio entre gramado, solo exposto e serapilheira, todas instaladas na mesma manhã e recolhidas após o mesmo tempo de exposição. A serapilheira teve mais indivíduos. Conclusão: a serapilheira abriga maior abundância.",
+  r:"A conclusão se sustenta",
+  j:"Posição sorteada e esforço padronizado em tempo de exposição. É o desenho correto para esse tipo de comparação."}
+];
+let respConf=0;
+(function(){
+  const c=document.getElementById('quizConf');
+  confs.forEach((k,i)=>{
+    const d=document.createElement('div');d.className='caso';
+    d.innerHTML=`<div class="n">Situação ${i+1}</div><p style="margin-bottom:10px">${k.t}</p>
+      <div class="opcoes">
+        <button class="opcao" onclick="respConfF(${i},'A conclusão se sustenta',this)">A conclusão se sustenta</button>
+        <button class="opcao" onclick="respConfF(${i},'Há confundimento',this)">Há confundimento</button>
+      </div>
+      <div class="feedback" id="fbcf${i}"></div>`;
+    c.appendChild(d);
+  });
+})();
+function respConfF(i,esc,btn){
+  const pai=btn.parentElement;
+  if(pai.dataset.feito)return;pai.dataset.feito='1';
+  [...pai.children].forEach(b=>b.disabled=true);
+  const fb=document.getElementById('fbcf'+i),certo=confs[i].r;
+  if(esc===certo){btn.classList.add('certa');fb.className='feedback ok';
+    fb.innerHTML='<strong>Correto.</strong> '+confs[i].j;}
+  else{btn.classList.add('errada');
+    [...pai.children].forEach(b=>{if(b.textContent===certo)b.classList.add('certa')});
+    fb.className='feedback nao';fb.innerHTML='<strong>Não é isso.</strong> '+confs[i].j;}
+  respConf++;
+  document.getElementById('placarConf').textContent='Respondidas: '+respConf+' de 5';
+}
+
+/* ---------- ATIVIDADE 5 ---------- */
+function montarDelineamento(){
+  const a=parseInt(document.getElementById('dNiv1').value)||1;
+  const b=parseInt(document.getElementById('dNiv2').value)||1;
+  const r=parseInt(document.getElementById('dRep').value)||1;
+  const l=parseInt(document.getElementById('dLeit').value)||1;
+  const comb=a*b,total=comb*r,leituras=total*l,gl=total-comb;
+  document.getElementById('dComb').textContent=comb;
+  document.getElementById('dTotal').textContent=total;
+  document.getElementById('dLeituras').textContent=leituras;
+  document.getElementById('dGl').textContent=gl;
+  const fb=document.getElementById('fbDel');
+  let m='',ruim=false;
+  if(r<3){m+='<strong>Problema sério.</strong> Com menos de 3 réplicas por combinação não há como estimar a variação dentro dos tratamentos. Aumente as réplicas. ';ruim=true;}
+  else if(r<5){m+='<strong>Atenção.</strong> Três ou quatro réplicas atendem ao mínimo formal, mas deixam pouca margem se alguma unidade se perder, e vaso quebrado acontece. O padrão pedido nesta disciplina é 5. ';ruim=true;}
+  else{m+='<strong>Dimensionamento adequado.</strong> Com '+r+' réplicas por combinação você tem '+gl+' graus de liberdade no resíduo, o que sustenta a análise. ';}
+  if(l>1)m+='Você declarou '+l+' leituras por unidade amostral. São subamostras: resuma cada unidade pela média das suas leituras antes de analisar, como na planilha da seção 2, senão você cria pseudorréplica sacrificial. ';
+  if(total>120)m+='O total de '+total+' unidades amostrais é alto para uma disciplina. Considere reduzir os níveis de um dos fatores. ';
+  m+=(a>1&&b>1)?'Como há dois fatores cruzados, o modelo indicado é ANOVA de duas vias, tema da semana 9.'
+    :'Com um único fator, o modelo indicado é ANOVA de uma via, tema da semana 8.';
+  fb.className=ruim?'feedback nao':'feedback ok';fb.innerHTML=m;
+  gerarPlanilha(a,b,r,l);
+}
+function gerarPlanilha(a,b,r,l){
+  let linhas='',id=0,mostradas=0;
+  const doisFatores=b>1;
+  outer:
+  for(let i=1;i<=a;i++)for(let j=1;j<=b;j++)for(let k=1;k<=r;k++){
+    id++;
+    if(mostradas<6){
+      mostradas++;
+      linhas+=`<tr><th class="lin">${mostradas+1}</th><td class="n">${id}</td>
+        <td>nivel_${i}</td>${doisFatores?'<td>nivel_'+j+'</td>':''}
+        <td class="n"></td><td class="n"></td><td></td></tr>`;
+    }
+  }
+  const cols=doisFatores?['A','B','C','D','E','F']:['A','B','C','D','E'];
+  const cabs=`<td class="cab">unidade</td><td class="cab">fator_1</td>${doisFatores?'<td class="cab">fator_2</td>':''}<td class="cab">covariavel</td><td class="cab">resposta</td><td class="cab">observacao</td>`;
+  document.getElementById('planilhaModelo').innerHTML=`
+    <h3 style="margin-top:20px">Planilha modelo do seu delineamento</h3>
+    <div class="xl">
+      <div class="xl-bar"><span class="xl-ref">A1</span><span class="xl-fx">fx</span><span class="xl-form">unidade</span></div>
+      <div class="xl-rolar">
+      <table class="xl-grid">
+        <tr><th class="col"></th>${cols.map(c=>'<th class="col">'+c+'</th>').join('')}</tr>
+        <tr><th class="lin">1</th>${cabs}</tr>
+        ${linhas}
+        <tr><th class="lin">...</th><td colspan="${cols.length}" style="text-align:center;color:#8a94a0">continua até a unidade ${id}</td></tr>
+      </table>
+      </div>
+    </div>
+    <p class="xl-nota">Troque nivel_1 e nivel_2 pelos nomes reais dos seus tratamentos, e renomeie covariavel e resposta com a unidade, como no dicionário de dados da Semana 2.</p>`;
+}
+montarDelineamento();
+
+/* ---------- AUTOAVALIACAO ---------- */
+const perguntas=[
+ {p:"Um grupo tem 3 vasos, um por tipo de solo, e mede 10 plantas em cada. Qual é o n real por tratamento?",
+  o:["10, porque foram medidas 10 plantas","30, somando todas as plantas",
+     "1, porque cada tratamento foi aplicado a um único vaso","3, o número de vasos"],
+  c:2,
+  j:"O tratamento foi aplicado uma vez por vaso. As 10 plantas são subamostras dentro da mesma unidade amostral. É pseudorréplica simples."},
+ {p:"Por que não basta ter réplicas, é preciso também aleatorizar?",
+  o:["Porque a aleatorização aumenta o número de observações",
+     "Porque sem sorteio as fontes de variação desconhecidas podem ficar associadas sistematicamente a um tratamento",
+     "Porque o sorteio garante que os grupos fiquem iguais",
+     "Porque a aleatorização substitui a necessidade de controle"],
+  c:1,
+  j:"O sorteio não iguala os grupos. Ele garante que qualquer desequilíbrio aconteceu por acaso, e não por uma decisão sua, e é isso que permite atribuir a diferença ao tratamento."},
+ {p:"Para reduzir o erro padrão da média pela metade, o número de réplicas precisa ser",
+  o:["dobrado","triplicado","quadruplicado","reduzido à metade"],
+  c:2,
+  j:"O erro padrão é o desvio padrão dividido pela raiz de n. Como a raiz de 4 é 2, é preciso quadruplicar n para dividir o erro padrão por 2."},
+ {p:"Qual é a lógica da blocagem?",
+  o:["Agrupar as unidades por tratamento para facilitar a coleta",
+     "Colocar todos os tratamentos dentro de cada bloco homogêneo, para que a comparação ocorra em condições parecidas",
+     "Aumentar o número de réplicas sem aumentar o custo",
+     "Eliminar a necessidade de aleatorização"],
+  c:1,
+  j:"O bloco isola uma fonte conhecida de variação. Como todos os tratamentos aparecem em cada bloco, a comparação acontece dentro de condições semelhantes e o efeito do bloco pode ser estimado à parte."},
+ {p:"Uma equipe coleta 3 amostras em um único ponto a montante e 3 em um único ponto a jusante de um lançamento. Qual é o principal problema?",
+  o:["A ausência de análise laboratorial certificada",
+     "Haver uma única unidade independente de cada lado, o que confunde o efeito do lançamento com característica local",
+     "O número de amostras ser ímpar",
+     "Não haver medição de vazão"],
+  c:1,
+  j:"É pseudorréplica. Com um ponto de cada lado, a diferença pode vir do lançamento ou de qualquer particularidade daquele trecho, e o desenho não separa as duas explicações."},
+ {p:"Você usou =ALEATÓRIO() para sortear a posição dos vasos. O que precisa ser feito em seguida?",
+  o:["Nada, o sorteio fica salvo automaticamente",
+     "Ordenar a planilha em ordem alfabética",
+     "Copiar a coluna e colar como valor, para que os números não mudem sozinhos",
+     "Repetir o sorteio até obter um arranjo equilibrado"],
+  c:2,
+  j:"A função recalcula a cada alteração da planilha. Sem colar como valor, o sorteio registrado hoje será outro amanhã e o croqui deixará de corresponder ao campo. E repetir o sorteio até gostar do resultado destrói o próprio sentido de aleatorizar."}
+];
+let respFinal=0;
+(function(){
+  const c=document.getElementById('quizFinal');
+  perguntas.forEach((q,i)=>{
+    const d=document.createElement('div');d.className='caso';
+    const botoes=q.o.map((op,j)=>
+      `<button class="opcao" style="flex:1 1 100%;text-align:left" onclick="respF(${i},${j},this)">${op}</button>`).join('');
+    d.innerHTML=`<div class="n">Questão ${i+1}</div><p style="margin-bottom:10px"><strong>${q.p}</strong></p>
+      <div class="opcoes" style="flex-direction:column">${botoes}</div>
+      <div class="feedback" id="fbq${i}"></div>`;
+    c.appendChild(d);
+  });
+})();
+function respF(i,j,btn){
+  const pai=btn.parentElement;
+  if(pai.dataset.feito)return;pai.dataset.feito='1';
+  [...pai.children].forEach(b=>b.disabled=true);
+  const fb=document.getElementById('fbq'+i);
+  if(j===perguntas[i].c){btn.classList.add('certa');fb.className='feedback ok';
+    fb.innerHTML='<strong>Correto.</strong> '+perguntas[i].j;}
+  else{btn.classList.add('errada');pai.children[perguntas[i].c].classList.add('certa');
+    fb.className='feedback nao';fb.innerHTML='<strong>Não é isso.</strong> '+perguntas[i].j;}
+  respFinal++;
+  document.getElementById('placarFinal').textContent='Respondidas: '+respFinal+' de 6';
+}
+</script>
+</body>
+</html>

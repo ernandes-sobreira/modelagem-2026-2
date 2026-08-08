@@ -1,0 +1,1015 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Semana 6: Parametria e linearidade de dados</title>
+<style>
+:root{
+  --azul:#00838f; --azul-claro:#e0f3f5;
+  --verde:#2e7d32; --verde-claro:#e6f4e7;
+  --teal:#00695c; --teal-claro:#e0f2f1;
+  --roxo:#6a1b9a; --roxo-claro:#f3e8f8;
+  --laranja:#e65100; --laranja-claro:#fff1e5;
+  --vermelho:#c62828; --vermelho-claro:#fdeaea;
+  --cinza:#5a6472; --borda:#dfe4ea; --fundo:#f6f8fa;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;
+  background:#fff;color:#22272e;line-height:1.65;font-size:16px}
+.wrap{max-width:880px;margin:0 auto;padding:20px 18px 80px}
+
+header.topo{background:linear-gradient(135deg,#006064,#0097a7);border-radius:16px;
+  padding:26px 24px;color:#fff;margin-bottom:22px}
+header.topo .tag{display:inline-block;background:rgba(255,255,255,.22);padding:5px 13px;
+  border-radius:20px;font-size:13px;font-weight:600;letter-spacing:.3px;margin-bottom:12px}
+header.topo h1{font-size:25px;line-height:1.28;margin-bottom:10px;font-weight:700}
+header.topo p{font-size:14.5px;opacity:.94}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:16px}
+.chip{background:rgba(255,255,255,.16);border:1px solid rgba(255,255,255,.3);
+  padding:7px 13px;border-radius:9px;font-size:13px;font-weight:500}
+
+nav.indice{background:var(--fundo);border:1px solid var(--borda);border-radius:14px;
+  padding:16px 18px;margin-bottom:26px}
+nav.indice strong{display:block;font-size:13px;text-transform:uppercase;
+  letter-spacing:.6px;color:var(--cinza);margin-bottom:10px}
+nav.indice a{display:block;color:var(--azul);text-decoration:none;padding:7px 0;
+  font-size:15px;border-bottom:1px solid #eef1f4}
+nav.indice a:last-child{border-bottom:none}
+nav.indice a:hover{text-decoration:underline}
+
+.bloco{margin-bottom:34px}
+.bloco-cab{display:flex;align-items:center;gap:12px;margin-bottom:16px;
+  padding-bottom:12px;border-bottom:3px solid var(--azul-claro)}
+.bloco-num{background:var(--azul);color:#fff;width:38px;height:38px;flex:0 0 38px;
+  border-radius:10px;display:flex;align-items:center;justify-content:center;
+  font-weight:700;font-size:17px}
+.bloco-cab h2{font-size:20px;font-weight:700;line-height:1.3}
+h3{font-size:17px;margin:22px 0 9px;color:#1a1f26;font-weight:650}
+p{margin-bottom:13px}
+ul,ol{margin:0 0 14px 22px}
+li{margin-bottom:7px}
+
+.card{border:1px solid var(--borda);border-radius:14px;padding:20px;margin:16px 0;background:#fff}
+.destaque{border-left:5px solid var(--verde);background:var(--verde-claro);
+  border-radius:12px;padding:16px 18px;margin:16px 0}
+.destaque strong{color:var(--verde)}
+.alerta{border-left:5px solid var(--vermelho);background:var(--vermelho-claro);
+  border-radius:12px;padding:16px 18px;margin:16px 0}
+.alerta strong{color:var(--vermelho)}
+.consult{border-left:5px solid var(--laranja);background:var(--laranja-claro);
+  border-radius:12px;padding:16px 18px;margin:16px 0}
+.consult strong{color:var(--laranja)}
+.livro{border-left:5px solid var(--roxo);background:var(--roxo-claro);
+  border-radius:12px;padding:14px 18px;margin:16px 0;font-size:14.5px}
+.livro strong{color:var(--roxo)}
+
+.faixa{background:#006064;color:#fff;border-radius:16px;padding:28px 24px;
+  margin:30px 0;text-align:center;box-shadow:0 5px 18px rgba(0,96,100,.22)}
+.faixa .l1{font-size:28px;font-weight:800;line-height:1.2;letter-spacing:-.4px;margin-bottom:12px}
+.faixa .l3{font-size:18.5px;font-weight:700;background:rgba(255,255,255,.16);
+  display:inline-block;padding:11px 20px;border-radius:11px;line-height:1.4}
+@media(max-width:600px){.faixa .l1{font-size:21px}.faixa .l3{font-size:15px}}
+
+table{width:100%;border-collapse:collapse;margin:14px 0;font-size:14.5px}
+th{background:var(--azul-claro);padding:11px 12px;text-align:left;font-weight:650;
+  border:1px solid var(--borda)}
+td{padding:11px 12px;border:1px solid var(--borda);vertical-align:top}
+.tabela-rolar{overflow-x:auto}
+.num{text-align:right;font-variant-numeric:tabular-nums}
+.cel-erro{background:var(--vermelho-claro);color:var(--vermelho);font-weight:650}
+.cel-ok{background:var(--verde-claro);color:var(--verde);font-weight:650}
+
+.xl{border:1px solid #b9c0c9;border-radius:9px;overflow:hidden;margin:16px 0;background:#fff;
+  font-family:ui-monospace,SFMono-Regular,Menlo,monospace}
+.xl-bar{display:flex;align-items:center;gap:8px;background:#f6f8fa;
+  border-bottom:1px solid #d5dbe2;padding:8px 10px;font-size:13px}
+.xl-ref{background:#fff;border:1px solid #c6cdd5;border-radius:5px;padding:4px 10px;
+  min-width:56px;text-align:center;font-weight:700;color:#22272e}
+.xl-fx{color:#9aa4b0;font-style:italic;font-weight:700;padding:0 2px}
+.xl-form{flex:1;background:#fff;border:1px solid #c6cdd5;border-radius:5px;padding:4px 10px;
+  overflow-x:auto;white-space:nowrap;color:#107c41;font-weight:650}
+.xl-rolar{overflow-x:auto}
+table.xl-grid{border-collapse:collapse;width:100%;margin:0;font-size:13px}
+table.xl-grid th,table.xl-grid td{border:1px solid #d5dbe2;padding:7px 10px;background:#fff;
+  white-space:nowrap;font-weight:400;text-align:left;vertical-align:middle}
+table.xl-grid th.col,table.xl-grid th.lin{background:#eef1f4;color:#5a6472;text-align:center;
+  font-weight:700;font-size:11.5px}
+table.xl-grid th.lin{width:36px}
+table.xl-grid td.cab{font-weight:700;background:#f6f8fa}
+table.xl-grid td.sel{outline:2.5px solid #107c41;outline-offset:-2px;background:#f0f9f4;font-weight:700}
+table.xl-grid td.n{text-align:right}
+.xl-nota{font-size:13.5px;color:var(--cinza);text-align:center;margin:-8px 0 18px}
+
+.interativo{border:2px solid var(--azul);border-radius:16px;padding:22px;
+  margin:22px 0;background:#fafeff}
+.interativo-cab{display:flex;align-items:center;gap:10px;margin-bottom:6px}
+.interativo-cab .selo{background:var(--azul);color:#fff;font-size:11.5px;font-weight:700;
+  padding:4px 11px;border-radius:20px;letter-spacing:.5px}
+.interativo h3{margin:8px 0 6px;font-size:17.5px}
+.interativo .instr{font-size:14.5px;color:var(--cinza);margin-bottom:16px}
+
+button{font-family:inherit;font-size:15px;font-weight:600;cursor:pointer;border:none;
+  border-radius:10px;padding:11px 20px;transition:.15s;margin:0 6px 6px 0}
+.btn{background:var(--azul);color:#fff}
+.btn:hover{background:#006064}
+.btn-verde{background:var(--azul);color:#fff}
+.btn-verde:hover{background:#006064}
+.btn-claro{background:#fff;color:var(--azul);border:2px solid var(--azul)}
+.btn-claro:hover{background:var(--azul-claro)}
+
+.opcoes{display:flex;flex-wrap:wrap;gap:9px;margin:12px 0}
+.opcao{flex:1 1 150px;min-width:130px;background:#fff;border:2px solid var(--borda);
+  border-radius:10px;padding:12px 14px;font-size:14.5px;font-weight:600;cursor:pointer;
+  text-align:center;transition:.15s}
+.opcao:hover{border-color:var(--azul);background:var(--azul-claro)}
+.opcao.certa{border-color:var(--verde);background:var(--verde-claro);color:var(--verde)}
+.opcao.errada{border-color:var(--vermelho);background:var(--vermelho-claro);color:var(--vermelho)}
+.opcao:disabled{cursor:default}
+
+.feedback{margin-top:13px;padding:14px 16px;border-radius:10px;font-size:14.5px;display:none}
+.feedback.ok{background:var(--verde-claro);border-left:4px solid var(--verde);display:block}
+.feedback.nao{background:var(--vermelho-claro);border-left:4px solid var(--vermelho);display:block}
+
+.caso{background:#fff;border:1px solid var(--borda);border-radius:10px;padding:15px 16px;
+  margin-bottom:10px;font-size:15px}
+.caso .n{font-size:12.5px;font-weight:700;color:var(--cinza);text-transform:uppercase;
+  letter-spacing:.6px;margin-bottom:6px}
+
+.controles{display:flex;flex-wrap:wrap;gap:16px;margin:14px 0;align-items:flex-end}
+.campo{flex:1 1 170px;min-width:150px}
+.campo label{display:block;font-size:13px;font-weight:650;color:var(--cinza);
+  margin-bottom:6px;text-transform:uppercase;letter-spacing:.4px}
+.campo input,.campo select{width:100%;padding:11px 12px;border:2px solid var(--borda);
+  border-radius:9px;font-size:15px;font-family:inherit;background:#fff}
+.campo input:focus{outline:none;border-color:var(--azul)}
+input[type=range]{width:100%;accent-color:var(--azul)}
+textarea{width:100%;padding:12px;border:2px solid var(--borda);border-radius:10px;
+  font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:14px;min-height:110px;
+  resize:vertical;background:#fff}
+textarea:focus{outline:none;border-color:var(--azul)}
+
+.saida{display:grid;grid-template-columns:repeat(auto-fit,minmax(128px,1fr));gap:11px;margin-top:16px}
+.metrica{background:#fff;border:1px solid var(--borda);border-radius:11px;padding:14px 12px;text-align:center}
+.metrica .rot{font-size:11.5px;text-transform:uppercase;letter-spacing:.6px;color:var(--cinza);
+  font-weight:650;margin-bottom:5px}
+.metrica .val{font-size:21px;font-weight:700;color:var(--azul)}
+.metrica.grande .val{font-size:26px}
+
+canvas{width:100%;height:auto;display:block;background:#fff;border:1px solid var(--borda);
+  border-radius:11px;margin-top:14px}
+.dois-graficos{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+@media(max-width:640px){.dois-graficos{grid-template-columns:1fr}}
+.legenda-grafico{display:flex;flex-wrap:wrap;gap:16px;justify-content:center;margin-top:10px;
+  font-size:13.5px;color:var(--cinza)}
+.legenda-grafico span{display:flex;align-items:center;gap:6px}
+.legenda-grafico i{width:14px;height:12px;border-radius:3px;display:inline-block}
+
+.arvore{background:#fff;border:1px solid var(--borda);border-radius:12px;padding:20px;margin-top:14px}
+.arvore .pergunta{font-size:16.5px;font-weight:650;margin-bottom:14px}
+.trilha{font-size:13px;color:var(--cinza);margin-bottom:12px}
+.trilha span{background:var(--azul-claro);color:var(--azul);padding:3px 9px;
+  border-radius:14px;margin-right:6px;display:inline-block;margin-bottom:5px;font-weight:650}
+.resultado{background:var(--azul-claro);border-left:5px solid var(--azul);
+  border-radius:10px;padding:16px 18px;font-size:15px}
+.resultado h4{color:var(--azul);font-size:18px;margin-bottom:8px}
+
+.placar{background:var(--azul-claro);border-radius:11px;padding:14px 16px;margin-top:14px;
+  font-size:15px;font-weight:600;color:var(--azul);text-align:center}
+
+.checklist{list-style:none;margin-left:0}
+.checklist li{display:flex;gap:11px;align-items:flex-start;padding:11px 0;border-bottom:1px solid #eef1f4}
+.checklist input[type=checkbox]{width:19px;height:19px;margin-top:3px;accent-color:var(--azul);flex:0 0 19px}
+
+footer.rodape{margin-top:44px;padding-top:20px;border-top:2px solid var(--borda);
+  font-size:13.5px;color:var(--cinza);text-align:center}
+
+@media(max-width:600px){
+  .wrap{padding:14px 13px 60px}
+  header.topo h1{font-size:21px}
+  .bloco-cab h2{font-size:18px}
+  .opcao{flex:1 1 100%}
+}
+@media print{
+  body{font-size:11.5pt}
+  header.topo,.faixa{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  nav.indice,button,.opcoes{display:none}
+  .interativo,.bloco{page-break-inside:avoid}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="topo">
+  <span class="tag">SEMANA 6 &nbsp;|&nbsp; SEGUNDA 14 A SÁBADO 19 DE SETEMBRO DE 2026</span>
+  <h1>Parametria e linearidade de dados</h1>
+  <p>Modelagem e Experimentação em Biologia, FACAB-CAC-158, 60h, Turma 01, 2026.2<br>
+  Prof. Dr. Ernandes Sobreira Oliveira Junior, UNEMAT, Campus de Cáceres</p>
+  <div class="chips">
+    <span class="chip">2h de leitura, de segunda a sexta</span>
+    <span class="chip">2h de prática, de segunda a sexta</span>
+    <span class="chip">Questionário fecha sexta, 23h59</span>
+  </div>
+</header>
+
+<nav class="indice">
+  <strong>Roteiro da semana</strong>
+  <a href="#p1">1. A conta que ninguém confere</a>
+  <a href="#p2">2. O que é um pressuposto</a>
+  <a href="#p3">3. Normalidade</a>
+  <a href="#p4">4. Homocedasticidade</a>
+  <a href="#p5">5. Independência</a>
+  <a href="#p6">6. Linearidade</a>
+  <a href="#p7">7. Transformações</a>
+  <a href="#p8">8. A rota não paramétrica</a>
+  <a href="#a1">Atividade 1: teste a normalidade dos seus dados</a>
+  <a href="#a2">Atividade 2: variâncias iguais ou diferentes</a>
+  <a href="#a3">Atividade 3: o que a transformação faz</a>
+  <a href="#a4">Atividade 4: pressuposto violado, e agora</a>
+  <a href="#a5">Atividade 5: árvore de decisão do teste</a>
+  <a href="#fecho">Autoavaliação e checklist</a>
+</nav>
+
+<!-- =============== LEITURA =============== -->
+
+<div class="bloco" id="p1">
+  <div class="bloco-cab"><div class="bloco-num">1</div>
+  <h2>A conta que ninguém confere</h2></div>
+
+  <p>Na semana que vem você começa a rodar testes de verdade. Antes disso, uma pergunta desconfortável: <strong>o que acontece se você aplicar um teste em dados que não atendem às condições que ele exige?</strong></p>
+
+  <p>A resposta é o problema inteiro. Não acontece nada visível. O programa roda, devolve um valor de p com quatro casas decimais, o gráfico sai bonito e o texto do relatório fica convincente. <strong>Nenhum software avisa que o resultado não vale.</strong></p>
+
+  <p>A Semana 2 mostrou que a planilha calcula a média de qualquer coisa, inclusive de cor de casca de ovo. Esta semana é a versão adulta daquele mesmo aviso: o PAST 4 roda ANOVA em qualquer conjunto de números que você entregar a ele, atendendo ou não aos pressupostos.</p>
+
+  <p>Verificar os pressupostos é o passo que separa quem faz análise de quem aperta botão.</p>
+
+  <div class="livro">
+    <strong>No livro.</strong> Modelagem e Experimentação em Biologia, um guia prático, Editora UNEMAT, 2025. Localize no sumário a parte sobre parametria e linearidade de dados.
+  </div>
+</div>
+
+<div class="bloco" id="p2">
+  <div class="bloco-cab"><div class="bloco-num">2</div>
+  <h2>O que é um pressuposto</h2></div>
+
+  <p><strong>Pressuposto é uma condição que precisa ser aproximadamente verdadeira para que o resultado do teste signifique o que ele diz significar.</strong></p>
+
+  <p>Os testes chamados <strong>paramétricos</strong>, que são a maioria dos que você vai usar, assumem que os dados seguem alguma distribuição conhecida, quase sempre a normal, e usam parâmetros dessa distribuição, a média e o desvio padrão, para fazer as contas. Daí o nome.</p>
+
+  <p>São quatro os pressupostos que interessam nesta disciplina:</p>
+
+  <div class="tabela-rolar">
+  <table>
+    <tr><th>Pressuposto</th><th>O que exige</th><th>Onde é exigido</th></tr>
+    <tr><td><strong>Independência</strong></td><td>Cada observação não influencia as outras</td><td>Todos os testes, sem exceção</td></tr>
+    <tr><td><strong>Normalidade</strong></td><td>Os resíduos se distribuem em forma de sino</td><td>Teste t, ANOVA, regressão</td></tr>
+    <tr><td><strong>Homocedasticidade</strong></td><td>A dispersão é parecida entre os grupos</td><td>Teste t, ANOVA</td></tr>
+    <tr><td><strong>Linearidade</strong></td><td>A relação entre as variáveis é uma reta</td><td>Regressão e correlação</td></tr>
+  </table>
+  </div>
+
+  <div class="destaque">
+    <strong>Uma correção importante que quase todo mundo aprende errado.</strong> O pressuposto de normalidade não é sobre os seus dados brutos. É sobre os <strong>resíduos</strong>, ou seja, sobre o que sobra depois que o modelo explicou o que conseguia explicar. Se você comparou três solos e cada um tem sua média, o conjunto todo pode ter uma distribuição com três picos, e ainda assim os resíduos dentro de cada grupo serem perfeitamente normais. Verificar normalidade dentro de cada grupo, ou nos resíduos, é o procedimento correto.
+  </div>
+</div>
+
+<div class="bloco" id="p3">
+  <div class="bloco-cab"><div class="bloco-num">3</div>
+  <h2>Normalidade</h2></div>
+
+  <p>Existem três caminhos para verificar, e o mais confiável não é o que parece.</p>
+
+  <h3>Caminho 1: o histograma</h3>
+  <p>Rápido e grosseiro. Serve para detectar assimetria evidente e valores absurdos. Com menos de trinta observações, o histograma é praticamente inútil, porque poucos dados nunca desenham um sino, mesmo vindo de uma população perfeitamente normal.</p>
+
+  <h3>Caminho 2: o gráfico quantil-quantil</h3>
+  <p>É o melhor dos três e o menos usado por estudantes. A ideia é simples: se os dados fossem normais, o menor valor deveria estar em uma certa posição, o segundo menor em outra, e assim por diante. O gráfico compara o que você observou com o que seria esperado.</p>
+
+  <p><strong>Se os pontos formam uma reta, há normalidade.</strong> Desvios têm significado próprio:</p>
+  <ul>
+    <li>Pontos que sobem nas duas pontas, formando uma curva para cima: assimetria positiva, cauda à direita.</li>
+    <li>Pontos formando um S deitado: caudas mais pesadas ou mais leves que a normal.</li>
+    <li>Um ou dois pontos muito fora da reta nas extremidades: valores extremos isolados, que merecem conferência na caderneta de campo.</li>
+  </ul>
+
+  <h3>Caminho 3: o teste formal</h3>
+  <p>O teste de Shapiro-Wilk é o mais usado, e está disponível no PAST 4. Ele devolve um valor de p com uma lógica invertida em relação ao que você aprendeu na Semana 4: <strong>a hipótese nula é a de que os dados são normais.</strong> Então p maior que 0,05 é um resultado tranquilizador, e p menor que 0,05 indica desvio da normalidade.</p>
+
+  <div class="alerta">
+    <strong>A armadilha do teste formal.</strong> Ele depende do tamanho da amostra de um jeito perverso. Com n pequeno, quase nunca rejeita, mesmo com dados claramente tortos, porque falta informação. Com n muito grande, rejeita quase sempre, porque detecta desvios minúsculos e irrelevantes. Ou seja: exatamente quando você mais precisa dele, ele falha, e quando não precisa, ele assusta à toa. Use o teste como apoio e decida olhando o gráfico quantil-quantil.
+  </div>
+</div>
+
+<div class="bloco" id="p4">
+  <div class="bloco-cab"><div class="bloco-num">4</div>
+  <h2>Homocedasticidade</h2></div>
+
+  <p>Palavra feia, ideia simples: <strong>a dispersão dentro dos grupos precisa ser parecida.</strong> Homo de igual, cedasticidade de dispersão. O contrário é heterocedasticidade.</p>
+
+  <p>Por que isso importa: a ANOVA e o teste t juntam a variação de todos os grupos em uma estimativa única de variabilidade. Se um grupo é muito mais disperso que os outros, essa estimativa única não representa nenhum deles, e o resultado fica distorcido.</p>
+
+  <h3>Como verificar</h3>
+  <ul>
+    <li><strong>Olhando.</strong> Faça um gráfico de pontos por grupo. Se um grupo está espalhado e outro está compacto, você já viu o problema.</li>
+    <li><strong>Razão de variâncias.</strong> Divida a maior variância pela menor. Uma regra prática comum é desconfiar quando essa razão passa de 3 ou 4.</li>
+    <li><strong>Teste formal.</strong> O teste de Levene é o mais recomendado, e está no PAST 4. Aqui também a hipótese nula é a favorável: variâncias iguais. Valor de p acima de 0,05 tranquiliza.</li>
+  </ul>
+
+  <div class="destaque">
+    <strong>Uma pista da Semana 5 que economiza tempo.</strong> Se a sua variável é contagem, a variância acompanha a média, lembra? Então grupos com médias diferentes vão ter variâncias diferentes por construção. Heterocedasticidade em dados de contagem não é acidente, é a natureza do dado, e a solução não é transformar e torcer: é usar o modelo certo, na Semana 15.
+  </div>
+</div>
+
+<div class="bloco" id="p5">
+  <div class="bloco-cab"><div class="bloco-num">5</div>
+  <h2>Independência</h2></div>
+
+  <p>É o pressuposto mais importante, o mais violado e o único que não tem teste.</p>
+
+  <p><strong>Independência significa que o valor de uma observação não carrega informação sobre o valor de outra.</strong> Duas plantas do mesmo vaso não são independentes. Duas leituras no mesmo ponto não são independentes. Duas medições em dias seguidos no mesmo local não são independentes.</p>
+
+  <p>Você já sabe disso desde a Semana 3, com outro nome: pseudorréplica. O que muda agora é entender que aquilo não era só uma questão de rigor conceitual, era a violação de um pressuposto matemático dos testes.</p>
+
+  <div class="alerta">
+    <strong>Não existe teste de independência a partir dos dados.</strong> Nenhum programa vai avisar. A independência é garantida no desenho, com sorteio e réplicas verdadeiras, ou não é garantida em lugar nenhum. Quando ela falha, o valor de p sai menor do que deveria, e o estudo produz falsos positivos com aparência de rigor. É o pior tipo de erro, porque parece ciência.
+  </div>
+</div>
+
+<div class="faixa">
+  <div class="l1">PRESSUPOSTO NÃO SE ASSUME, VERIFICA-SE</div>
+  <div class="l3">O PROGRAMA RODA O TESTE DE QUALQUER JEITO.<br>ELE NUNCA AVISA QUE O RESULTADO NÃO VALE.</div>
+</div>
+
+<div class="bloco" id="p6">
+  <div class="bloco-cab"><div class="bloco-num">6</div>
+  <h2>Linearidade</h2></div>
+
+  <p>Quando o objetivo é relacionar duas variáveis contínuas, e não comparar grupos, entra um pressuposto adicional: a relação entre elas precisa ser <strong>aproximadamente uma reta</strong>.</p>
+
+  <p>Isso importa muito, porque a regressão linear e o coeficiente de correlação medem apenas o quanto a relação é linear. Uma relação forte, evidente, mas curva, pode produzir correlação próxima de zero. O número diz que não há relação e o gráfico grita que há.</p>
+
+  <div class="destaque">
+    <strong>A regra que resolve.</strong> Sempre faça o gráfico de dispersão antes de calcular qualquer coeficiente. Sempre, sem exceção. Um número de correlação sem o gráfico correspondente é informação incompleta, do mesmo jeito que média sem desvio padrão é informação incompleta.
+  </div>
+
+  <p>Relações curvas são comuns em biologia. Crescimento satura, resposta a dose tem patamar, temperatura tem ótimo com queda dos dois lados. Nesses casos, ou se transforma a variável para linearizar, ou se usa um modelo que aceite curva, assunto das Semanas 14 e 15.</p>
+</div>
+
+<div class="bloco" id="p7">
+  <div class="bloco-cab"><div class="bloco-num">7</div>
+  <h2>Transformações</h2></div>
+
+  <p>Transformar é aplicar a mesma função matemática a todos os valores, para tentar corrigir assimetria, estabilizar variâncias ou linearizar uma relação.</p>
+
+  <div class="tabela-rolar">
+  <table>
+    <tr><th>Transformação</th><th>Quando ajuda</th><th>Cuidado</th></tr>
+    <tr><td><strong>Logaritmo</strong></td><td>Assimetria positiva forte, concentrações, vazões, biomassa</td><td>Não existe log de zero nem de negativo</td></tr>
+    <tr><td><strong>Raiz quadrada</strong></td><td>Contagem com assimetria moderada</td><td>Solução paliativa. Modelo específico é melhor</td></tr>
+    <tr><td><strong>Arco-seno da raiz</strong></td><td>Proporções e porcentagens</td><td>Método antigo, hoje se prefere modelo binomial</td></tr>
+  </table>
+  </div>
+
+  <div class="alerta">
+    <strong>Transformar muda a pergunta.</strong> Depois de aplicar logaritmo, a diferença que você testa não é mais a diferença entre as médias, e sim uma diferença entre valores em escala logarítmica, que ao voltar para a escala original corresponde a uma razão, e não a uma subtração. Isso precisa estar escrito no relatório e a interpretação precisa ser feita na escala certa. Muita gente transforma, testa, e depois interpreta como se nada tivesse acontecido.
+  </div>
+
+  <p>O caminho honesto para transformar: verificar o pressuposto, transformar, verificar de novo, e declarar tudo isso no texto. O que não se faz é testar cinco transformações diferentes e ficar com a que deu significativo.</p>
+</div>
+
+<div class="bloco" id="p8">
+  <div class="bloco-cab"><div class="bloco-num">8</div>
+  <h2>A rota não paramétrica</h2></div>
+
+  <p>Quando os pressupostos não se sustentam nem depois de transformar, existe uma alternativa: os testes <strong>não paramétricos</strong>, que trabalham com a ordem dos valores em vez dos valores em si.</p>
+
+  <div class="tabela-rolar">
+  <table>
+    <tr><th>Situação</th><th>Teste paramétrico</th><th>Alternativa não paramétrica</th></tr>
+    <tr><td>Comparar dois grupos independentes</td><td>Teste t</td><td>Mann-Whitney</td></tr>
+    <tr><td>Comparar dois grupos pareados</td><td>Teste t pareado</td><td>Wilcoxon</td></tr>
+    <tr><td>Comparar três ou mais grupos</td><td>ANOVA de uma via</td><td>Kruskal-Wallis</td></tr>
+    <tr><td>Relacionar duas variáveis contínuas</td><td>Correlação de Pearson</td><td>Correlação de Spearman</td></tr>
+  </table>
+  </div>
+
+  <p>Todos estão disponíveis no PAST 4, e o procedimento é o mesmo do paramétrico.</p>
+
+  <div class="consult">
+    <strong>O preço da rota não paramétrica.</strong> Ela é mais segura e menos poderosa. Como usa apenas a ordem, descarta parte da informação, e por isso precisa de diferenças maiores para atingir significância. Em consultoria isso tem consequência direta: um efeito ambiental real pode não ser detectado por falta de poder, e o relatório vai registrar ausência de significância onde havia impacto. Trocar para não paramétrico não é decisão neutra, é uma troca de risco de erro tipo I por risco de erro tipo II.
+  </div>
+</div>
+
+<!-- =============== ATIVIDADES =============== -->
+
+<div class="bloco" id="a1">
+  <div class="interativo">
+    <div class="interativo-cab"><span class="selo">ATIVIDADE 1</span></div>
+    <h3>Teste a normalidade dos seus dados</h3>
+    <p class="instr">Cole os valores de um grupo, um por linha. O histograma e o gráfico quantil-quantil aparecem lado a lado, com as medidas de forma. Tudo é calculado no seu navegador.</p>
+
+    <textarea id="dadosNorm" placeholder="Cole os valores de UM grupo por vez:&#10;14,2&#10;13,8&#10;15,1"></textarea>
+    <div style="margin-top:12px">
+      <button class="btn-verde" onclick="analisarNorm()">Analisar</button>
+      <button class="btn-claro" onclick="exNormal()">Exemplo simétrico</button>
+      <button class="btn-claro" onclick="exTorto()">Exemplo assimétrico</button>
+    </div>
+    <div id="saidaNorm"></div>
+  </div>
+</div>
+
+<div class="bloco" id="a2">
+  <div class="interativo">
+    <div class="interativo-cab"><span class="selo">ATIVIDADE 2</span></div>
+    <h3>Variâncias iguais ou diferentes</h3>
+    <p class="instr">Três grupos com a mesma média e dispersões que você controla. Valores simulados, apenas para treino. Observe o que a razão entre variâncias revela.</p>
+
+    <div class="controles">
+      <div class="campo"><label>Desvio do grupo 1: <span id="s1Lab">8</span></label>
+        <input type="range" id="s1" min="2" max="40" value="8"></div>
+      <div class="campo"><label>Desvio do grupo 2: <span id="s2Lab">8</span></label>
+        <input type="range" id="s2" min="2" max="40" value="8"></div>
+      <div class="campo"><label>Desvio do grupo 3: <span id="s3Lab">8</span></label>
+        <input type="range" id="s3" min="2" max="40" value="8"></div>
+    </div>
+    <button class="btn-verde" onclick="homo()">Gerar os três grupos</button>
+
+    <div class="saida">
+      <div class="metrica"><div class="rot">Variância 1</div><div class="val" id="v1">-</div></div>
+      <div class="metrica"><div class="rot">Variância 2</div><div class="val" id="v2">-</div></div>
+      <div class="metrica"><div class="rot">Variância 3</div><div class="val" id="v3">-</div></div>
+      <div class="metrica grande"><div class="rot">Maior sobre menor</div><div class="val" id="vRaz">-</div></div>
+    </div>
+    <canvas id="grafHomo" width="820" height="320"></canvas>
+    <div class="legenda-grafico">
+      <span><i style="background:#00838f;border-radius:50%;width:12px;height:12px"></i> Observações de cada grupo</span>
+      <span><i style="background:#c62828;height:4px"></i> Média de cada grupo</span>
+    </div>
+    <div class="feedback ok" id="fbHomo"></div>
+  </div>
+</div>
+
+<div class="bloco" id="a3">
+  <div class="interativo">
+    <div class="interativo-cab"><span class="selo">ATIVIDADE 3</span></div>
+    <h3>O que a transformação faz</h3>
+    <p class="instr">Uma população assimétrica, como concentração de poluente. Escolha a transformação e veja o gráfico quantil-quantil reagir. Valores simulados, apenas para treino.</p>
+
+    <div class="controles">
+      <div class="campo"><label>Transformação</label>
+        <select id="transf" onchange="transformar()">
+          <option value="nenhuma">Nenhuma, valores brutos</option>
+          <option value="log">Logaritmo natural</option>
+          <option value="raiz">Raiz quadrada</option>
+        </select></div>
+    </div>
+    <button class="btn-verde" onclick="novaPop()">Gerar nova população</button>
+
+    <div class="saida">
+      <div class="metrica"><div class="rot">Média</div><div class="val" id="tMedia">-</div></div>
+      <div class="metrica"><div class="rot">Mediana</div><div class="val" id="tMediana">-</div></div>
+      <div class="metrica"><div class="rot">Assimetria</div><div class="val" id="tAssim">-</div></div>
+      <div class="metrica grande"><div class="rot">Alinhamento no QQ</div><div class="val" id="tR">-</div></div>
+    </div>
+    <div class="dois-graficos">
+      <div><canvas id="tHist" width="420" height="300"></canvas>
+        <div class="legenda-grafico"><span>Histograma</span></div></div>
+      <div><canvas id="tQQ" width="420" height="300"></canvas>
+        <div class="legenda-grafico"><span>Gráfico quantil-quantil</span></div></div>
+    </div>
+    <div class="feedback ok" id="fbTransf"></div>
+  </div>
+</div>
+
+<div class="bloco" id="a4">
+  <div class="interativo">
+    <div class="interativo-cab"><span class="selo">ATIVIDADE 4</span></div>
+    <h3>Pressuposto violado, e agora?</h3>
+    <p class="instr">Cada situação descreve um problema encontrado na verificação. Escolha a conduta correta.</p>
+    <div id="quizCond"></div>
+    <div class="placar" id="placarCond">Respondidas: 0 de 6</div>
+  </div>
+</div>
+
+<div class="bloco" id="a5">
+  <div class="interativo">
+    <div class="interativo-cab"><span class="selo">ATIVIDADE 5</span></div>
+    <h3>Árvore de decisão do teste</h3>
+    <p class="instr">Responda sobre o seu experimento e chegue ao teste apropriado. Guarde o resultado, porque ele orienta as próximas nove semanas e vai para o relatório de outubro.</p>
+    <div class="arvore" id="arvore"></div>
+    <button class="btn-claro" onclick="iniciarArvore()" style="margin-top:14px">Começar de novo</button>
+  </div>
+</div>
+
+<!-- =============== FECHO =============== -->
+
+<div class="bloco" id="fecho">
+  <div class="bloco-cab"><div class="bloco-num">9</div>
+  <h2>Autoavaliação e checklist</h2></div>
+
+  <div class="interativo">
+    <div class="interativo-cab"><span class="selo">AUTOAVALIAÇÃO</span></div>
+    <h3>Seis perguntas antes do questionário</h3>
+    <p class="instr">Não valem nota. Servem para você medir se está pronto.</p>
+    <div id="quizFinal"></div>
+    <div class="placar" id="placarFinal">Respondidas: 0 de 6</div>
+  </div>
+
+  <div class="card">
+    <h3>Prática obrigatória, planilha e PAST 4</h3>
+    <p>Esta semana a prática é dividida entre os dois programas.</p>
+    <ol>
+      <li>Na planilha, calcule assimetria e curtose de cada grupo do seu experimento.</li>
+      <li>Calcule a variância de cada grupo e monte a razão entre a maior e a menor.</li>
+      <li>Faça o gráfico de dispersão de todos os grupos lado a lado, para enxergar a dispersão.</li>
+      <li>No PAST 4, cole os dados de um grupo por coluna e rode o teste de Shapiro-Wilk em Statistics, Normality tests.</li>
+      <li>Ainda no PAST 4, rode o teste de Levene para homogeneidade de variâncias.</li>
+      <li>Escreva um parágrafo dizendo se os pressupostos foram atendidos e, se não, qual será a conduta. Esse parágrafo vai direto para a seção de análise do relatório de outubro.</li>
+    </ol>
+
+    <div class="xl">
+      <div class="xl-bar"><span class="xl-ref">F3</span><span class="xl-fx">fx</span><span class="xl-form">=MÁXIMO(B3:D3)/MÍNIMO(B3:D3)</span></div>
+      <div class="xl-rolar">
+      <table class="xl-grid">
+        <tr><th class="col"></th><th class="col">A</th><th class="col">B</th><th class="col">C</th><th class="col">D</th><th class="col">E</th><th class="col">F</th></tr>
+        <tr><th class="lin">1</th><td class="cab">medida</td><td class="cab">horta</td><td class="cab">areia</td><td class="cab">jardim</td><td></td><td class="cab">razao</td></tr>
+        <tr><th class="lin">2</th><td class="cab">média</td><td class="n">14,10</td><td class="n">9,20</td><td class="n">12,40</td><td></td><td></td></tr>
+        <tr><th class="lin">3</th><td class="cab">variância</td><td class="n">1,84</td><td class="n">2,11</td><td class="n">1,52</td><td></td><td class="sel n">1,39</td></tr>
+        <tr><th class="lin">4</th><td class="cab">assimetria</td><td class="n">0,12</td><td class="n">-0,08</td><td class="n">0,21</td><td></td><td></td></tr>
+        <tr><th class="lin">5</th><td class="cab">n</td><td class="n">5</td><td class="n">5</td><td class="n">5</td><td></td><td></td></tr>
+      </table>
+      </div>
+    </div>
+    <p class="xl-nota">Razão de 1,39 entre a maior e a menor variância. Bem abaixo do limite prático de 3 a 4, então não há indício de heterocedasticidade.</p>
+
+    <div class="tabela-rolar">
+    <table>
+      <tr><th>Para que serve</th><th>Excel em português</th><th>Google Planilhas</th></tr>
+      <tr><td>Variância da amostra</td><td>=VAR.A(intervalo)</td><td>=VAR(intervalo)</td></tr>
+      <tr><td>Assimetria</td><td>=DISTORÇÃO(intervalo)</td><td>=SKEW(intervalo)</td></tr>
+      <tr><td>Curtose</td><td>=CURT(intervalo)</td><td>=KURT(intervalo)</td></tr>
+      <tr><td>Comparar duas variâncias</td><td>=TESTE.F(intervalo1;intervalo2)</td><td>=FTEST(intervalo1;intervalo2)</td></tr>
+      <tr><td>Logaritmo natural</td><td>=LN(valor)</td><td>=LN(valor)</td></tr>
+      <tr><td>Raiz quadrada</td><td>=RAIZ(valor)</td><td>=SQRT(valor)</td></tr>
+    </table>
+    </div>
+    <p>Assimetria próxima de zero indica simetria. Valores acima de 1 ou abaixo de menos 1 indicam assimetria forte e pedem atenção.</p>
+  </div>
+
+  <div class="card">
+    <h3>Checklist da semana</h3>
+    <ul class="checklist">
+      <li><input type="checkbox"><span>Li os oito pontos do bloco de leitura</span></li>
+      <li><input type="checkbox"><span>Completei as cinco atividades</span></li>
+      <li><input type="checkbox"><span>Sei nomear os quatro pressupostos e dizer onde cada um é exigido</span></li>
+      <li><input type="checkbox"><span>Sei ler um gráfico quantil-quantil</span></li>
+      <li><input type="checkbox"><span>Entendi por que o teste de normalidade falha justamente com n pequeno</span></li>
+      <li><input type="checkbox"><span>Rodei Shapiro-Wilk e Levene no PAST 4 com os dados do meu grupo</span></li>
+      <li><input type="checkbox"><span>Cheguei ao meu teste na árvore de decisão e anotei o resultado</span></li>
+      <li><input type="checkbox"><span>Escrevi o parágrafo sobre pressupostos para o relatório</span></li>
+      <li><input type="checkbox"><span>Respondi o questionário antes de sexta às 23h59</span></li>
+    </ul>
+  </div>
+
+  <div class="consult">
+    <strong>Para fechar a semana.</strong> A partir da próxima semana os testes começam. Quem chegou até aqui sabendo verificar pressupostos vai rodar teste e saber se pode acreditar no resultado. Quem pulou esta semana vai rodar exatamente os mesmos testes, obter exatamente os mesmos valores de p e não ter a menor ideia se eles significam alguma coisa. A diferença entre as duas situações não aparece na tela do programa. Aparece na banca, na revisão do artigo e no parecer do órgão ambiental.
+  </div>
+</div>
+
+<footer class="rodape">
+  Modelagem e Experimentação em Biologia, FACAB-CAC-158, 60h, 2026.2<br>
+  UNEMAT, Campus de Cáceres, Faculdade de Ciências Agrárias e Biológicas<br>
+  Semana de segunda a sábado. Material de estudo autônomo.
+</footer>
+
+</div>
+
+<script>
+function normal(m,s){
+  let u=0,v=0;
+  while(u===0)u=Math.random();
+  while(v===0)v=Math.random();
+  return m+s*Math.sqrt(-2*Math.log(u))*Math.cos(2*Math.PI*v);
+}
+function media(a){return a.reduce((x,y)=>x+y,0)/a.length;}
+function varAm(a){const m=media(a);return a.reduce((x,y)=>x+(y-m)**2,0)/(a.length-1);}
+function dpAm(a){return Math.sqrt(varAm(a));}
+function assimetria(a){
+  const n=a.length,m=media(a),s=dpAm(a);
+  if(s===0)return 0;
+  return (n/((n-1)*(n-2)))*a.reduce((x,y)=>x+((y-m)/s)**3,0);
+}
+/* quantil da normal padrao, aproximacao de Acklam */
+function qNorm(p){
+  const a=[-3.969683028665376e+01,2.209460984245205e+02,-2.759285104469687e+02,
+           1.383577518672690e+02,-3.066479806614716e+01,2.506628277459239e+00];
+  const b=[-5.447609879822406e+01,1.615858368580409e+02,-1.556989798598866e+02,
+           6.680131188771972e+01,-1.328068155288572e+01];
+  const c=[-7.784894002430293e-03,-3.223964580411365e-01,-2.400758277161838e+00,
+           -2.549732539343734e+00,4.374664141464968e+00,2.938163982698783e+00];
+  const d=[7.784695709041462e-03,3.224671290700398e-01,2.445134137142996e+00,
+           3.754408661907416e+00];
+  const pl=0.02425;
+  let q,r;
+  if(p<pl){q=Math.sqrt(-2*Math.log(p));
+    return (((((c[0]*q+c[1])*q+c[2])*q+c[3])*q+c[4])*q+c[5])/((((d[0]*q+d[1])*q+d[2])*q+d[3])*q+1);}
+  if(p<=1-pl){q=p-0.5;r=q*q;
+    return (((((a[0]*r+a[1])*r+a[2])*r+a[3])*r+a[4])*r+a[5])*q/
+           (((((b[0]*r+b[1])*r+b[2])*r+b[3])*r+b[4])*r+1);}
+  q=Math.sqrt(-2*Math.log(1-p));
+  return -(((((c[0]*q+c[1])*q+c[2])*q+c[3])*q+c[4])*q+c[5])/((((d[0]*q+d[1])*q+d[2])*q+d[3])*q+1);
+}
+function correl(x,y){
+  const mx=media(x),my=media(y);
+  let sxy=0,sxx=0,syy=0;
+  for(let i=0;i<x.length;i++){sxy+=(x[i]-mx)*(y[i]-my);sxx+=(x[i]-mx)**2;syy+=(y[i]-my)**2;}
+  return sxy/Math.sqrt(sxx*syy);
+}
+function pontosQQ(v){
+  const ord=[...v].sort((a,b)=>a-b),n=ord.length;
+  const teo=ord.map((_,i)=>qNorm((i+1-0.375)/(n+0.25)));
+  return {teo,obs:ord,r:correl(teo,ord)};
+}
+function histograma(id,bins,min,larg,cor,rotulo){
+  const cv=document.getElementById(id),ctx=cv.getContext('2d');
+  const W=cv.width,H=cv.height,mE=46,mD=20,mT=20,mB=46;
+  ctx.clearRect(0,0,W,H);ctx.fillStyle='#fff';ctx.fillRect(0,0,W,H);
+  const nb=bins.length,maxB=Math.max(...bins,1);
+  const x=i=>mE+(i/nb)*(W-mE-mD),y=c=>H-mB-(c/maxB)*(H-mT-mB);
+  ctx.strokeStyle='#eef1f4';ctx.lineWidth=1;
+  for(let i=0;i<=4;i++){const yy=mT+i*(H-mT-mB)/4;
+    ctx.beginPath();ctx.moveTo(mE,yy);ctx.lineTo(W-mD,yy);ctx.stroke();}
+  bins.forEach((c,i)=>{if(!c)return;
+    ctx.fillStyle=cor;ctx.fillRect(x(i)+1,y(c),x(i+1)-x(i)-2,H-mB-y(c));});
+  ctx.strokeStyle='#95a1b0';ctx.lineWidth=1.6;
+  ctx.beginPath();ctx.moveTo(mE,mT);ctx.lineTo(mE,H-mB);ctx.lineTo(W-mD,H-mB);ctx.stroke();
+  ctx.fillStyle='#5a6472';ctx.font='12px sans-serif';ctx.textAlign='center';
+  const passo=Math.max(1,Math.ceil(nb/5));
+  for(let i=0;i<=nb;i+=passo)ctx.fillText((min+i*larg).toFixed(1),x(i),H-mB+20);
+  ctx.font='12.5px sans-serif';ctx.fillText(rotulo,(mE+W-mD)/2,H-10);
+}
+function desenharQQ(id,q){
+  const cv=document.getElementById(id),ctx=cv.getContext('2d');
+  const W=cv.width,H=cv.height,mE=52,mD=20,mT=20,mB=48;
+  ctx.clearRect(0,0,W,H);ctx.fillStyle='#fff';ctx.fillRect(0,0,W,H);
+  const xmin=Math.min(...q.teo),xmax=Math.max(...q.teo);
+  const ymin=Math.min(...q.obs),ymax=Math.max(...q.obs);
+  const px=v=>mE+((v-xmin)/(xmax-xmin||1))*(W-mE-mD);
+  const py=v=>H-mB-((v-ymin)/(ymax-ymin||1))*(H-mT-mB);
+  ctx.strokeStyle='#eef1f4';ctx.lineWidth=1;
+  for(let i=0;i<=4;i++){const yy=mT+i*(H-mT-mB)/4;
+    ctx.beginPath();ctx.moveTo(mE,yy);ctx.lineTo(W-mD,yy);ctx.stroke();}
+  const mx=media(q.teo),my=media(q.obs);
+  let sxy=0,sxx=0;
+  for(let i=0;i<q.teo.length;i++){sxy+=(q.teo[i]-mx)*(q.obs[i]-my);sxx+=(q.teo[i]-mx)**2;}
+  const b=sxy/sxx,a=my-b*mx;
+  ctx.strokeStyle='#c62828';ctx.lineWidth=2.4;ctx.setLineDash([6,5]);
+  ctx.beginPath();ctx.moveTo(px(xmin),py(a+b*xmin));ctx.lineTo(px(xmax),py(a+b*xmax));ctx.stroke();
+  ctx.setLineDash([]);
+  q.teo.forEach((t,i)=>{
+    ctx.fillStyle='rgba(0,131,143,.8)';
+    ctx.beginPath();ctx.arc(px(t),py(q.obs[i]),5,0,2*Math.PI);ctx.fill();});
+  ctx.strokeStyle='#95a1b0';ctx.lineWidth=1.6;
+  ctx.beginPath();ctx.moveTo(mE,mT);ctx.lineTo(mE,H-mB);ctx.lineTo(W-mD,H-mB);ctx.stroke();
+  ctx.fillStyle='#5a6472';ctx.font='12.5px sans-serif';ctx.textAlign='center';
+  ctx.fillText('Quantil esperado se fosse normal',(mE+W-mD)/2,H-10);
+  ctx.save();ctx.translate(15,(mT+H-mB)/2);ctx.rotate(-Math.PI/2);
+  ctx.fillText('Valor observado',0,0);ctx.restore();
+}
+function fazBins(v,nb){
+  const min=Math.min(...v),max=Math.max(...v),larg=(max-min)/nb||1;
+  const bins=new Array(nb).fill(0);
+  v.forEach(x=>{let i=Math.floor((x-min)/larg);if(i>=nb)i=nb-1;if(i<0)i=0;bins[i]++;});
+  return {bins,min,larg};
+}
+
+/* ---------- ATIVIDADE 1 ---------- */
+function exNormal(){
+  const v=[];for(let i=0;i<40;i++)v.push(normal(14,1.6));
+  document.getElementById('dadosNorm').value=v.map(x=>x.toFixed(2).replace('.',',')).join('\n');
+  analisarNorm();
+}
+function exTorto(){
+  const v=[];for(let i=0;i<40;i++)v.push(Math.exp(normal(0,0.9))*3);
+  document.getElementById('dadosNorm').value=v.map(x=>x.toFixed(2).replace('.',',')).join('\n');
+  analisarNorm();
+}
+function analisarNorm(){
+  const bruto=document.getElementById('dadosNorm').value;
+  const v=bruto.split(/[\n,;\t ]+/).map(s=>s.trim().replace(',','.'))
+    .filter(s=>s!=='').map(Number).filter(x=>!isNaN(x));
+  const alvo=document.getElementById('saidaNorm');
+  if(v.length<8){alvo.innerHTML='<div class="feedback nao">Cole pelo menos oito valores.</div>';return;}
+  const m=media(v),dp=dpAm(v),as=assimetria(v);
+  const ord=[...v].sort((a,b)=>a-b);
+  const mediana=v.length%2?ord[(v.length-1)/2]:(ord[v.length/2-1]+ord[v.length/2])/2;
+  const q=pontosQQ(v);
+  alvo.innerHTML=`
+    <div class="saida">
+      <div class="metrica"><div class="rot">n</div><div class="val">${v.length}</div></div>
+      <div class="metrica"><div class="rot">Média</div><div class="val">${m.toFixed(2)}</div></div>
+      <div class="metrica"><div class="rot">Mediana</div><div class="val">${mediana.toFixed(2)}</div></div>
+      <div class="metrica"><div class="rot">Assimetria</div><div class="val">${as.toFixed(2)}</div></div>
+      <div class="metrica grande"><div class="rot">Alinhamento no QQ</div><div class="val">${q.r.toFixed(4)}</div></div>
+    </div>
+    <div class="dois-graficos">
+      <div><canvas id="nHist" width="420" height="300"></canvas>
+        <div class="legenda-grafico"><span>Histograma</span></div></div>
+      <div><canvas id="nQQ" width="420" height="300"></canvas>
+        <div class="legenda-grafico"><span>Gráfico quantil-quantil</span></div></div>
+    </div>
+    <div class="feedback ${q.r>0.975?'ok':'nao'}" id="fbNorm"></div>`;
+  const b=fazBins(v,Math.max(5,Math.round(Math.sqrt(v.length))));
+  histograma('nHist',b.bins,b.min,b.larg,'#00838f','Valor observado');
+  desenharQQ('nQQ',q);
+  let msg='';
+  if(q.r>0.985)msg='<strong>Compatível com normalidade.</strong> Os pontos do gráfico quantil-quantil acompanham bem a reta, com alinhamento de '+q.r.toFixed(4)+', e a assimetria de '+as.toFixed(2)+' está próxima de zero. Rota paramétrica liberada, desde que a homocedasticidade também seja verificada.';
+  else if(q.r>0.975)msg='<strong>Aceitável, com ressalva.</strong> Alinhamento de '+q.r.toFixed(4)+' e assimetria de '+as.toFixed(2)+'. Há algum desvio, mas testes paramétricos são razoavelmente tolerantes a afastamentos moderados quando o n é parecido entre os grupos. Olhe as pontas do gráfico e confira se algum valor isolado está causando o desvio.';
+  else msg='<strong>Desvio claro da normalidade.</strong> Alinhamento de apenas '+q.r.toFixed(4)+' e assimetria de '+as.toFixed(2)+'. Os pontos se afastam da reta de forma sistemática, e não por acaso de um ou dois valores. '+(as>0.8?'A curvatura para cima nas pontas é a assinatura de assimetria positiva, então a transformação logarítmica é a primeira coisa a testar. ':'')+'Se a transformação não resolver, considere a rota não paramétrica.';
+  if(v.length<20)msg+=' <strong>Atenção ao n.</strong> Com apenas '+v.length+' observações, qualquer avaliação de normalidade é frágil, e o teste formal de Shapiro-Wilk quase nunca rejeita mesmo quando deveria. Nesse cenário, o conhecimento sobre a natureza da variável pesa mais que o diagnóstico dos dados.';
+  document.getElementById('fbNorm').innerHTML=msg;
+}
+exNormal();
+
+/* ---------- ATIVIDADE 2 ---------- */
+['s1','s2','s3'].forEach(id=>{
+  document.getElementById(id).addEventListener('input',e=>{
+    document.getElementById(id+'Lab').textContent=e.target.value;homo();});
+});
+function homo(){
+  const sds=[parseInt(document.getElementById('s1').value),
+             parseInt(document.getElementById('s2').value),
+             parseInt(document.getElementById('s3').value)];
+  const grupos=sds.map(s=>{const g=[];for(let i=0;i<20;i++)g.push(normal(50,s));return g;});
+  const vars=grupos.map(varAm);
+  const raz=Math.max(...vars)/Math.min(...vars);
+  document.getElementById('v1').textContent=vars[0].toFixed(1);
+  document.getElementById('v2').textContent=vars[1].toFixed(1);
+  document.getElementById('v3').textContent=vars[2].toFixed(1);
+  document.getElementById('vRaz').textContent=raz.toFixed(2);
+  const cv=document.getElementById('grafHomo'),ctx=cv.getContext('2d');
+  const W=cv.width,H=cv.height,mE=52,mD=26,mT=22,mB=50;
+  ctx.clearRect(0,0,W,H);ctx.fillStyle='#fff';ctx.fillRect(0,0,W,H);
+  const todos=grupos.flat();
+  const lo=Math.min(...todos),hi=Math.max(...todos);
+  const py=v=>H-mB-((v-lo)/(hi-lo||1))*(H-mT-mB);
+  ctx.strokeStyle='#eef1f4';ctx.lineWidth=1;
+  for(let i=0;i<=4;i++){const yy=mT+i*(H-mT-mB)/4;
+    ctx.beginPath();ctx.moveTo(mE,yy);ctx.lineTo(W-mD,yy);ctx.stroke();}
+  grupos.forEach((g,gi)=>{
+    const cx=mE+(gi+0.5)*(W-mE-mD)/3;
+    g.forEach(v=>{
+      ctx.fillStyle='rgba(0,131,143,.65)';
+      ctx.beginPath();ctx.arc(cx+(Math.random()-0.5)*90,py(v),5.5,0,2*Math.PI);ctx.fill();});
+    const m=media(g);
+    ctx.strokeStyle='#c62828';ctx.lineWidth=3.4;
+    ctx.beginPath();ctx.moveTo(cx-58,py(m));ctx.lineTo(cx+58,py(m));ctx.stroke();
+    ctx.fillStyle='#22272e';ctx.font='bold 13px sans-serif';ctx.textAlign='center';
+    ctx.fillText('grupo '+(gi+1),cx,H-mB+22);
+  });
+  ctx.strokeStyle='#95a1b0';ctx.lineWidth=1.6;
+  ctx.beginPath();ctx.moveTo(mE,mT);ctx.lineTo(mE,H-mB);ctx.lineTo(W-mD,H-mB);ctx.stroke();
+  const fb=document.getElementById('fbHomo');
+  if(raz<3){fb.className='feedback ok';
+    fb.innerHTML='<strong>Homocedasticidade aceitável.</strong> A razão entre a maior e a menor variância ficou em '+raz.toFixed(2)+', abaixo do limite prático de 3. Repare que as três nuvens de pontos têm largura parecida, e é exatamente isso que o número está dizendo. As médias são iguais nos três grupos, então qualquer diferença que apareça aqui é dispersão, não efeito.';}
+  else{fb.className='feedback nao';
+    fb.innerHTML='<strong>Heterocedasticidade.</strong> A razão entre a maior e a menor variância chegou a '+raz.toFixed(2)+', acima do limite prático de 3 a 4. Olhe o gráfico: um grupo está muito mais espalhado que os outros. A ANOVA junta a variação de todos os grupos em uma estimativa única, e essa estimativa não representa nenhum deles nesta situação. As condutas possíveis são transformar a variável, usar uma versão do teste que não exige variâncias iguais, ou ir para a rota não paramétrica.';}
+}
+homo();
+
+/* ---------- ATIVIDADE 3 ---------- */
+let popAtual=[];
+function novaPop(){
+  popAtual=[];
+  for(let i=0;i<200;i++)popAtual.push(Math.exp(normal(0,0.95))*4);
+  transformar();
+}
+function transformar(){
+  if(!popAtual.length)novaPop();
+  const t=document.getElementById('transf').value;
+  let v=popAtual.slice(),nome='valores brutos';
+  if(t==='log'){v=v.map(x=>Math.log(x));nome='logaritmo natural';}
+  if(t==='raiz'){v=v.map(x=>Math.sqrt(x));nome='raiz quadrada';}
+  const m=media(v),as=assimetria(v);
+  const ord=[...v].sort((a,b)=>a-b);
+  const mediana=(ord[99]+ord[100])/2;
+  const q=pontosQQ(v);
+  document.getElementById('tMedia').textContent=m.toFixed(2);
+  document.getElementById('tMediana').textContent=mediana.toFixed(2);
+  document.getElementById('tAssim').textContent=as.toFixed(2);
+  document.getElementById('tR').textContent=q.r.toFixed(4);
+  const b=fazBins(v,26);
+  histograma('tHist',b.bins,b.min,b.larg,'#00838f',nome);
+  desenharQQ('tQQ',q);
+  const fb=document.getElementById('fbTransf');
+  if(t==='nenhuma'){fb.className='feedback nao';
+    fb.innerHTML='<strong>Valores brutos.</strong> Assimetria de '+as.toFixed(2)+
+      ', média bem acima da mediana e pontos do gráfico quantil-quantil formando uma curva para cima nas pontas. É o retrato clássico de assimetria positiva, o mesmo padrão da concentração de poluente e da vazão de rio. Nenhum teste paramétrico deveria ser aplicado aqui sem intervenção. Escolha o logaritmo natural na caixa acima.';}
+  else if(t==='log'){fb.className='feedback ok';
+    fb.innerHTML='<strong>Logaritmo natural.</strong> A assimetria caiu para '+as.toFixed(2)+
+      ' e o alinhamento no gráfico quantil-quantil subiu para '+q.r.toFixed(4)+
+      '. Os pontos agora acompanham a reta. Esta população foi construída como log-normal, então o logaritmo a devolve exatamente para a forma de sino. Só não esqueça: a partir daqui a análise acontece na escala logarítmica, e a diferença testada corresponde a uma razão na escala original, não a uma subtração. Isso precisa estar escrito no relatório.';}
+  else{fb.className='feedback nao';
+    fb.innerHTML='<strong>Raiz quadrada.</strong> A assimetria caiu de forma parcial, para '+as.toFixed(2)+
+      ', e o alinhamento ficou em '+q.r.toFixed(4)+
+      '. Melhorou em relação ao bruto e não resolveu como o logaritmo. A raiz é uma transformação mais suave, indicada para contagem com assimetria moderada, não para dados fortemente log-normais. Compare os três resultados alternando a caixa de seleção.';}
+}
+novaPop();
+
+/* ---------- ATIVIDADE 4 ---------- */
+const condutas=[
+ {t:"O gráfico quantil-quantil de um grupo mostra dois pontos muito afastados da reta, nas extremidades. Os demais 28 pontos estão bem alinhados.",
+  o:["Transformar imediatamente com logaritmo","Conferir esses dois valores na caderneta de campo antes de qualquer decisão",
+     "Remover os dois valores e seguir","Ir direto para o teste não paramétrico"],
+  c:1,
+  j:"Dois pontos isolados nas extremidades, com todo o resto alinhado, é o padrão de erro de digitação ou de anotação. Conferir na fonte é o primeiro passo. Remover dado sem justificativa documentada é manipulação, e transformar por causa de dois pontos é resolver o problema errado."},
+ {t:"A variável resposta é número de indivíduos por armadilha, com média de 1,8. As variâncias diferem muito entre os grupos.",
+  o:["Transformar com raiz quadrada e rodar ANOVA","Usar Modelo Linear Generalizado com distribuição de Poisson",
+     "Rodar ANOVA assim mesmo, porque a ANOVA é robusta","Aumentar o número de armadilhas"],
+  c:1,
+  j:"Em contagem, a variância acompanha a média por construção, então a heterocedasticidade não é acidente e não some com transformação. O modelo certo é o GLM com Poisson, da Semana 15. A raiz quadrada é paliativo antigo."},
+ {t:"Shapiro-Wilk deu p igual a 0,03 em um grupo com 400 observações. O histograma e o gráfico quantil-quantil parecem bem comportados.",
+  o:["Rejeitar a normalidade e usar teste não paramétrico","Transformar a variável até o teste dar p acima de 0,05",
+     "Considerar que o desvio é pequeno e prosseguir com o teste paramétrico, declarando isso no relatório","Descartar metade dos dados"],
+  c:2,
+  j:"Com n grande o teste detecta desvios minúsculos e irrelevantes. Quando o gráfico está bom e o n é alto, o desvio apontado não tem consequência prática. Transformar até o teste dar o resultado desejado é seleção de conveniência."},
+ {t:"O grupo mediu três plantas por vaso e quer usar as nove medições de três vasos como nove observações independentes.",
+  o:["Rodar o teste, porque nove observações dão mais poder","Verificar a normalidade das nove medições primeiro",
+     "Resumir cada vaso pela média e trabalhar com três observações","Transformar os dados com logaritmo"],
+  c:2,
+  j:"Isso não é problema de normalidade, é violação de independência, o pressuposto que não tem teste. Plantas do mesmo vaso são subamostras. Resumir por vaso é a única conduta correta, mesmo que reduza o n."},
+ {t:"O gráfico de dispersão entre dose e resposta mostra uma curva evidente, que sobe e depois estabiliza. A correlação de Pearson deu 0,21.",
+  o:["Concluir que não há relação entre dose e resposta","Reconhecer que a relação existe mas não é linear, e usar modelo ou transformação apropriada",
+     "Aumentar o número de doses testadas","Trocar Pearson por Spearman e concluir o mesmo"],
+  c:1,
+  j:"Pearson mede apenas o quanto a relação é linear. Uma relação forte e curva produz coeficiente baixo. É exatamente por isso que o gráfico de dispersão vem antes de qualquer coeficiente."},
+ {t:"Os pressupostos não foram atendidos e nenhuma transformação resolveu. O grupo precisa comparar três tratamentos.",
+  o:["Rodar ANOVA e não mencionar o problema no relatório","Usar Kruskal-Wallis e registrar no relatório o motivo da escolha",
+     "Repetir o experimento inteiro","Reduzir para dois tratamentos e usar teste t"],
+  c:1,
+  j:"Kruskal-Wallis é a alternativa não paramétrica à ANOVA de uma via. A escolha precisa estar declarada, e vale lembrar que ela custa poder: diferenças reais menores podem deixar de ser detectadas."}
+];
+let respCond=0;
+(function(){
+  const c=document.getElementById('quizCond');
+  condutas.forEach((k,i)=>{
+    const d=document.createElement('div');d.className='caso';
+    const bts=k.o.map((op,j)=>
+      `<button class="opcao" style="flex:1 1 100%;text-align:left" onclick="respC(${i},${j},this)">${op}</button>`).join('');
+    d.innerHTML=`<div class="n">Situação ${i+1}</div><p style="margin-bottom:10px">${k.t}</p>
+      <div class="opcoes" style="flex-direction:column">${bts}</div>
+      <div class="feedback" id="fbcd${i}"></div>`;
+    c.appendChild(d);
+  });
+})();
+function respC(i,j,btn){
+  const pai=btn.parentElement;
+  if(pai.dataset.feito)return;pai.dataset.feito='1';
+  [...pai.children].forEach(b=>b.disabled=true);
+  const fb=document.getElementById('fbcd'+i);
+  if(j===condutas[i].c){btn.classList.add('certa');fb.className='feedback ok';
+    fb.innerHTML='<strong>Correto.</strong> '+condutas[i].j;}
+  else{btn.classList.add('errada');pai.children[condutas[i].c].classList.add('certa');
+    fb.className='feedback nao';fb.innerHTML='<strong>Não é isso.</strong> '+condutas[i].j;}
+  respCond++;
+  document.getElementById('placarCond').textContent='Respondidas: '+respCond+' de 6';
+}
+
+/* ---------- ATIVIDADE 5, arvore ---------- */
+const no={
+ inicio:{p:"Qual é o tipo da sua variável resposta?",
+   o:[["Contínua, uma medida","contagem_nao"],["Contagem de indivíduos ou eventos","fim_poisson"],
+      ["Proporção ou presença e ausência","fim_binomial"],["Categórica nominal","fim_qui"]]},
+ contagem_nao:{p:"O que você quer fazer com ela?",
+   o:[["Comparar grupos","quantos"],["Relacionar com outra variável contínua","linear"]]},
+ quantos:{p:"Quantos grupos você vai comparar?",
+   o:[["Dois","press2"],["Três ou mais","fatores"]]},
+ press2:{p:"Os pressupostos de normalidade e homocedasticidade foram atendidos?",
+   o:[["Sim","fim_t"],["Não, e a transformação não resolveu","fim_mw"]]},
+ fatores:{p:"Quantos fatores existem no seu delineamento?",
+   o:[["Um só","press3"],["Dois cruzados","fim_anova2"]]},
+ press3:{p:"Os pressupostos foram atendidos?",
+   o:[["Sim","fim_anova1"],["Não, e a transformação não resolveu","fim_kw"]]},
+ linear:{p:"O gráfico de dispersão mostra uma relação de reta?",
+   o:[["Sim, aproximadamente reta","fim_reg"],["Não, é claramente curva","fim_curva"]]}
+};
+const fim={
+ fim_t:{t:"Teste t para duas amostras independentes",
+   d:"Semana 7. Se as observações forem pareadas, o mesmo vaso medido antes e depois, use o teste t pareado. No PAST 4 fica em Statistics, Two-sample tests.",
+   x:"Não esqueça de relatar o tamanho do efeito junto do valor de p. Significância não é sinônimo de relevância."},
+ fim_mw:{t:"Teste de Mann-Whitney",
+   d:"Semana 7. Alternativa não paramétrica ao teste t, trabalha com a ordem dos valores em vez dos valores em si.",
+   x:"Registre no relatório por que os pressupostos foram abandonados. E lembre que este caminho custa poder, então efeitos pequenos podem passar despercebidos."},
+ fim_anova1:{t:"ANOVA de uma via, seguida de Tukey HSD",
+   d:"Semana 8. A ANOVA responde se existe diferença entre os grupos. O Tukey responde entre quais grupos ela está. Um não substitui o outro.",
+   x:"Rodar vários testes t entre pares, em vez de ANOVA, infla o erro tipo I. É esse o problema que o Tukey resolve."},
+ fim_kw:{t:"Teste de Kruskal-Wallis",
+   d:"Semana 8. Alternativa não paramétrica à ANOVA de uma via, com comparações múltiplas por Dunn.",
+   x:"Declare a justificativa no relatório e mencione a perda de poder em relação à rota paramétrica."},
+ fim_anova2:{t:"ANOVA de duas vias",
+   d:"Semana 9. Ela separa o efeito de cada fator e ainda testa se existe interação entre eles, que é quando o efeito de um fator depende do nível do outro.",
+   x:"A interação costuma ser o resultado mais interessante do trabalho. Se ela for significativa, os efeitos principais precisam ser interpretados com cuidado."},
+ fim_reg:{t:"Regressão linear simples",
+   d:"Semana 10. Além do coeficiente e do valor de p, analise os resíduos: eles precisam estar espalhados sem padrão em torno do zero.",
+   x:"Se além da variável contínua existir também um fator categórico, o modelo indicado passa a ser ANCOVA, na Semana 11."},
+ fim_curva:{t:"Transformação ou modelo não linear",
+   d:"Semanas 10 e 14. Tente linearizar com logaritmo em uma das variáveis, ou nas duas, e refaça o gráfico. Se a curva persistir, o caminho é um modelo que aceite curvatura.",
+   x:"Nunca force uma reta em uma relação curva só porque a reta é mais fácil. O coeficiente sairá baixo e a conclusão sairá errada."},
+ fim_poisson:{t:"Modelo Linear Generalizado com distribuição de Poisson",
+   d:"Semana 15. Contagem tem variância que acompanha a média e não pode ser negativa, o que quebra os pressupostos da ANOVA por construção.",
+   x:"Se a média de contagem for alta, acima de dez ou quinze, a aproximação normal costuma funcionar razoavelmente e a ANOVA vira alternativa aceitável."},
+ fim_binomial:{t:"Modelo Linear Generalizado com distribuição binomial",
+   d:"Semana 15. Proporção é limitada entre zero e um, e modelos que ignoram esse limite produzem previsões impossíveis.",
+   x:"O tratamento antigo, com arco-seno da raiz, ainda aparece na literatura, mas o modelo binomial é a abordagem atual."},
+ fim_qui:{t:"Teste de qui-quadrado",
+   d:"Semana 7. Serve para comparar frequências observadas com esperadas, ou para testar independência entre duas variáveis categóricas.",
+   x:"Ele exige frequências esperadas mínimas em cada casela. Com tabelas pequenas e contagens baixas, a alternativa é o teste exato de Fisher."}
+};
+let trilha=[];
+function iniciarArvore(){trilha=[];mostrarNo('inicio');}
+function mostrarNo(id){
+  const a=document.getElementById('arvore');
+  const n=no[id];
+  let html=trilha.length?'<div class="trilha">'+trilha.map(t=>'<span>'+t+'</span>').join('')+'</div>':'';
+  html+='<div class="pergunta">'+n.p+'</div><div class="opcoes" style="flex-direction:column">';
+  n.o.forEach((op,i)=>{
+    html+=`<button class="opcao" style="flex:1 1 100%;text-align:left" onclick="escolher('${id}',${i})">${op[0]}</button>`;
+  });
+  html+='</div>';
+  a.innerHTML=html;
+}
+function escolher(id,i){
+  const op=no[id].o[i];
+  trilha.push(op[0]);
+  if(op[1].startsWith('fim_'))mostrarFim(op[1]);
+  else mostrarNo(op[1]);
+}
+function mostrarFim(id){
+  const f=fim[id],a=document.getElementById('arvore');
+  a.innerHTML='<div class="trilha">'+trilha.map(t=>'<span>'+t+'</span>').join('')+'</div>'+
+    '<div class="resultado"><h4>'+f.t+'</h4><p>'+f.d+'</p><p style="margin-bottom:0"><strong>Cuidado.</strong> '+f.x+'</p></div>';
+}
+iniciarArvore();
+
+/* ---------- AUTOAVALIACAO ---------- */
+const perguntas=[
+ {p:"O pressuposto de normalidade se aplica a quê, exatamente?",
+  o:["Aos dados brutos do conjunto todo","Aos resíduos, ou aos dados dentro de cada grupo",
+     "Às médias dos grupos","Ao número de réplicas"],
+  c:1,
+  j:"Um conjunto com três grupos de médias diferentes pode ter distribuição com três picos e ainda assim resíduos perfeitamente normais. Verificar no conjunto todo é o erro mais comum."},
+ {p:"No teste de Shapiro-Wilk, o que significa um valor de p igual a 0,42?",
+  o:["Que os dados certamente são normais","Que não há evidência suficiente para rejeitar a normalidade",
+     "Que os dados não são normais","Que o teste falhou"],
+  c:1,
+  j:"A hipótese nula aqui é a de normalidade, então p alto é um resultado tranquilizador. Mas não rejeitar não é provar, e com n pequeno o teste quase nunca rejeita."},
+ {p:"O que é heterocedasticidade?",
+  o:["Médias diferentes entre grupos","Dispersões muito diferentes entre grupos",
+     "Dados assimétricos","Falta de independência entre observações"],
+  c:1,
+  j:"Homo de igual, hetero de diferente, cedasticidade de dispersão. Diferença de médias é justamente o que se quer testar, não é violação."},
+ {p:"Qual pressuposto não pode ser verificado a partir dos dados?",
+  o:["Normalidade","Homocedasticidade","Independência","Linearidade"],
+  c:2,
+  j:"Independência é garantida pelo desenho, com sorteio e réplicas verdadeiras. Nenhum programa detecta a falha, e quando ela existe o valor de p sai menor do que deveria."},
+ {p:"Um gráfico de dispersão mostra relação forte e curva, e a correlação de Pearson deu 0,18. O que se conclui?",
+  o:["Não há relação entre as variáveis","A relação existe, mas não é linear, e Pearson não a captura",
+     "Os dados têm erro de medição","É preciso aumentar o tamanho da amostra"],
+  c:1,
+  j:"Pearson mede exclusivamente o quanto a relação se aproxima de uma reta. Por isso o gráfico de dispersão vem sempre antes do coeficiente."},
+ {p:"Qual é o custo de trocar um teste paramétrico por um não paramétrico?",
+  o:["Nenhum, é sempre mais seguro","Perda de poder, porque usa apenas a ordem e descarta parte da informação",
+     "Aumento do risco de erro tipo I","Necessidade de dobrar o número de réplicas"],
+  c:1,
+  j:"É uma troca de risco: menos erro tipo I e mais erro tipo II. Em consultoria isso significa que um impacto real pode deixar de ser detectado."}
+];
+let respFinal=0;
+(function(){
+  const c=document.getElementById('quizFinal');
+  perguntas.forEach((q,i)=>{
+    const d=document.createElement('div');d.className='caso';
+    const botoes=q.o.map((op,j)=>
+      `<button class="opcao" style="flex:1 1 100%;text-align:left" onclick="respFF(${i},${j},this)">${op}</button>`).join('');
+    d.innerHTML=`<div class="n">Questão ${i+1}</div><p style="margin-bottom:10px"><strong>${q.p}</strong></p>
+      <div class="opcoes" style="flex-direction:column">${botoes}</div>
+      <div class="feedback" id="fbq${i}"></div>`;
+    c.appendChild(d);
+  });
+})();
+function respFF(i,j,btn){
+  const pai=btn.parentElement;
+  if(pai.dataset.feito)return;pai.dataset.feito='1';
+  [...pai.children].forEach(b=>b.disabled=true);
+  const fb=document.getElementById('fbq'+i);
+  if(j===perguntas[i].c){btn.classList.add('certa');fb.className='feedback ok';
+    fb.innerHTML='<strong>Correto.</strong> '+perguntas[i].j;}
+  else{btn.classList.add('errada');pai.children[perguntas[i].c].classList.add('certa');
+    fb.className='feedback nao';fb.innerHTML='<strong>Não é isso.</strong> '+perguntas[i].j;}
+  respFinal++;
+  document.getElementById('placarFinal').textContent='Respondidas: '+respFinal+' de 6';
+}
+</script>
+</body>
+</html>

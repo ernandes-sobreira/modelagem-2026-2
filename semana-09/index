@@ -1,0 +1,989 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Semana 9: ANOVA de duas vias e interação</title>
+<style>
+:root{
+  --azul:#827717; --azul-claro:#f4f7e3;
+  --verde:#2e7d32; --verde-claro:#e6f4e7;
+  --teal:#00695c; --teal-claro:#e0f2f1;
+  --roxo:#6a1b9a; --roxo-claro:#f3e8f8;
+  --laranja:#e65100; --laranja-claro:#fff1e5;
+  --vermelho:#c62828; --vermelho-claro:#fdeaea;
+  --cinza:#5a6472; --borda:#dfe4ea; --fundo:#f6f8fa;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;
+  background:#fff;color:#22272e;line-height:1.65;font-size:16px}
+.wrap{max-width:880px;margin:0 auto;padding:20px 18px 80px}
+
+header.topo{background:linear-gradient(135deg,#5f5210,#9e9d24);border-radius:16px;
+  padding:26px 24px;color:#fff;margin-bottom:22px}
+header.topo .tag{display:inline-block;background:rgba(255,255,255,.22);padding:5px 13px;
+  border-radius:20px;font-size:13px;font-weight:600;letter-spacing:.3px;margin-bottom:12px}
+header.topo h1{font-size:25px;line-height:1.28;margin-bottom:10px;font-weight:700}
+header.topo p{font-size:14.5px;opacity:.94}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:16px}
+.chip{background:rgba(255,255,255,.16);border:1px solid rgba(255,255,255,.3);
+  padding:7px 13px;border-radius:9px;font-size:13px;font-weight:500}
+
+nav.indice{background:var(--fundo);border:1px solid var(--borda);border-radius:14px;
+  padding:16px 18px;margin-bottom:26px}
+nav.indice strong{display:block;font-size:13px;text-transform:uppercase;
+  letter-spacing:.6px;color:var(--cinza);margin-bottom:10px}
+nav.indice a{display:block;color:var(--azul);text-decoration:none;padding:7px 0;
+  font-size:15px;border-bottom:1px solid #eef1f4}
+nav.indice a:last-child{border-bottom:none}
+nav.indice a:hover{text-decoration:underline}
+
+.bloco{margin-bottom:34px}
+.bloco-cab{display:flex;align-items:center;gap:12px;margin-bottom:16px;
+  padding-bottom:12px;border-bottom:3px solid var(--azul-claro)}
+.bloco-num{background:var(--azul);color:#fff;width:38px;height:38px;flex:0 0 38px;
+  border-radius:10px;display:flex;align-items:center;justify-content:center;
+  font-weight:700;font-size:17px}
+.bloco-cab h2{font-size:20px;font-weight:700;line-height:1.3}
+h3{font-size:17px;margin:22px 0 9px;color:#1a1f26;font-weight:650}
+p{margin-bottom:13px}
+ul,ol{margin:0 0 14px 22px}
+li{margin-bottom:7px}
+
+.card{border:1px solid var(--borda);border-radius:14px;padding:20px;margin:16px 0;background:#fff}
+.destaque{border-left:5px solid var(--verde);background:var(--verde-claro);
+  border-radius:12px;padding:16px 18px;margin:16px 0}
+.destaque strong{color:var(--verde)}
+.alerta{border-left:5px solid var(--vermelho);background:var(--vermelho-claro);
+  border-radius:12px;padding:16px 18px;margin:16px 0}
+.alerta strong{color:var(--vermelho)}
+.consult{border-left:5px solid var(--laranja);background:var(--laranja-claro);
+  border-radius:12px;padding:16px 18px;margin:16px 0}
+.consult strong{color:var(--laranja)}
+.livro{border-left:5px solid var(--roxo);background:var(--roxo-claro);
+  border-radius:12px;padding:14px 18px;margin:16px 0;font-size:14.5px}
+.livro strong{color:var(--roxo)}
+
+.faixa{background:#5f5210;color:#fff;border-radius:16px;padding:28px 24px;
+  margin:30px 0;text-align:center;box-shadow:0 5px 18px rgba(95,82,16,.22)}
+.faixa .l1{font-size:28px;font-weight:800;line-height:1.2;letter-spacing:-.4px;margin-bottom:12px}
+.faixa .l3{font-size:18.5px;font-weight:700;background:rgba(255,255,255,.16);
+  display:inline-block;padding:11px 20px;border-radius:11px;line-height:1.4}
+@media(max-width:600px){.faixa .l1{font-size:21px}.faixa .l3{font-size:15px}}
+
+table{width:100%;border-collapse:collapse;margin:14px 0;font-size:14.5px}
+th{background:var(--azul-claro);padding:11px 12px;text-align:left;font-weight:650;
+  border:1px solid var(--borda)}
+td{padding:11px 12px;border:1px solid var(--borda);vertical-align:top}
+.tabela-rolar{overflow-x:auto}
+.num{text-align:right;font-variant-numeric:tabular-nums}
+.cel-erro{background:var(--vermelho-claro);color:var(--vermelho);font-weight:650}
+.cel-ok{background:var(--verde-claro);color:var(--verde);font-weight:650}
+
+.xl{border:1px solid #b9c0c9;border-radius:9px;overflow:hidden;margin:16px 0;background:#fff;
+  font-family:ui-monospace,SFMono-Regular,Menlo,monospace}
+.xl-bar{display:flex;align-items:center;gap:8px;background:#f6f8fa;
+  border-bottom:1px solid #d5dbe2;padding:8px 10px;font-size:13px}
+.xl-ref{background:#fff;border:1px solid #c6cdd5;border-radius:5px;padding:4px 10px;
+  min-width:56px;text-align:center;font-weight:700;color:#22272e}
+.xl-fx{color:#9aa4b0;font-style:italic;font-weight:700;padding:0 2px}
+.xl-form{flex:1;background:#fff;border:1px solid #c6cdd5;border-radius:5px;padding:4px 10px;
+  overflow-x:auto;white-space:nowrap;color:#107c41;font-weight:650}
+.xl-rolar{overflow-x:auto}
+table.xl-grid{border-collapse:collapse;width:100%;margin:0;font-size:13px}
+table.xl-grid th,table.xl-grid td{border:1px solid #d5dbe2;padding:7px 10px;background:#fff;
+  white-space:nowrap;font-weight:400;text-align:left;vertical-align:middle}
+table.xl-grid th.col,table.xl-grid th.lin{background:#eef1f4;color:#5a6472;text-align:center;
+  font-weight:700;font-size:11.5px}
+table.xl-grid th.lin{width:36px}
+table.xl-grid td.cab{font-weight:700;background:#f6f8fa}
+table.xl-grid td.sel{outline:2.5px solid #107c41;outline-offset:-2px;background:#f0f9f4;font-weight:700}
+table.xl-grid td.n{text-align:right}
+.xl-nota{font-size:13.5px;color:var(--cinza);text-align:center;margin:-8px 0 18px}
+
+.interativo{border:2px solid var(--azul);border-radius:16px;padding:22px;
+  margin:22px 0;background:#fdfef8}
+.interativo-cab{display:flex;align-items:center;gap:10px;margin-bottom:6px}
+.interativo-cab .selo{background:var(--azul);color:#fff;font-size:11.5px;font-weight:700;
+  padding:4px 11px;border-radius:20px;letter-spacing:.5px}
+.interativo h3{margin:8px 0 6px;font-size:17.5px}
+.interativo .instr{font-size:14.5px;color:var(--cinza);margin-bottom:16px}
+
+button{font-family:inherit;font-size:15px;font-weight:600;cursor:pointer;border:none;
+  border-radius:10px;padding:11px 20px;transition:.15s;margin:0 6px 6px 0}
+.btn{background:var(--azul);color:#fff}
+.btn:hover{background:#5f5210}
+.btn-verde{background:var(--azul);color:#fff}
+.btn-verde:hover{background:#5f5210}
+.btn-claro{background:#fff;color:var(--azul);border:2px solid var(--azul)}
+.btn-claro:hover{background:var(--azul-claro)}
+
+.opcoes{display:flex;flex-wrap:wrap;gap:9px;margin:12px 0}
+.opcao{flex:1 1 150px;min-width:130px;background:#fff;border:2px solid var(--borda);
+  border-radius:10px;padding:12px 14px;font-size:14.5px;font-weight:600;cursor:pointer;
+  text-align:center;transition:.15s}
+.opcao:hover{border-color:var(--azul);background:var(--azul-claro)}
+.opcao.certa{border-color:var(--verde);background:var(--verde-claro);color:var(--verde)}
+.opcao.errada{border-color:var(--vermelho);background:var(--vermelho-claro);color:var(--vermelho)}
+.opcao:disabled{cursor:default}
+
+.feedback{margin-top:13px;padding:14px 16px;border-radius:10px;font-size:14.5px;display:none}
+.feedback.ok{background:var(--verde-claro);border-left:4px solid var(--verde);display:block}
+.feedback.nao{background:var(--vermelho-claro);border-left:4px solid var(--vermelho);display:block}
+
+.caso{background:#fff;border:1px solid var(--borda);border-radius:10px;padding:15px 16px;
+  margin-bottom:10px;font-size:15px}
+.caso .n{font-size:12.5px;font-weight:700;color:var(--cinza);text-transform:uppercase;
+  letter-spacing:.6px;margin-bottom:6px}
+
+.controles{display:flex;flex-wrap:wrap;gap:16px;margin:14px 0;align-items:flex-end}
+.campo{flex:1 1 170px;min-width:150px}
+.campo label{display:block;font-size:13px;font-weight:650;color:var(--cinza);
+  margin-bottom:6px;text-transform:uppercase;letter-spacing:.4px}
+.campo input,.campo select{width:100%;padding:11px 12px;border:2px solid var(--borda);
+  border-radius:9px;font-size:15px;font-family:inherit;background:#fff}
+.campo input:focus{outline:none;border-color:var(--azul)}
+input[type=range]{width:100%;accent-color:var(--azul)}
+textarea{width:100%;padding:12px;border:2px solid var(--borda);border-radius:10px;
+  font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:14px;min-height:110px;
+  resize:vertical;background:#fff}
+textarea:focus{outline:none;border-color:var(--azul)}
+
+.saida{display:grid;grid-template-columns:repeat(auto-fit,minmax(128px,1fr));gap:11px;margin-top:16px}
+.metrica{background:#fff;border:1px solid var(--borda);border-radius:11px;padding:14px 12px;text-align:center}
+.metrica .rot{font-size:11.5px;text-transform:uppercase;letter-spacing:.6px;color:var(--cinza);
+  font-weight:650;margin-bottom:5px}
+.metrica .val{font-size:21px;font-weight:700;color:var(--azul)}
+.metrica.grande .val{font-size:26px}
+
+canvas{width:100%;height:auto;display:block;background:#fff;border:1px solid var(--borda);
+  border-radius:11px;margin-top:14px}
+.dois-graficos{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+@media(max-width:640px){.dois-graficos{grid-template-columns:1fr}}
+.legenda-grafico{display:flex;flex-wrap:wrap;gap:16px;justify-content:center;margin-top:10px;
+  font-size:13.5px;color:var(--cinza)}
+.legenda-grafico span{display:flex;align-items:center;gap:6px}
+.legenda-grafico i{width:14px;height:12px;border-radius:3px;display:inline-block}
+
+.arvore{background:#fff;border:1px solid var(--borda);border-radius:12px;padding:20px;margin-top:14px}
+.arvore .pergunta{font-size:16.5px;font-weight:650;margin-bottom:14px}
+.trilha{font-size:13px;color:var(--cinza);margin-bottom:12px}
+.trilha span{background:var(--azul-claro);color:var(--azul);padding:3px 9px;
+  border-radius:14px;margin-right:6px;display:inline-block;margin-bottom:5px;font-weight:650}
+.resultado{background:var(--azul-claro);border-left:5px solid var(--azul);
+  border-radius:10px;padding:16px 18px;font-size:15px}
+.resultado h4{color:var(--azul);font-size:18px;margin-bottom:8px}
+
+.placar{background:var(--azul-claro);border-radius:11px;padding:14px 16px;margin-top:14px;
+  font-size:15px;font-weight:600;color:var(--azul);text-align:center}
+
+.checklist{list-style:none;margin-left:0}
+.checklist li{display:flex;gap:11px;align-items:flex-start;padding:11px 0;border-bottom:1px solid #eef1f4}
+.checklist input[type=checkbox]{width:19px;height:19px;margin-top:3px;accent-color:var(--azul);flex:0 0 19px}
+
+footer.rodape{margin-top:44px;padding-top:20px;border-top:2px solid var(--borda);
+  font-size:13.5px;color:var(--cinza);text-align:center}
+
+@media(max-width:600px){
+  .wrap{padding:14px 13px 60px}
+  header.topo h1{font-size:21px}
+  .bloco-cab h2{font-size:18px}
+  .opcao{flex:1 1 100%}
+}
+@media print{
+  body{font-size:11.5pt}
+  header.topo,.faixa{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  nav.indice,button,.opcoes{display:none}
+  .interativo,.bloco{page-break-inside:avoid}
+}
+
+.dois-textos{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+@media(max-width:600px){.dois-textos{grid-template-columns:1fr}}
+table.conting input{width:78px;padding:8px;border:2px solid var(--borda);border-radius:7px;
+  text-align:right;font-family:inherit;font-size:14.5px}
+table.conting input:focus{outline:none;border-color:var(--azul)}
+
+.tres-textos{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px}
+table.anova td.destaq{background:#f4f7e3;font-weight:700}
+.matriz td{text-align:center;font-size:13.5px}
+.matriz td.dif{background:#e6f4e7;color:#2e7d32;font-weight:700}
+.matriz td.igual{background:#f6f8fa;color:#5a6472}
+
+.grade-celulas{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px}
+.grade-celulas textarea{min-height:104px}
+.rot-celula{font-size:12.5px;font-weight:700;color:var(--cinza);text-transform:uppercase;
+  letter-spacing:.4px;margin-bottom:6px}
+</style></head>
+<body>
+<div class="wrap">
+
+<header class="topo">
+  <span class="tag">SEMANA 9 &nbsp;|&nbsp; SEGUNDA 5 A SÁBADO 10 DE OUTUBRO DE 2026</span>
+  <h1>ANOVA de duas vias e interação</h1>
+  <p>Modelagem e Experimentação em Biologia, FACAB-CAC-158, 60h, Turma 01, 2026.2<br>
+  Prof. Dr. Ernandes Sobreira Oliveira Junior, UNEMAT, Campus de Cáceres</p>
+  <div class="chips">
+    <span class="chip">2h de leitura, de segunda a sexta</span>
+    <span class="chip">2h de prática, de segunda a sexta</span>
+    <span class="chip">Questionário fecha sexta, 23h59</span>
+  </div>
+</header>
+
+<nav class="indice">
+  <strong>Roteiro da semana</strong>
+  <a href="#p1">1. Um fator raramente basta</a>
+  <a href="#p2">2. O delineamento fatorial</a>
+  <a href="#p3">3. Agora a variação se divide em quatro</a>
+  <a href="#p4">4. Interação, o conceito central da semana</a>
+  <a href="#p5">5. O gráfico de interação</a>
+  <a href="#p6">6. A ordem de leitura dos resultados</a>
+  <a href="#p7">7. Balanceamento e pressupostos</a>
+  <a href="#p8">8. Como relatar</a>
+  <a href="#a1">Atividade 1: construa a interação</a>
+  <a href="#a2">Atividade 2: calculadora de ANOVA de duas vias</a>
+  <a href="#a3">Atividade 3: tem interação ou não tem</a>
+  <a href="#a4">Atividade 4: interpretando resultados</a>
+  <a href="#fecho">Autoavaliação e checklist</a>
+</nav>
+
+<div class="bloco" id="p1">
+  <div class="bloco-cab"><div class="bloco-num">1</div>
+  <h2>Um fator raramente basta</h2></div>
+
+  <p>Olhe de novo o experimento do seu grupo. Quase todos os dez experimentos do semestre foram desenhados com <strong>dois fatores</strong>, e não com um.</p>
+
+  <div class="tabela-rolar">
+  <table>
+    <tr><th>Experimento</th><th>Fator 1</th><th>Fator 2</th></tr>
+    <tr><td>Cebolinha</td><td>Tipo de solo</td><td>Temperatura do ambiente</td></tr>
+    <tr><td>Suco de laranja</td><td>Laranjal de origem</td><td>Temperatura de armazenamento</td></tr>
+    <tr><td>Fermentação</td><td>Temperatura</td><td>Concentração de açúcar</td></tr>
+    <tr><td>Ovos</td><td>Cor da casca</td><td>Granja</td></tr>
+    <tr><td>Microclima</td><td>Tipo de cobertura</td><td>Horário do dia</td></tr>
+  </table>
+  </div>
+
+  <p>Você poderia rodar duas ANOVAs de uma via, uma para cada fator, e ignorar que eles convivem. Seria um desperdício, e pior: <strong>você perderia o resultado mais interessante do trabalho.</strong></p>
+
+  <p>Porque existe uma pergunta que nenhuma análise de um fator só consegue responder: <strong>o efeito do solo é o mesmo em qualquer temperatura?</strong> Ou existe um solo que só funciona no calor, e outro que só funciona no fresco?</p>
+
+  <p>Essa pergunta tem nome. Chama-se interação, e é o assunto da semana.</p>
+
+  <div class="livro">
+    <strong>No livro.</strong> Modelagem e Experimentação em Biologia, um guia prático, Editora UNEMAT, 2025. Localize no sumário a parte sobre ANOVA de duas vias.
+  </div>
+</div>
+
+<div class="bloco" id="p2">
+  <div class="bloco-cab"><div class="bloco-num">2</div>
+  <h2>O delineamento fatorial</h2></div>
+
+  <p>Na Semana 3 o montador de delineamento pedia dois fatores e calculava as combinações. Aquilo era um <strong>delineamento fatorial</strong>: todo nível de um fator aparece combinado com todo nível do outro.</p>
+
+  <p>Com três solos e duas temperaturas, são seis combinações. Com cinco réplicas em cada, trinta unidades amostrais.</p>
+
+  <div class="xl">
+    <div class="xl-bar"><span class="xl-ref">C2</span><span class="xl-fx">fx</span><span class="xl-form">14,2</span></div>
+    <div class="xl-rolar">
+    <table class="xl-grid">
+      <tr><th class="col"></th><th class="col">A</th><th class="col">B</th><th class="col">C</th></tr>
+      <tr><th class="lin">1</th><td class="cab">solo</td><td class="cab">temperatura</td><td class="cab">altura_cm</td></tr>
+      <tr><th class="lin">2</th><td>horta</td><td>quente</td><td class="sel n">14,2</td></tr>
+      <tr><th class="lin">3</th><td>horta</td><td>fresco</td><td class="n">12,8</td></tr>
+      <tr><th class="lin">4</th><td>areia</td><td>quente</td><td class="n">9,1</td></tr>
+      <tr><th class="lin">5</th><td>areia</td><td>fresco</td><td class="n">9,4</td></tr>
+      <tr><th class="lin">6</th><td>jardim</td><td>quente</td><td class="n">12,5</td></tr>
+      <tr><th class="lin">7</th><td>jardim</td><td>fresco</td><td class="n">11,9</td></tr>
+    </table>
+    </div>
+  </div>
+  <p class="xl-nota">Formato longo, da Semana 2. Uma coluna por fator, uma linha por unidade amostral. É assim que o PAST 4 e qualquer software esperam receber.</p>
+
+  <div class="destaque">
+    <strong>Por que o fatorial é eficiente.</strong> Com as mesmas trinta unidades amostrais você responde três perguntas em vez de uma: o solo importa, a temperatura importa, e o efeito do solo depende da temperatura. Fazer dois experimentos separados custaria mais e ainda assim não responderia a terceira.
+  </div>
+</div>
+
+<div class="bloco" id="p3">
+  <div class="bloco-cab"><div class="bloco-num">3</div>
+  <h2>Agora a variação se divide em quatro</h2></div>
+
+  <p>Na Semana 8 a variação total foi repartida em duas partes, entre grupos e dentro dos grupos. Com dois fatores, a parte explicada se subdivide.</p>
+
+  <div class="tabela-rolar">
+  <table>
+    <tr><th>Fonte de variação</th><th>O que ela captura</th><th>Graus de liberdade</th></tr>
+    <tr><td><strong>Fator A</strong></td><td>Efeito principal do primeiro fator, ignorando o segundo</td><td>níveis de A menos 1</td></tr>
+    <tr><td><strong>Fator B</strong></td><td>Efeito principal do segundo fator, ignorando o primeiro</td><td>níveis de B menos 1</td></tr>
+    <tr><td><strong>Interação A por B</strong></td><td>O quanto o efeito de A muda conforme o nível de B</td><td>produto dos dois anteriores</td></tr>
+    <tr><td><strong>Resíduo</strong></td><td>O que sobra, a variação dentro de cada combinação</td><td>combinações vezes réplicas menos 1</td></tr>
+  </table>
+  </div>
+
+  <p>Cada uma das três primeiras fontes gera o seu próprio F e o seu próprio valor de p, sempre dividida pelo mesmo quadrado médio do resíduo. <strong>Uma ANOVA de duas vias devolve três testes de uma vez.</strong></p>
+
+  <div class="alerta">
+    <strong>Note o que isso significa para o esforço amostral.</strong> A interação é a fonte mais difícil de detectar, porque costuma ter efeito menor e consome graus de liberdade. Um experimento dimensionado para detectar apenas efeitos principais frequentemente não tem poder para a interação. É por isso que o mínimo de cinco réplicas por combinação, exigido desde a Semana 3, não era exagero.
+  </div>
+</div>
+
+<div class="bloco" id="p4">
+  <div class="bloco-cab"><div class="bloco-num">4</div>
+  <h2>Interação, o conceito central da semana</h2></div>
+
+  <p>Definição direta: <strong>existe interação quando o efeito de um fator depende do nível do outro fator.</strong></p>
+
+  <p>Um exemplo torna isso concreto. Suponha estes resultados de altura, em centímetros:</p>
+
+  <div class="tabela-rolar">
+  <table>
+    <tr><th>Sem interação</th><th>Quente</th><th>Fresco</th><th>Efeito da temperatura</th></tr>
+    <tr><td>Solo de horta</td><td class="num">14,0</td><td class="num">12,0</td><td class="num">2,0 a mais no quente</td></tr>
+    <tr><td>Solo arenoso</td><td class="num">9,0</td><td class="num">7,0</td><td class="num">2,0 a mais no quente</td></tr>
+  </table>
+  </div>
+
+  <p>Aqui o calor ajuda os dois solos na mesma medida, 2 centímetros. O efeito da temperatura não depende do solo. Não há interação. As duas informações se somam.</p>
+
+  <div class="tabela-rolar">
+  <table>
+    <tr><th>Com interação</th><th>Quente</th><th>Fresco</th><th>Efeito da temperatura</th></tr>
+    <tr><td>Solo de horta</td><td class="num">14,0</td><td class="num">12,0</td><td class="num">2,0 a mais no quente</td></tr>
+    <tr><td>Solo arenoso</td><td class="num">7,0</td><td class="num">10,0</td><td class="num">3,0 a menos no quente</td></tr>
+  </table>
+  </div>
+
+  <p>Agora o calor ajuda um solo e atrapalha o outro. <strong>Não existe uma resposta única para a pergunta se o calor é bom ou ruim.</strong> Depende do solo. Isso é interação.</p>
+
+  <div class="consult">
+    <strong>Por que a interação é o resultado mais valioso em consultoria.</strong> Ela é a base técnica de qualquer recomendação condicional, que é o tipo de recomendação que um laudo sério faz. Dizer que a revegetação funciona melhor em um substrato específico e apenas na estação chuvosa é uma afirmação de interação. Sem ela, o relatório só consegue dizer que um fator ajuda em média, o que raramente orienta uma decisão de manejo.
+  </div>
+</div>
+
+<div class="bloco" id="p5">
+  <div class="bloco-cab"><div class="bloco-num">5</div>
+  <h2>O gráfico de interação</h2></div>
+
+  <p>Existe um gráfico que responde a pergunta antes de qualquer teste, e ele é obrigatório no relatório.</p>
+
+  <p>No eixo horizontal ficam os níveis de um fator. No eixo vertical, a média da resposta. Uma linha para cada nível do outro fator, ligando as médias.</p>
+
+  <div class="tabela-rolar">
+  <table>
+    <tr><th>O que você vê</th><th>O que significa</th></tr>
+    <tr><td><strong>Linhas paralelas</strong></td><td>Não há interação. O efeito de um fator é o mesmo em todos os níveis do outro</td></tr>
+    <tr><td><strong>Linhas com inclinações diferentes</strong></td><td>Há interação. O efeito muda de intensidade conforme o nível do outro fator</td></tr>
+    <tr><td><strong>Linhas que se cruzam</strong></td><td>Interação forte, chamada de interação cruzada. O efeito muda até de direção</td></tr>
+  </table>
+  </div>
+
+  <div class="destaque">
+    <strong>Paralelas nunca são perfeitamente paralelas.</strong> Sempre haverá alguma diferença de inclinação, porque existe acaso. O teste da interação responde justamente se aquele desvio do paralelismo é maior do que o acaso produziria. Olhe o gráfico primeiro, e use o teste para confirmar.
+  </div>
+</div>
+
+<div class="faixa">
+  <div class="l1">QUANDO A INTERAÇÃO É SIGNIFICATIVA</div>
+  <div class="l3">OS EFEITOS PRINCIPAIS DEIXAM DE TER LEITURA SIMPLES.<br>LEIA A INTERAÇÃO PRIMEIRO, SEMPRE.</div>
+</div>
+
+<div class="bloco" id="p6">
+  <div class="bloco-cab"><div class="bloco-num">6</div>
+  <h2>A ordem de leitura dos resultados</h2></div>
+
+  <p>A ANOVA de duas vias devolve três valores de p, e existe uma ordem obrigatória para lê-los. Comece sempre pela interação.</p>
+
+  <h3>Caso 1: a interação não é significativa</h3>
+  <p>Ótimo, a leitura fica simples. Interprete os efeitos principais separadamente. O solo tem um efeito, a temperatura tem outro, e eles se somam. Cada efeito principal significativo pode receber um teste post hoc, como na Semana 8.</p>
+
+  <h3>Caso 2: a interação é significativa</h3>
+  <p>Aqui está a armadilha. <strong>Os efeitos principais perdem o sentido direto</strong>, porque um efeito médio que muda de direção conforme o outro fator não descreve nada real.</p>
+
+  <p>No exemplo da seção 4, com interação, o efeito principal da temperatura seria praticamente zero, porque o mais 2 de um solo cancela o menos 3 do outro. Concluir que a temperatura não importa seria exatamente o oposto da verdade: ela importa muito, em direções opostas.</p>
+
+  <div class="alerta">
+    <strong>O erro que mais aparece em trabalho de graduação.</strong> Ler a linha do efeito principal na tabela, ver p acima de 0,05 e escrever que o fator não teve efeito, sem olhar a interação logo abaixo. Quando a interação é significativa, a conduta correta é analisar o efeito de um fator <strong>dentro de cada nível</strong> do outro, o que se chama análise de efeitos simples.
+  </div>
+
+  <p>Na prática, com interação significativa, você roda uma ANOVA de uma via do solo apenas nas plantas do ambiente quente, e outra apenas nas do fresco, e relata as duas.</p>
+</div>
+
+<div class="bloco" id="p7">
+  <div class="bloco-cab"><div class="bloco-num">7</div>
+  <h2>Balanceamento e pressupostos</h2></div>
+
+  <p>Os pressupostos são os mesmos de sempre: independência, normalidade dos resíduos e homocedasticidade. A verificação é a da Semana 6, agora feita dentro de cada combinação.</p>
+
+  <p>Entra um cuidado novo, próprio do fatorial: o <strong>balanceamento</strong>. Um delineamento é balanceado quando todas as combinações têm o mesmo número de réplicas.</p>
+
+  <div class="alerta">
+    <strong>Por que o desbalanceamento complica.</strong> Com número igual de réplicas em todas as combinações, os efeitos dos dois fatores são independentes entre si e a soma de quadrados se reparte de forma limpa. Quando as réplicas são desiguais, os efeitos ficam parcialmente confundidos e existem várias formas de calcular as somas de quadrados, que dão resultados diferentes. Se um vaso quebrar, avise no relatório e verifique qual método o programa usou.
+  </div>
+
+  <p>Por isso vale repetir a orientação da Semana 3: planeje com cinco réplicas por combinação, para que a perda de uma ou duas não desmonte o delineamento.</p>
+</div>
+
+<div class="bloco" id="p8">
+  <div class="bloco-cab"><div class="bloco-num">8</div>
+  <h2>Como relatar</h2></div>
+
+  <div class="destaque">
+    <strong>Modelo com interação significativa.</strong> A altura das plantas foi afetada pela interação entre solo e temperatura, F igual a 9,84 com 2 e 24 graus de liberdade, valor de p igual a 0,001. Dentro do ambiente quente, o solo de horta superou o arenoso em 5,0 centímetros. Dentro do ambiente fresco, essa diferença caiu para 2,0 centímetros. Os efeitos principais não são interpretados isoladamente em razão da interação.
+  </div>
+
+  <div class="destaque">
+    <strong>Modelo sem interação significativa.</strong> Não houve interação entre solo e temperatura, F igual a 0,42 com 2 e 24 graus de liberdade, valor de p igual a 0,66. O solo afetou a altura, F igual a 31,2 com 2 e 24 graus de liberdade, valor de p menor que 0,001, e a temperatura também, F igual a 6,8 com 1 e 24 graus de liberdade, valor de p igual a 0,015.
+  </div>
+
+  <p>Repare que a interação é relatada mesmo quando não é significativa. Omitir esse resultado esconde do leitor a informação de que os efeitos principais podem ser lidos de forma direta.</p>
+</div>
+
+<div class="bloco" id="a1">
+  <div class="interativo">
+    <div class="interativo-cab"><span class="selo">ATIVIDADE 1</span></div>
+    <h3>Construa a interação</h3>
+    <p class="instr">Você define os efeitos e o simulador gera os dados. Comece com a interação em zero, observe as linhas paralelas, e depois suba o controle devagar. Valores simulados, apenas para treino.</p>
+
+    <div class="controles">
+      <div class="campo"><label>Efeito do solo: <span id="eaLab">4</span></label>
+        <input type="range" id="ea" min="0" max="12" value="4"></div>
+      <div class="campo"><label>Efeito da temperatura: <span id="ebLab">2</span></label>
+        <input type="range" id="eb" min="0" max="12" value="2"></div>
+      <div class="campo"><label>Interação: <span id="eiLab">0</span></label>
+        <input type="range" id="ei" min="0" max="12" value="0"></div>
+      <div class="campo"><label>Dispersão: <span id="edLab">2</span></label>
+        <input type="range" id="ed" min="1" max="12" value="2"></div>
+    </div>
+    <button class="btn-verde" onclick="montarInteracao()">Sortear de novo</button>
+
+    <canvas id="grafInt" width="820" height="340"></canvas>
+    <div class="legenda-grafico">
+      <span><i style="background:#c62828"></i> Ambiente quente</span>
+      <span><i style="background:#0277bd"></i> Ambiente fresco</span>
+    </div>
+    <div id="tabInt"></div>
+    <div class="feedback ok" id="fbInt"></div>
+  </div>
+</div>
+
+<div class="bloco" id="a2">
+  <div class="interativo">
+    <div class="interativo-cab"><span class="selo">ATIVIDADE 2</span></div>
+    <h3>Calculadora de ANOVA de duas vias</h3>
+    <p class="instr">Cole os valores de cada combinação, um por linha. O delineamento precisa ser balanceado, com o mesmo número de valores em todas as seis caixas. Tudo é calculado no seu navegador.</p>
+
+    <div class="controles">
+      <div class="campo"><label>Nome do fator A</label><input type="text" id="nfa" value="solo"></div>
+      <div class="campo"><label>Nome do fator B</label><input type="text" id="nfb" value="temperatura"></div>
+    </div>
+
+    <div class="grade-celulas" id="gradeCel">
+      <div><div class="rot-celula">Nível A1, nível B1</div><textarea id="c11"></textarea></div>
+      <div><div class="rot-celula">Nível A1, nível B2</div><textarea id="c12"></textarea></div>
+      <div><div class="rot-celula">Nível A2, nível B1</div><textarea id="c21"></textarea></div>
+      <div><div class="rot-celula">Nível A2, nível B2</div><textarea id="c22"></textarea></div>
+      <div><div class="rot-celula">Nível A3, nível B1</div><textarea id="c31"></textarea></div>
+      <div><div class="rot-celula">Nível A3, nível B2</div><textarea id="c32"></textarea></div>
+    </div>
+    <div style="margin-top:12px">
+      <button class="btn-verde" onclick="anova2()">Calcular</button>
+      <button class="btn-claro" onclick="exemplo2()">Usar dados de exemplo</button>
+    </div>
+    <div id="saida2"></div>
+  </div>
+</div>
+
+<div class="bloco" id="a3">
+  <div class="interativo">
+    <div class="interativo-cab"><span class="selo">ATIVIDADE 3</span></div>
+    <h3>Tem interação ou não tem</h3>
+    <p class="instr">Cada quadro traz as médias de um experimento fatorial. Decida se há indício de interação. Valores didáticos, criados para o exercício.</p>
+    <div id="quizInt"></div>
+    <div class="placar" id="placarInt">Respondidas: 0 de 6</div>
+  </div>
+</div>
+
+<div class="bloco" id="a4">
+  <div class="interativo">
+    <div class="interativo-cab"><span class="selo">ATIVIDADE 4</span></div>
+    <h3>Interpretando resultados</h3>
+    <p class="instr">Cada situação descreve uma análise de duas vias. Julgue a conduta ou a interpretação.</p>
+    <div id="quizCond"></div>
+    <div class="placar" id="placarCond">Respondidas: 0 de 6</div>
+  </div>
+</div>
+
+<div class="bloco" id="fecho">
+  <div class="bloco-cab"><div class="bloco-num">9</div>
+  <h2>Autoavaliação e checklist</h2></div>
+
+  <div class="interativo">
+    <div class="interativo-cab"><span class="selo">AUTOAVALIAÇÃO</span></div>
+    <h3>Seis perguntas antes do questionário</h3>
+    <p class="instr">Não valem nota. Servem para você medir se está pronto.</p>
+    <div id="quizFinal"></div>
+    <div class="placar" id="placarFinal">Respondidas: 0 de 6</div>
+  </div>
+
+  <div class="card">
+    <h3>Prática obrigatória, planilha e PAST 4</h3>
+    <ol>
+      <li>Organize os dados do seu experimento no formato longo, com uma coluna para cada fator e uma para a resposta.</li>
+      <li>Monte a tabela de médias por combinação, usando tabela dinâmica ou a função de média condicional.</li>
+      <li>Faça o gráfico de interação, com um ponto por combinação e uma linha por nível do segundo fator. Ele é obrigatório no relatório.</li>
+      <li>No Excel, use Dados, Análise de Dados, ANOVA de dois fatores com repetição. Os dados precisam estar no formato de blocos que o Excel exige, com os níveis de um fator nas linhas e do outro nas colunas.</li>
+      <li>No PAST 4, use Statistics, Two-way ANOVA, com uma coluna para a resposta e duas colunas de rótulos.</li>
+      <li>Confira os três valores de p com a calculadora da Atividade 2.</li>
+      <li>Escreva a frase de relato correspondente ao seu caso, com ou sem interação.</li>
+    </ol>
+
+    <div class="xl">
+      <div class="xl-bar"><span class="xl-ref">F4</span><span class="xl-fx">fx</span><span class="xl-form">=MÉDIASES($C$2:$C$31;$A$2:$A$31;$E4;$B$2:$B$31;F$3)</span></div>
+      <div class="xl-rolar">
+      <table class="xl-grid">
+        <tr><th class="col"></th><th class="col">E</th><th class="col">F</th><th class="col">G</th></tr>
+        <tr><th class="lin">3</th><td class="cab">solo</td><td class="cab">quente</td><td class="cab">fresco</td></tr>
+        <tr><th class="lin">4</th><td>horta</td><td class="sel n">14,02</td><td class="n">12,08</td></tr>
+        <tr><th class="lin">5</th><td>areia</td><td class="n">9,14</td><td class="n">9,36</td></tr>
+        <tr><th class="lin">6</th><td>jardim</td><td class="n">12,44</td><td class="n">11,92</td></tr>
+      </table>
+      </div>
+    </div>
+    <p class="xl-nota">Esta é a tabela de médias por combinação, base do gráfico de interação. No Google Planilhas a função é =AVERAGEIFS com os mesmos argumentos.</p>
+
+    <div class="tabela-rolar">
+    <table>
+      <tr><th>Para que serve</th><th>Excel em português</th><th>Google Planilhas</th></tr>
+      <tr><td>Média com dois critérios</td><td>=MÉDIASES(valores;crit1;a;crit2;b)</td><td>=AVERAGEIFS(valores;crit1;a;crit2;b)</td></tr>
+      <tr><td>Contagem com dois critérios</td><td>=CONT.SES(crit1;a;crit2;b)</td><td>=COUNTIFS(crit1;a;crit2;b)</td></tr>
+      <tr><td>ANOVA de dois fatores</td><td>Dados, Análise de Dados, ANOVA dois fatores com repetição</td><td>Exige complemento de análise estatística</td></tr>
+      <tr><td>Valor de p a partir do F</td><td>=DIST.F.CD(F;gl1;gl2)</td><td>=FDIST(F;gl1;gl2)</td></tr>
+    </table>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>Checklist da semana</h3>
+    <ul class="checklist">
+      <li><input type="checkbox"><span>Li os oito pontos do bloco de leitura</span></li>
+      <li><input type="checkbox"><span>Completei as quatro atividades</span></li>
+      <li><input type="checkbox"><span>Sei definir interação com as minhas palavras</span></li>
+      <li><input type="checkbox"><span>Sei ler um gráfico de interação</span></li>
+      <li><input type="checkbox"><span>Sei que a interação se lê antes dos efeitos principais</span></li>
+      <li><input type="checkbox"><span>Fiz o gráfico de interação do meu experimento</span></li>
+      <li><input type="checkbox"><span>Rodei a ANOVA de duas vias no Excel e no PAST 4</span></li>
+      <li><input type="checkbox"><span>Enviei a planilha bruta do experimento, checkpoint desta semana</span></li>
+      <li><input type="checkbox"><span>Respondi o questionário antes de sexta às 23h59</span></li>
+    </ul>
+  </div>
+
+  <div class="consult">
+    <strong>Para fechar a semana.</strong> Com a ANOVA de duas vias, a análise principal do relatório de outubro já está completa para a maioria dos grupos. Faltam três semanas até a entrega. Use este fim de semana para rodar a análise com os dados que já existem, mesmo incompletos, porque é agora que aparecem os problemas de planilha e de delineamento que ainda dá tempo de corrigir. Descobrir isso em 30 de outubro não adianta mais.
+  </div>
+</div>
+
+<footer class="rodape">
+  Modelagem e Experimentação em Biologia, FACAB-CAC-158, 60h, 2026.2<br>
+  UNEMAT, Campus de Cáceres, Faculdade de Ciências Agrárias e Biológicas<br>
+  Semana de segunda a sábado. Material de estudo autônomo.
+</footer>
+
+</div>
+<script>
+function normalR(m,s){
+  let u=0,v=0;
+  while(u===0)u=Math.random();
+  while(v===0)v=Math.random();
+  return m+s*Math.sqrt(-2*Math.log(u))*Math.cos(2*Math.PI*v);
+}
+function media(a){return a.reduce(function(x,y){return x+y;},0)/a.length;}
+function logGama(x){
+  const c=[76.18009172947146,-86.50532032941677,24.01409824083091,
+           -1.231739572450155,0.1208650973866179e-2,-0.5395239384953e-5];
+  let y=x,tmp=x+5.5;
+  tmp-=(x+0.5)*Math.log(tmp);
+  let ser=1.000000000190015;
+  for(let j=0;j<6;j++)ser+=c[j]/++y;
+  return -tmp+Math.log(2.5066282746310005*ser/x);
+}
+function betacf(a,b,x){
+  const MAXIT=250,EPS=3e-14,FPMIN=1e-300;
+  let qab=a+b,qap=a+1,qam=a-1,c=1,d=1-qab*x/qap;
+  if(Math.abs(d)<FPMIN)d=FPMIN;
+  d=1/d;let h=d;
+  for(let m=1;m<=MAXIT;m++){
+    const m2=2*m;
+    let aa=m*(b-m)*x/((qam+m2)*(a+m2));
+    d=1+aa*d;if(Math.abs(d)<FPMIN)d=FPMIN;
+    c=1+aa/c;if(Math.abs(c)<FPMIN)c=FPMIN;
+    d=1/d;h*=d*c;
+    aa=-(a+m)*(qab+m)*x/((a+m2)*(qap+m2));
+    d=1+aa*d;if(Math.abs(d)<FPMIN)d=FPMIN;
+    c=1+aa/c;if(Math.abs(c)<FPMIN)c=FPMIN;
+    d=1/d;
+    const del=d*c;h*=del;
+    if(Math.abs(del-1)<EPS)break;
+  }
+  return h;
+}
+function betai(a,b,x){
+  if(x<=0)return 0;if(x>=1)return 1;
+  const bt=Math.exp(logGama(a+b)-logGama(a)-logGama(b)+a*Math.log(x)+b*Math.log(1-x));
+  return x<(a+1)/(a+b+2)?bt*betacf(a,b,x)/a:1-bt*betacf(b,a,1-x)/b;
+}
+function pF(F,gl1,gl2){
+  if(F<=0||!isFinite(F))return 1;
+  return betai(gl2/2,gl1/2,gl2/(gl2+gl1*F));
+}
+function fmtP(p){return p<0.001?'menor que 0,001':'igual a '+p.toFixed(4).replace('.',',');}
+function fmtPc(p){return p<0.001?'&lt;0,001':p.toFixed(4).replace('.',',');}
+function lerCaixa(id){
+  return document.getElementById(id).value.split(/[\n,;\t ]+/)
+    .map(function(s){return s.trim().replace(',','.');}).filter(function(s){return s!=='';})
+    .map(Number).filter(function(x){return !isNaN(x);});
+}
+
+/* ANOVA de duas vias balanceada, a niveis x b niveis x n replicas */
+function calcAnova2(cel,a,b,n){
+  const todos=[];
+  cel.forEach(function(c){c.forEach(function(v){todos.push(v);});});
+  const N=todos.length,mg=media(todos);
+  const mij=cel.map(media);
+  const mA=[],mB=[];
+  for(let i=0;i<a;i++){
+    let s=0;for(let j=0;j<b;j++)s+=mij[i*b+j];
+    mA.push(s/b);
+  }
+  for(let j=0;j<b;j++){
+    let s=0;for(let i=0;i<a;i++)s+=mij[i*b+j];
+    mB.push(s/a);
+  }
+  let sqA=0,sqB=0,sqAB=0,sqR=0;
+  for(let i=0;i<a;i++)sqA+=n*b*Math.pow(mA[i]-mg,2);
+  for(let j=0;j<b;j++)sqB+=n*a*Math.pow(mB[j]-mg,2);
+  for(let i=0;i<a;i++)for(let j=0;j<b;j++)
+    sqAB+=n*Math.pow(mij[i*b+j]-mA[i]-mB[j]+mg,2);
+  cel.forEach(function(c,k){
+    const m=mij[k];
+    c.forEach(function(v){sqR+=Math.pow(v-m,2);});
+  });
+  const glA=a-1,glB=b-1,glAB=(a-1)*(b-1),glR=a*b*(n-1);
+  const qmA=sqA/glA,qmB=sqB/glB,qmAB=sqAB/glAB,qmR=sqR/glR;
+  const sqT=sqA+sqB+sqAB+sqR;
+  return {mij:mij,mA:mA,mB:mB,mg:mg,N:N,
+    sqA:sqA,sqB:sqB,sqAB:sqAB,sqR:sqR,sqT:sqT,
+    glA:glA,glB:glB,glAB:glAB,glR:glR,
+    qmA:qmA,qmB:qmB,qmAB:qmAB,qmR:qmR,
+    fA:qmA/qmR,fB:qmB/qmR,fAB:qmAB/qmR,
+    pA:pF(qmA/qmR,glA,glR),pB:pF(qmB/qmR,glB,glR),pAB:pF(qmAB/qmR,glAB,glR),
+    etaA:sqA/sqT,etaB:sqB/sqT,etaAB:sqAB/sqT};
+}
+
+/* ATIVIDADE 1 */
+['ea','eb','ei','ed'].forEach(function(id){
+  document.getElementById(id).addEventListener('input',function(e){
+    document.getElementById(id+'Lab').textContent=e.target.value;montarInteracao();});});
+function montarInteracao(){
+  const ea=parseInt(document.getElementById('ea').value);
+  const eb=parseInt(document.getElementById('eb').value);
+  const ei=parseInt(document.getElementById('ei').value);
+  const ed=parseInt(document.getElementById('ed').value);
+  const n=6,a=3,b=2;
+  const cel=[];
+  const alvo=[];
+  for(let i=0;i<a;i++)for(let j=0;j<b;j++){
+    const base=8+ea*(a-1-i)/(a-1)*2+eb*(1-j);
+    const extra=ei*((i===1?1:0))*(j===0?1:-1);
+    const mu=base+extra;
+    alvo.push(mu);
+    const c=[];for(let r=0;r<n;r++)c.push(normalR(mu,ed));
+    cel.push(c);
+  }
+  const R=calcAnova2(cel,a,b,n);
+  const cv=document.getElementById('grafInt'),ctx=cv.getContext('2d');
+  const W=cv.width,H=cv.height,mEs=58,mD=26,mT=24,mB=54;
+  ctx.clearRect(0,0,W,H);ctx.fillStyle='#fff';ctx.fillRect(0,0,W,H);
+  const vals=R.mij.slice();
+  const lo=Math.min.apply(null,vals)-3,hi=Math.max.apply(null,vals)+3;
+  const px=function(i){return mEs+(i+0.5)*(W-mEs-mD)/a;};
+  const py=function(v){return H-mB-((v-lo)/(hi-lo||1))*(H-mT-mB);};
+  ctx.strokeStyle='#eef1f4';ctx.lineWidth=1;
+  for(let i=0;i<=4;i++){const yy=mT+i*(H-mT-mB)/4;
+    ctx.beginPath();ctx.moveTo(mEs,yy);ctx.lineTo(W-mD,yy);ctx.stroke();}
+  const cores=['#c62828','#0277bd'];
+  for(let j=0;j<b;j++){
+    ctx.strokeStyle=cores[j];ctx.lineWidth=3.4;ctx.beginPath();
+    for(let i=0;i<a;i++){
+      const x=px(i),y=py(R.mij[i*b+j]);
+      i===0?ctx.moveTo(x,y):ctx.lineTo(x,y);
+    }
+    ctx.stroke();
+    for(let i=0;i<a;i++){
+      ctx.fillStyle=cores[j];
+      ctx.beginPath();ctx.arc(px(i),py(R.mij[i*b+j]),8,0,2*Math.PI);ctx.fill();
+      ctx.strokeStyle='#fff';ctx.lineWidth=2.5;ctx.stroke();
+    }
+  }
+  ctx.strokeStyle='#95a1b0';ctx.lineWidth=1.6;
+  ctx.beginPath();ctx.moveTo(mEs,mT);ctx.lineTo(mEs,H-mB);ctx.lineTo(W-mD,H-mB);ctx.stroke();
+  ctx.fillStyle='#22272e';ctx.font='bold 13.5px sans-serif';ctx.textAlign='center';
+  ['horta','areia','jardim'].forEach(function(s,i){ctx.fillText(s,px(i),H-mB+24);});
+  ctx.fillStyle='#5a6472';ctx.font='13px sans-serif';ctx.textAlign='right';
+  for(let i=0;i<=4;i++){const v=hi-(hi-lo)*i/4;ctx.fillText(v.toFixed(1),mEs-9,mT+i*(H-mT-mB)/4+4);}
+  ctx.save();ctx.translate(16,(mT+H-mB)/2);ctx.rotate(-Math.PI/2);
+  ctx.textAlign='center';ctx.font='13.5px sans-serif';
+  ctx.fillText('Altura média, em centímetros',0,0);ctx.restore();
+  document.getElementById('tabInt').innerHTML=
+    '<div class="tabela-rolar"><table class="anova">'+
+    '<tr><th>Fonte</th><th class="num">gl</th><th class="num">QM</th><th class="num">F</th><th class="num">valor de p</th></tr>'+
+    '<tr><td>Solo</td><td class="num">'+R.glA+'</td><td class="num">'+R.qmA.toFixed(2)+'</td><td class="num">'+R.fA.toFixed(2)+'</td><td class="num">'+fmtPc(R.pA)+'</td></tr>'+
+    '<tr><td>Temperatura</td><td class="num">'+R.glB+'</td><td class="num">'+R.qmB.toFixed(2)+'</td><td class="num">'+R.fB.toFixed(2)+'</td><td class="num">'+fmtPc(R.pB)+'</td></tr>'+
+    '<tr><td><strong>Interação</strong></td><td class="num">'+R.glAB+'</td><td class="num destaq">'+R.qmAB.toFixed(2)+'</td><td class="num destaq">'+R.fAB.toFixed(2)+'</td><td class="num destaq">'+fmtPc(R.pAB)+'</td></tr>'+
+    '<tr><td>Resíduo</td><td class="num">'+R.glR+'</td><td class="num">'+R.qmR.toFixed(2)+'</td><td></td><td></td></tr>'+
+    '</table></div>';
+  const fb=document.getElementById('fbInt');
+  let m='';
+  if(ei===0){fb.className='feedback ok';
+    m='<strong>Interação zerada.</strong> As duas linhas estão paralelas, e a distância vertical entre elas é a mesma nos três solos. Isso quer dizer que o efeito da temperatura é o mesmo em qualquer solo. Repare que o valor de p da interação, '+fmtP(R.pAB)+', não é significativo, e que as linhas mesmo assim não ficaram perfeitamente paralelas. Elas nunca ficam, porque existe acaso. O teste responde justamente se o desvio do paralelismo é maior do que o acaso produziria.';}
+  else if(R.pAB<0.05){fb.className='feedback nao';
+    m='<strong>Interação significativa, com p '+fmtP(R.pAB)+'.</strong> Repare no solo do meio: a linha vermelha e a azul se afastam ali de um jeito que não acontece nos outros dois. O efeito da temperatura deixou de ser o mesmo em todos os solos. A partir daqui, os efeitos principais das duas primeiras linhas da tabela não podem mais ser lidos de forma direta. A conduta correta é analisar o efeito do solo dentro de cada temperatura, separadamente.';}
+  else{fb.className='feedback ok';
+    m='<strong>Você criou interação, mas ela ainda não foi detectada.</strong> O valor de p da interação ficou em '+R.pAB.toFixed(3).replace('.',',')+
+    '. As linhas já não estão paralelas no gráfico, e mesmo assim o teste não acusou. É o erro tipo II da Semana 4 acontecendo: com dispersão de '+ed+
+    ' e seis réplicas por combinação, o ruído engole o sinal da interação. Diminua a dispersão, ou aumente a interação, e veja o teste passar a detectar. Este é exatamente o motivo pelo qual a interação exige mais réplicas do que os efeitos principais.';}
+  fb.innerHTML=m;
+}
+montarInteracao();
+
+/* ATIVIDADE 2 */
+function exemplo2(){
+  document.getElementById('c11').value='14,2\n13,8\n15,1\n13,5\n14,6';
+  document.getElementById('c12').value='12,1\n11,8\n12,6\n12,0\n11,9';
+  document.getElementById('c21').value='9,1\n8,7\n9,6\n9,9\n8,4';
+  document.getElementById('c22').value='9,4\n9,8\n8,9\n9,2\n9,6';
+  document.getElementById('c31').value='12,5\n12,9\n11,8\n13,1\n12,2';
+  document.getElementById('c32').value='11,9\n12,3\n11,5\n12,1\n11,7';
+  anova2();
+}
+function anova2(){
+  const ids=['c11','c12','c21','c22','c31','c32'];
+  const cel=ids.map(lerCaixa);
+  const alvo=document.getElementById('saida2');
+  const tam=cel.map(function(c){return c.length;});
+  if(tam.some(function(t){return t<2;})){
+    alvo.innerHTML='<div class="feedback nao">Preencha as seis caixas com pelo menos dois valores em cada.</div>';return;}
+  if(Math.min.apply(null,tam)!==Math.max.apply(null,tam)){
+    alvo.innerHTML='<div class="feedback nao"><strong>Delineamento desbalanceado.</strong> As caixas têm '+
+      tam.join(', ')+' valores. Esta calculadora exige o mesmo número de réplicas em todas as combinações. '+
+      'Não é limitação de programação, é limitação conceitual: com réplicas desiguais os efeitos dos dois fatores ficam parcialmente confundidos e existem várias formas de repartir as somas de quadrados, que dão resultados diferentes. '+
+      'Se você perdeu unidades amostrais, declare isso no relatório e rode a análise no PAST 4, verificando qual método de soma de quadrados foi usado.</div>';return;}
+  const n=tam[0],a=3,b=2;
+  const R=calcAnova2(cel,a,b,n);
+  const nfa=document.getElementById('nfa').value||'fator A';
+  const nfb=document.getElementById('nfb').value||'fator B';
+  let linhasM='';
+  for(let i=0;i<a;i++){
+    linhasM+='<tr><td>Nível A'+(i+1)+'</td>';
+    for(let j=0;j<b;j++)linhasM+='<td class="num">'+R.mij[i*b+j].toFixed(2)+'</td>';
+    linhasM+='<td class="num destaq">'+R.mA[i].toFixed(2)+'</td></tr>';
+  }
+  let linhaB='<tr><td><strong>Média do nível</strong></td>';
+  for(let j=0;j<b;j++)linhaB+='<td class="num destaq">'+R.mB[j].toFixed(2)+'</td>';
+  linhaB+='<td class="num">'+R.mg.toFixed(2)+'</td></tr>';
+  alvo.innerHTML=
+    '<h3>Médias por combinação</h3>'+
+    '<div class="tabela-rolar"><table class="anova"><tr><th>'+nfa+'</th><th class="num">'+nfb+' B1</th><th class="num">'+nfb+' B2</th><th class="num">Média do nível</th></tr>'+
+    linhasM+linhaB+'</table></div>'+
+    '<h3>Tabela da ANOVA</h3>'+
+    '<div class="tabela-rolar"><table class="anova">'+
+    '<tr><th>Fonte de variação</th><th class="num">SQ</th><th class="num">gl</th><th class="num">QM</th><th class="num">F</th><th class="num">valor de p</th><th class="num">eta quadrado</th></tr>'+
+    '<tr><td>'+nfa+'</td><td class="num">'+R.sqA.toFixed(2)+'</td><td class="num">'+R.glA+'</td><td class="num">'+R.qmA.toFixed(2)+'</td><td class="num">'+R.fA.toFixed(2)+'</td><td class="num">'+fmtPc(R.pA)+'</td><td class="num">'+R.etaA.toFixed(3)+'</td></tr>'+
+    '<tr><td>'+nfb+'</td><td class="num">'+R.sqB.toFixed(2)+'</td><td class="num">'+R.glB+'</td><td class="num">'+R.qmB.toFixed(2)+'</td><td class="num">'+R.fB.toFixed(2)+'</td><td class="num">'+fmtPc(R.pB)+'</td><td class="num">'+R.etaB.toFixed(3)+'</td></tr>'+
+    '<tr><td><strong>Interação</strong></td><td class="num">'+R.sqAB.toFixed(2)+'</td><td class="num">'+R.glAB+'</td><td class="num destaq">'+R.qmAB.toFixed(2)+'</td><td class="num destaq">'+R.fAB.toFixed(2)+'</td><td class="num destaq">'+fmtPc(R.pAB)+'</td><td class="num">'+R.etaAB.toFixed(3)+'</td></tr>'+
+    '<tr><td>Resíduo</td><td class="num">'+R.sqR.toFixed(2)+'</td><td class="num">'+R.glR+'</td><td class="num">'+R.qmR.toFixed(2)+'</td><td></td><td></td><td></td></tr>'+
+    '<tr><td>Total</td><td class="num">'+R.sqT.toFixed(2)+'</td><td class="num">'+(R.N-1)+'</td><td></td><td></td><td></td><td></td></tr>'+
+    '</table></div>'+
+    (R.pAB<0.05?
+      '<div class="feedback nao"><strong>A interação é significativa, com p '+fmtP(R.pAB)+'. Leia a interação primeiro.</strong> '+
+      'Isso significa que o efeito de '+nfa+' depende do nível de '+nfb+'. As duas primeiras linhas da tabela, dos efeitos principais, não devem ser interpretadas isoladamente, mesmo que os valores de p delas sejam baixos ou altos. '+
+      'A conduta correta é a análise de efeitos simples: rode uma ANOVA de uma via de '+nfa+' apenas dentro do nível B1, e outra apenas dentro do nível B2, e relate as duas. '+
+      '<br><br><strong>Frase de relato.</strong> A resposta foi afetada pela interação entre '+nfa+' e '+nfb+', F igual a '+R.fAB.toFixed(2)+
+      ' com '+R.glAB+' e '+R.glR+' graus de liberdade, valor de p '+fmtP(R.pAB)+'. Os efeitos principais não são interpretados isoladamente em razão da interação.</div>'
+      :'<div class="feedback ok"><strong>A interação não é significativa, com p '+fmtP(R.pAB)+'. A leitura fica simples.</strong> '+
+      'O efeito de cada fator pode ser interpretado separadamente, porque eles se somam. '+
+      (R.pA<0.05?'O fator '+nfa+' afetou a resposta. ':'O fator '+nfa+' não apresentou efeito detectável. ')+
+      (R.pB<0.05?'O fator '+nfb+' também afetou a resposta. ':'O fator '+nfb+' não apresentou efeito detectável. ')+
+      '<br><br><strong>Frase de relato.</strong> Não houve interação entre '+nfa+' e '+nfb+', F igual a '+R.fAB.toFixed(2)+
+      ' com '+R.glAB+' e '+R.glR+' graus de liberdade, valor de p '+fmtP(R.pAB)+'. '+
+      nfa+': F igual a '+R.fA.toFixed(2)+' com '+R.glA+' e '+R.glR+' graus de liberdade, valor de p '+fmtP(R.pA)+'. '+
+      nfb+': F igual a '+R.fB.toFixed(2)+' com '+R.glB+' e '+R.glR+' graus de liberdade, valor de p '+fmtP(R.pB)+'.</div>');
+}
+exemplo2();
+
+/* ATIVIDADE 3 */
+const quadros=[
+ {t:"Horta no quente 14,0 e no fresco 12,0. Areia no quente 9,0 e no fresco 7,0.",
+  r:"Sem interação",
+  j:"O calor acrescenta 2,0 centímetros nos dois solos. O efeito da temperatura é o mesmo em qualquer solo, então as linhas ficariam paralelas."},
+ {t:"Horta no quente 14,0 e no fresco 12,0. Areia no quente 7,0 e no fresco 10,0.",
+  r:"Com interação",
+  j:"O calor ajuda um solo em 2,0 e prejudica o outro em 3,0. O efeito muda de direção, o que caracteriza interação cruzada. Repare que o efeito principal da temperatura sairia quase zero, o que esconderia completamente o que está acontecendo."},
+ {t:"Bexiga a 30 graus com pouco açúcar 12 cm, com muito açúcar 18 cm. A 20 graus com pouco açúcar 8 cm, com muito açúcar 14 cm.",
+  r:"Sem interação",
+  j:"O açúcar acrescenta 6 centímetros nas duas temperaturas, e a temperatura acrescenta 4 nas duas concentrações. Os efeitos se somam, sem depender um do outro."},
+ {t:"Bexiga a 30 graus com pouco açúcar 12 cm, com muito açúcar 22 cm. A 20 graus com pouco açúcar 10 cm, com muito açúcar 12 cm.",
+  r:"Com interação",
+  j:"O açúcar acrescenta 10 centímetros no calor e apenas 2 no fresco. O efeito existe nos dois casos e com intensidades muito diferentes, então as linhas teriam inclinações distintas sem se cruzar."},
+ {t:"Asfalto ao meio-dia 48 graus e às 18 horas 34. Grama ao meio-dia 33 e às 18 horas 29.",
+  r:"Com interação",
+  j:"O horário derruba a temperatura em 14 graus no asfalto e em apenas 4 na grama. A superfície muda o tamanho do efeito do horário, o que é interação."},
+ {t:"Ovos brancos da granja A com 58 g e da granja B com 62 g. Ovos marrons da granja A com 61 g e da granja B com 65 g.",
+  r:"Sem interação",
+  j:"A granja B acrescenta 4 gramas nas duas cores, e a cor marrom acrescenta 3 gramas nas duas granjas. Efeitos aditivos, linhas paralelas."}
+];
+let respInt=0;
+(function(){
+  const c=document.getElementById('quizInt');
+  quadros.forEach(function(k,i){
+    const d=document.createElement('div');d.className='caso';
+    d.innerHTML='<div class="n">Quadro '+(i+1)+'</div><p style="margin-bottom:10px">'+k.t+'</p>'+
+      '<div class="opcoes">'+
+      '<button class="opcao" onclick="respI('+i+',\'Sem interação\',this)">Sem interação</button>'+
+      '<button class="opcao" onclick="respI('+i+',\'Com interação\',this)">Com interação</button>'+
+      '</div><div class="feedback" id="fbi'+i+'"></div>';
+    c.appendChild(d);
+  });
+})();
+function respI(i,esc,btn){
+  const pai=btn.parentElement;
+  if(pai.dataset.feito)return;pai.dataset.feito='1';
+  Array.from(pai.children).forEach(function(b){b.disabled=true;});
+  const fb=document.getElementById('fbi'+i),certo=quadros[i].r;
+  if(esc===certo){btn.classList.add('certa');fb.className='feedback ok';
+    fb.innerHTML='<strong>Correto.</strong> '+quadros[i].j;}
+  else{btn.classList.add('errada');
+    Array.from(pai.children).forEach(function(b){if(b.textContent===certo)b.classList.add('certa');});
+    fb.className='feedback nao';fb.innerHTML='<strong>Não é isso.</strong> '+quadros[i].j;}
+  respInt++;
+  document.getElementById('placarInt').textContent='Respondidas: '+respInt+' de 6';
+}
+
+/* ATIVIDADE 4 */
+const condutas=[
+ {t:"A interação deu p igual a 0,002. O efeito principal da temperatura deu p igual a 0,71. O grupo escreveu que a temperatura não afetou a altura.",
+  o:["Conduta correta, o valor de p da temperatura é alto","Conduta errada, com interação significativa o efeito principal não tem leitura direta",
+     "Conduta correta se o gráfico for apresentado","Conduta errada, deveria ter usado ANOVA de uma via"],
+  c:1,
+  j:"É o erro mais comum do assunto. A temperatura pode ter efeito forte em direções opostas conforme o solo, e a média dos dois efeitos se cancela. Dizer que ela não afetou é o oposto da verdade."},
+ {t:"A interação não foi significativa, com p igual a 0,58. O grupo interpretou os dois efeitos principais separadamente e aplicou Tukey no fator com três níveis.",
+  o:["Conduta correta","Conduta errada, nunca se aplica Tukey em delineamento fatorial",
+     "Conduta errada, deveria analisar efeitos simples","Conduta correta apenas se o delineamento for desbalanceado"],
+  c:0,
+  j:"Sem interação, os efeitos se somam e podem ser lidos isoladamente. O post hoc no fator com três ou mais níveis é exatamente o procedimento da Semana 8."},
+ {t:"O grupo perdeu dois vasos e ficou com 5, 5, 5, 5, 3 e 4 réplicas nas seis combinações. Rodou a ANOVA sem comentar nada no relatório.",
+  o:["Sem problema, a ANOVA tolera qualquer desbalanceamento","Problema, o desbalanceamento precisa ser declarado e o método de soma de quadrados verificado",
+     "Problema, deveria descartar todos os grupos","Sem problema, desde que a interação não seja significativa"],
+  c:1,
+  j:"Com réplicas desiguais os efeitos ficam parcialmente confundidos e existem métodos diferentes de repartir as somas de quadrados, com resultados diferentes. Isso precisa estar no relatório."},
+ {t:"O grupo rodou duas ANOVAs de uma via, uma para solo e outra para temperatura, em vez de uma de duas vias.",
+  o:["Equivalente, dá o mesmo resultado","Perde a interação, que é a única pergunta que a análise separada não responde",
+     "Errado, porque infla o erro tipo I","Correto, é mais simples de interpretar"],
+  c:1,
+  j:"Além de perder a interação, a análise separada joga a variação do outro fator para dentro do resíduo, o que aumenta o ruído e reduz a capacidade de detectar qualquer efeito."},
+ {t:"A interação foi significativa. O grupo rodou uma ANOVA de uma via do solo apenas nas plantas do ambiente quente e outra apenas nas do fresco, relatando as duas.",
+  o:["Conduta errada, isso duplica o erro tipo I","Conduta correta, é a análise de efeitos simples",
+     "Conduta errada, deveria descartar a interação","Conduta correta apenas com quatro ou mais níveis"],
+  c:1,
+  j:"É exatamente o procedimento indicado quando a interação é significativa. Analisa-se o efeito de um fator dentro de cada nível do outro."},
+ {t:"O relatório informa apenas os dois efeitos principais e omite a linha da interação, que não foi significativa.",
+  o:["Correto, resultado não significativo não precisa ser relatado","Incorreto, a ausência de interação é o que autoriza ler os efeitos principais de forma direta",
+     "Correto, para não confundir o leitor","Incorreto, porque a interação sempre é significativa em fatorial"],
+  c:1,
+  j:"Omitir a interação esconde do leitor a informação que justifica a leitura simples dos efeitos principais. Ela é relatada mesmo quando não é significativa."}
+];
+let respCond=0;
+(function(){
+  const c=document.getElementById('quizCond');
+  condutas.forEach(function(k,i){
+    const d=document.createElement('div');d.className='caso';
+    const bts=k.o.map(function(op,j){
+      return '<button class="opcao" style="flex:1 1 100%;text-align:left" onclick="respC('+i+','+j+',this)">'+op+'</button>';}).join('');
+    d.innerHTML='<div class="n">Situação '+(i+1)+'</div><p style="margin-bottom:10px">'+k.t+'</p>'+
+      '<div class="opcoes" style="flex-direction:column">'+bts+'</div>'+
+      '<div class="feedback" id="fbc'+i+'"></div>';
+    c.appendChild(d);
+  });
+})();
+function respC(i,j,btn){
+  const pai=btn.parentElement;
+  if(pai.dataset.feito)return;pai.dataset.feito='1';
+  Array.from(pai.children).forEach(function(b){b.disabled=true;});
+  const fb=document.getElementById('fbc'+i);
+  if(j===condutas[i].c){btn.classList.add('certa');fb.className='feedback ok';
+    fb.innerHTML='<strong>Correto.</strong> '+condutas[i].j;}
+  else{btn.classList.add('errada');pai.children[condutas[i].c].classList.add('certa');
+    fb.className='feedback nao';fb.innerHTML='<strong>Não é isso.</strong> '+condutas[i].j;}
+  respCond++;
+  document.getElementById('placarCond').textContent='Respondidas: '+respCond+' de 6';
+}
+
+/* AUTOAVALIACAO */
+const perguntas=[
+ {p:"O que significa haver interação entre dois fatores?",
+  o:["Que os dois fatores são significativos","Que o efeito de um fator depende do nível do outro",
+     "Que os dois fatores estão correlacionados","Que o delineamento é desbalanceado"],
+  c:1,
+  j:"É a definição exata. Não existe uma resposta única sobre o efeito de um fator, porque a resposta muda conforme o nível do outro."},
+ {p:"No gráfico de interação, o que indica ausência de interação?",
+  o:["Linhas que se cruzam","Linhas aproximadamente paralelas",
+     "Linhas com inclinações muito diferentes","Pontos muito dispersos"],
+  c:1,
+  j:"Paralelismo significa que a distância vertical entre as linhas é a mesma em todos os níveis, ou seja, o efeito de um fator não muda conforme o outro."},
+ {p:"Quantos testes uma ANOVA de duas vias devolve?",
+  o:["Um","Dois, um para cada fator","Três, dois efeitos principais e a interação","Quatro, incluindo o resíduo"],
+  c:2,
+  j:"Cada uma das três fontes explicadas gera o próprio F, sempre dividida pelo mesmo quadrado médio do resíduo."},
+ {p:"A interação foi significativa e o efeito principal de um fator deu p igual a 0,80. Qual é a leitura correta?",
+  o:["O fator não teve efeito","O efeito principal não tem leitura direta, e é preciso analisar efeitos simples",
+     "O resultado é contraditório e a análise deve ser refeita","O fator só tem efeito no nível mais alto do outro"],
+  c:1,
+  j:"O efeito médio pode ser próximo de zero porque efeitos opostos se cancelam. Concluir ausência de efeito nesse cenário é o erro mais comum do assunto."},
+ {p:"Por que o delineamento balanceado é preferível no fatorial?",
+  o:["Porque facilita a digitação","Porque com réplicas iguais os efeitos dos fatores não ficam confundidos e a soma de quadrados se reparte de forma única",
+     "Porque aumenta o número de graus de liberdade","Porque elimina a necessidade de verificar pressupostos"],
+  c:1,
+  j:"Com desbalanceamento existem várias formas de repartir as somas de quadrados, que produzem resultados diferentes, e a escolha precisa ser declarada."},
+ {p:"Por que a interação costuma exigir mais réplicas do que os efeitos principais?",
+  o:["Porque tem mais graus de liberdade no numerador","Porque o efeito de interação costuma ser menor e é mais difícil de destacar do ruído",
+     "Porque depende de dois fatores ao mesmo tempo","Porque exige distribuição normal mais rigorosa"],
+  c:1,
+  j:"Um experimento dimensionado apenas para os efeitos principais frequentemente não tem poder para detectar a interação, e o resultado não significativo pode ser apenas erro tipo II."}
+];
+let respFinal=0;
+(function(){
+  const c=document.getElementById('quizFinal');
+  perguntas.forEach(function(q,i){
+    const d=document.createElement('div');d.className='caso';
+    const botoes=q.o.map(function(op,j){
+      return '<button class="opcao" style="flex:1 1 100%;text-align:left" onclick="respFF('+i+','+j+',this)">'+op+'</button>';}).join('');
+    d.innerHTML='<div class="n">Questão '+(i+1)+'</div><p style="margin-bottom:10px"><strong>'+q.p+'</strong></p>'+
+      '<div class="opcoes" style="flex-direction:column">'+botoes+'</div>'+
+      '<div class="feedback" id="fbq'+i+'"></div>';
+    c.appendChild(d);
+  });
+})();
+function respFF(i,j,btn){
+  const pai=btn.parentElement;
+  if(pai.dataset.feito)return;pai.dataset.feito='1';
+  Array.from(pai.children).forEach(function(b){b.disabled=true;});
+  const fb=document.getElementById('fbq'+i);
+  if(j===perguntas[i].c){btn.classList.add('certa');fb.className='feedback ok';
+    fb.innerHTML='<strong>Correto.</strong> '+perguntas[i].j;}
+  else{btn.classList.add('errada');pai.children[perguntas[i].c].classList.add('certa');
+    fb.className='feedback nao';fb.innerHTML='<strong>Não é isso.</strong> '+perguntas[i].j;}
+  respFinal++;
+  document.getElementById('placarFinal').textContent='Respondidas: '+respFinal+' de 6';
+}
+</script>
+</body>
+</html>
